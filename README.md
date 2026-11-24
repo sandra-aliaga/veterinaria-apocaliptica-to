@@ -56,6 +56,71 @@ destructores declarados en las cabeceras de sus módulos. Si una cabecera
 compartida necesita un cambio, revisarlo con quienes la consumen antes de
 integrarlo.
 
+## Ramas, CI y entregas
+
+| Cambio | Flujo |
+|---|---|
+| Funcionalidad o corrección | Crear la rama desde `develop` y abrir un PR hacia `develop`. |
+| Versión estable | Abrir un PR desde `develop` hacia `main`. |
+| Entrega de staging | Al entrar un cambio a `develop` y pasar el CI, se genera el paquete del entorno `staging`. |
+| Entrega de producción | Al entrar un cambio a `main` y pasar el CI, se genera el paquete del entorno `production`. |
+
+El [workflow](.github/workflows/ci-cd.yml) ejecuta el CI en Linux y Windows.
+El check **Verificar integración** requiere que pasen ambos sistemas y que
+los PR hacia `main` vengan de `develop` de este mismo repositorio. En
+GitHub, configura una regla para `develop` y `main` que exija PR y el
+check **Verificar integración** para evitar pushes directos.
+
+Para ejecutar las comprobaciones actuales desde la raíz, usa Python 3 y un
+compilador GCC o Clang:
+
+```bash
+python pruebas/verificar_base.py
+```
+
+La prueba compila cada cabecera por separado en C++17 con advertencias como
+errores, valida los identificadores y cantidades del JSON de ejemplo y de las
+fichas reales, y comprueba las rutas de los enlaces locales en los README. El
+CI verifica también el formato C++ con `clang-format`.
+
+Los paquetes aparecen en **Actions → ejecución → Artifacts**, identificados
+por `staging` o `production` y por el commit. El paquete actual es un ZIP de
+las fuentes versionadas. Con el `.pro` del juego, el rol 5 deberá añadir al CI
+la compilación con qmake y el empaquetado del ejecutable con sus recursos.
+
+### Formato antes del commit
+
+Instala `clang-format` y activa el [hook](.githooks/pre-commit) una vez por clon:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+El hook comprueba la versión preparada con `git add`. Si marca un archivo,
+aplica `clang-format -i ruta/al/archivo.cpp` y vuelve a pasarlo a `git add`.
+Para revisar todos los archivos C++ desde Git Bash o Linux:
+
+```bash
+git ls-files -z -- '*.h' '*.hpp' '*.c' '*.cc' '*.cpp' '*.cxx' |
+  xargs -0 clang-format --dry-run --Werror
+```
+
+## Cierre técnico según la guía del Lab 10
+
+- **Estructura y compilación.** Mantener un único `.pro` para abrir el juego
+  en Qt Creator. La entrega final separará las cabeceras en `include/` y los
+  `.cpp` en `src/`. Actualmente las cabeceras están en `src/` y el equipo
+  todavía debe implementar y probar el programa completo.
+- **Pruebas del juego.** Cuando se agregue el ejecutable, comprobar la cola
+  vacía y el orden de fichas, un caso rechazado, el regreso al recoger el
+  último suministro, el reintento por fallo y el cobro único. Probar también
+  que Esc congele la misión y el reloj.
+- **Informe y exposición.** Preparar el PDF con introducción, análisis del
+  problema, conceptos aplicados, patrones justificados y conclusiones.
+  Preparar cinco o seis diapositivas y una demo en vivo. Poner el enlace de
+  GitHub en la portada del informe y en la primera diapositiva. Los UML
+  existentes sirven de apoyo para explicar el diseño.
+
 ## Pantalla de la clínica
 
 La clínica se presenta como una escena de novela visual. El dueño y la mascota

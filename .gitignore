@@ -1,0 +1,4 @@
+/build/
+/entrega/
+__pycache__/
+*.pro.user*

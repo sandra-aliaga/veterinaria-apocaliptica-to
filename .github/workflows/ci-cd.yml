@@ -1,0 +1,103 @@
+name: CI y CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUTF8: '1'
+
+jobs:
+  validar:
+    name: Validar en ${{ matrix.plataforma }}
+    runs-on: ${{ matrix.imagen }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - plataforma: Linux
+            imagen: ubuntu-24.04
+          - plataforma: Windows
+            imagen: windows-2025
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Comprobar cabeceras, fichas y README
+        run: python pruebas/verificar_base.py
+
+      - name: Verificar formato C++
+        if: ${{ matrix.plataforma == 'Linux' }}
+        shell: bash
+        run: |
+          if ! command -v clang-format >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y clang-format
+          fi
+          git ls-files -z -- '*.h' '*.hpp' '*.c' '*.cc' '*.cpp' '*.cxx' \
+            | xargs -0 -r clang-format --dry-run --Werror
+
+  verificar:
+    name: Verificar integración
+    needs: validar
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Comprobar CI y rama de origen
+        shell: bash
+        env:
+          VALIDACION: ${{ needs.validar.result }}
+          EVENTO: ${{ github.event_name }}
+          DESTINO: ${{ github.base_ref }}
+          ORIGEN: ${{ github.head_ref }}
+          REPOSITORIO_ORIGEN: ${{ github.event.pull_request.head.repo.full_name }}
+          REPOSITORIO: ${{ github.repository }}
+        run: |
+          if [[ "$VALIDACION" != success ]]; then
+            echo "::error::La validación debe pasar en Linux y Windows."
+            exit 1
+          fi
+          if [[ "$EVENTO" == pull_request && "$DESTINO" == main ]]; then
+            if [[ "$ORIGEN" != develop || "$REPOSITORIO_ORIGEN" != "$REPOSITORIO" ]]; then
+              echo "::error::Promueve a main desde develop del mismo repositorio."
+              exit 1
+            fi
+          fi
+
+  entregar:
+    name: Entregar ${{ github.ref_name == 'develop' && 'staging' || 'production' }}
+    needs: verificar
+    if: ${{ github.event_name == 'push' && (github.ref_name == 'develop' || github.ref_name == 'main') }}
+    runs-on: ubuntu-24.04
+    environment:
+      name: ${{ github.ref_name == 'develop' && 'staging' || 'production' }}
+    env:
+      CANAL: ${{ github.ref_name == 'develop' && 'staging' || 'production' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Preparar el paquete de la base
+        run: |
+          mkdir -p entrega
+          git archive --format=zip --prefix=veterinaria/ --output=entrega/fuentes.zip HEAD
+
+      - name: Publicar paquete del canal
+        uses: actions/upload-artifact@v7
+        with:
+          name: veterinaria-${{ env.CANAL }}-${{ github.sha }}
+          path: entrega/
+          if-no-files-found: error
+          retention-days: 30
