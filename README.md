@@ -14,6 +14,35 @@ Esta base contiene contratos C++ en cabeceras `.h` y documentación. El equipo
 implementará los `.cpp`, los archivos JSON, los recursos y la compilación del
 juego. Raylib se usará desde la vista.
 
+## Abrir en Qt Creator
+
+1. En Qt Creator, abre [veterinaria.pro](veterinaria.pro) y selecciona un kit
+   de escritorio Qt 5 o Qt 6 con un compilador que soporte C++17.
+2. Cada rol añade sus `.cpp` en `src/`. El proyecto toma las cabeceras de
+   `src/` y también admite `include/` para la estructura de entrega.
+3. El rol 5 añade `src/main.cpp` como punto de entrada. En la configuración
+   de ejecución, usa la raíz del repositorio como directorio de trabajo para
+   que las rutas `arte/` y `datos/` se resuelvan desde ahí.
+
+Con solo cabeceras, qmake prepara el proyecto. Si hay `.cpp` y aún falta
+`src/main.cpp`, compila una biblioteca estática para comprobar los módulos.
+Cuando se agregue `src/main.cpp`, compila el ejecutable `veterinaria` en la
+carpeta `bin/` del directorio de compilación.
+
+En Linux se puede configurar y compilar también desde la raíz:
+
+```bash
+mkdir -p build/qt
+(cd build/qt && qmake ../../veterinaria.pro && make)
+```
+
+Usa `qmake6` en ese comando si tu kit es de Qt 6. Al añadir la vista en
+raylib, agrega `CONFIG+=usar_raylib` a los argumentos de qmake. En Linux la
+biblioteca debe ser visible con `pkg-config --exists raylib`. En Windows
+define `RAYLIB_DIR` con la ruta de la distribución de raylib para tu kit.
+Debe contener `include/raylib.h` y `lib/libraylib.a` para MinGW o
+`lib/raylib.lib` para MSVC.
+
 ## Arquitectura MVC
 
 | Parte | Responsabilidad |
@@ -85,8 +114,8 @@ CI verifica también el formato C++ con `clang-format`.
 
 Los paquetes aparecen en **Actions → ejecución → Artifacts**, identificados
 por `staging` o `production` y por el commit. El paquete actual es un ZIP de
-las fuentes versionadas. Con el `.pro` del juego, el rol 5 deberá añadir al CI
-la compilación con qmake y el empaquetado del ejecutable con sus recursos.
+las fuentes versionadas. Cuando `veterinaria.pro` pueda generar el ejecutable
+del juego, el rol 5 añadirá al CI su compilación y empaquetado con los recursos.
 
 ### Formato antes del commit
 
@@ -107,7 +136,7 @@ git ls-files -z -- '*.h' '*.hpp' '*.c' '*.cc' '*.cpp' '*.cxx' |
 
 ## Cierre técnico según la guía del Lab 10
 
-- **Estructura y compilación.** Mantener un único `.pro` para abrir el juego
+- **Estructura y compilación.** Abrir el proyecto único `veterinaria.pro`
   en Qt Creator. La entrega final separará las cabeceras en `include/` y los
   `.cpp` en `src/`. Actualmente las cabeceras están en `src/` y el equipo
   todavía debe implementar y probar el programa completo.
