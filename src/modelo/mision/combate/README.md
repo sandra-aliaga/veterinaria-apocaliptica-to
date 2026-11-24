@@ -1,9 +1,18 @@
-# Combate
+# Rol 4 · Combate
 
 El frente de combate recibe un terreno y solicitudes de aparición. Implementa
 `VeterinarioJugable`, que conserva posición, vida, velocidad y orientación.
 Combate resuelve el movimiento, las colisiones y el daño. Puede probarlos con
 un terreno fijo y una oleada de ejemplo.
+
+## Entrega a la misión
+
+| Operación de [`Combate`](combate.h) | Qué debe hacer |
+|---|---|
+| `iniciar(terreno)` | Colocar al veterinario en el inicio, restaurar su vida, limpiar enemigos y proyectiles y reiniciar el arma. |
+| `agregar_enemigo(aparicion)` | Crear el enemigo del tipo y la posición indicados por el rol 2. |
+| `actualizar(direccion, segundos)` | Mover al jugador, resolver el terreno, ejecutar estrategias, aplicar ataques y retirar las entidades eliminadas. |
+| `estado()` | Exponer posición, vida y movimiento del veterinario, estado de cada enemigo y posiciones de proyectiles. |
 
 ## Arma automática
 
@@ -37,3 +46,14 @@ dibujar sprites distintos aunque dos enemigos se comporten de forma parecida.
 El combate entrega el estado final de cada cuadro. La misión consulta este
 estado para resolver el fallo y, si el veterinario sigue vivo, la recolección
 de suministros.
+
+## Prueba independiente
+
+1. Usa un terreno con un obstáculo y dos apariciones manuales. Verifica que el
+   jugador respete los límites y que al detenerse mantenga la última orientación.
+2. Acerca un enemigo de contacto al veterinario y comprueba el daño y la
+   recarga del arma. Si hay dos objetivos en contacto, verifica que el arma
+   seleccione al más cercano y solo golpee a uno por intervalo.
+3. Coloca un superviviente a distancia y verifica que mantenga distancia y
+   genere proyectiles. Comprueba que retirarlos y volver a iniciar el combate
+   deje el estado listo para otro intento.

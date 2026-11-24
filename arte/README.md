@@ -38,3 +38,22 @@ con una subcarpeta por tipo: `animal_de_contacto/`, `superviviente_de_contacto/`
 y `superviviente_a_distancia/`. Usar la misma cuadrícula y el mismo punto de apoyo
 en ambos lados para que la figura no salte al girar. Para el reposo se puede
 usar un fotograma de la hoja del lado correspondiente.
+
+## Entrega para el rol 5
+
+| Primera tanda | Qué entregar |
+|---|---|
+| Clínica | Fondo fijo, sprites de los dos dueños y retratos de las dos mascotas con las rutas usadas en `datos/`. |
+| Misión | Hojas izquierda y derecha del veterinario y del animal de contacto, suelo y un PNG por suministro del primer caso. |
+| Resto de la demo | Hojas de los dos supervivientes y recursos que falten para la segunda ficha. |
+
+Junto a cada hoja de sprites, indicar tamaño de cada fotograma, cantidad de
+fotogramas y cuál se usa en reposo. El rol 5 puede usar figuras provisionales
+mientras recibe las hojas. Comprueben juntos que el veterinario y el suministro
+se distinguen cuando la horda los rodea.
+
+El rol 3 prepara el flujo por lote en ComfyUI para Windows. El comando
+previsto es `py arte/generar_sprites.py`, después de instalar ComfyUI y el
+modelo una vez. El flujo debe leer la lista de recursos, generar variantes y
+ordenar los PNG por personaje u objeto. Documentar la instalación y el
+comando cuando estén probados. El juego carga los PNG aprobados.

@@ -1,8 +1,13 @@
-# Vista
+# Rol 5 · Vista en raylib
 
 La vista entrega la entrada al controlador y dibuja a partir de
 `EstadoPantalla`. La clínica sigue la composición de una novela visual y
 usa una ficha de examen para revisar el caso antes de decidir.
+
+Implementar [`Vista`](vista.h) con dos pantallas, clínica y misión. La vista
+convierte botones y teclas en `EntradaCuadro` y dibuja `EstadoPantalla`. Lee
+de ahí la ficha, el diálogo, el saldo, el tiempo y las acciones válidas.
+Usa los PNG que entregue el rol 3 con los tamaños de fotograma acordados.
 
 ## Clínica
 
@@ -65,6 +70,10 @@ dibuja la escena y la capa del fundido con `opacidad_fundido`. Luego se
 dibuja el menú encima si está abierto. La vista puede recibir eventos de la
 misión para reproducir sonidos.
 
-Para empezar, probar la clínica con una ficha de ejemplo en las fases de
-llegada, antes del examen y resultado del examen. Usar figuras provisionales
-para el dueño y la mascota mientras se preparan los sprites.
+## Prueba independiente
+
+Prepara estados de ejemplo para llegada, antes del examen y resultado del
+examen. Usa figuras provisionales para el dueño y la mascota. Comprueba que
+el panel lateral aparezca solo al examinar, que muestre las cantidades de la
+ficha y que los botones generen la acción correcta. Prueba también un estado
+de misión con tiempo, enemigos, suministros parciales y un menú abierto.

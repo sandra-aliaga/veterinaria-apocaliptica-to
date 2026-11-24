@@ -64,3 +64,11 @@ archivos por nombre para tener un orden de llegada reproducible. Por ejemplo,
 Para añadir otro caso con una mascota y un dueño nuevos, agregar su ficha y los
 PNG correspondientes. Si la ficha tiene errores, el catálogo informa qué
 archivo y qué dato hay que corregir.
+
+## Casos para la demo
+
+El rol 3 prepara `01_mora.json` para la gata y `02_toby.json` para el perro.
+Usar el ejemplo de Mora con dos vendas y un antiséptico. Toby puede pedir
+solo un tipo. Mantener las mismas claves de suministro entre ambas fichas,
+el mapa y el HUD. Entregar también las rutas definitivas de los retratos
+y los sprites de los dueños.

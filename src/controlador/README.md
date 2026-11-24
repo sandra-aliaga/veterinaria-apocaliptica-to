@@ -1,4 +1,4 @@
-# Controlador
+# Rol 5 · Controlador e integración
 
 El quinto frente implementa el controlador y conecta los módulos en el futuro
 `main.cpp`. Al iniciar, carga las fichas del catálogo, las entrega al
@@ -6,6 +6,19 @@ consultorio y construye la misión con el planificador y el combate. Combate
 recibe la fábrica de enemigos y posee el arma. El controlador recibe el
 consultorio, la misión y la fábrica de mascotas mediante sus contratos. La
 vista conoce la entrada y el estado de pantalla.
+
+## Entrega
+
+Implementar [el controlador](controlador.h), los comandos y el arranque del
+juego. Implementar también [la vista en raylib](../vista/README.md). En el
+arranque, mostrar los errores que informe el catálogo y encolar las fichas
+válidas en el orden recibido. Dejar documentado cómo compilar y ejecutar el
+proyecto en Windows y Linux al integrar los módulos.
+
+En cada cuadro, leer `EntradaCuadro` desde la vista, actualizar el
+controlador y dibujar su `EstadoPantalla` antes de volver a modificarlo.
+Para empezar, reemplazar `Consultorio` y `Mision` por versiones simuladas
+que devuelvan una ficha, un objetivo y un resultado conocidos.
 
 ## Entrada y comandos
 
@@ -64,6 +77,14 @@ reproducir sonidos al recoger o completar. El controlador coordina la
 transición usando el resultado de la misión y el HUD lee el progreso del
 estado de pantalla.
 
-Probar con dobles de los módulos y verificar que aceptar y rechazar solo se
-habiliten después de examinar, que el resultado se registre una vez, que Esc
-pause y que los personajes sigan visibles durante el último diálogo.
+## Prueba independiente
+
+1. Con un consultorio simulado, recorre llegada, examen y aceptación.
+   Verifica que aceptar y rechazar solo aparezcan después de examinar.
+2. Haz que la misión simulada termine con éxito. Comprueba que la clínica
+   registre el resultado una vez y conserve a los personajes hasta el
+   último diálogo.
+3. Simula un fallo y verifica que el motivo se muestre y que reintentar
+   empiece otro intento con la misma propuesta.
+4. Pulsa Esc durante una misión y durante el fundido. Comprueba que se
+   congelen ambos y que continúen al reanudar.

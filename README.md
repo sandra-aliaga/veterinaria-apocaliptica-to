@@ -24,17 +24,37 @@ juego. Raylib se usará desde la vista.
 
 ## Reparto entre cinco personas
 
-| Frente | Primera tarea independiente |
-|---|---|
-| 1. [Consultorio](src/modelo/clinica/README.md) | Implementar la cola y el flujo de clínica con fichas creadas a mano. Probar con resultados de misión simulados. |
-| 2. [Mapa y misión](src/modelo/mision/mapa/README.md) | Diseñar un escenario, ubicar suministros y programar oleadas. Probar la recolección y el fin del intento con un combate simulado. |
-| 3. [Catálogo](src/modelo/catalogo/README.md) | Definir dos fichas y cargar sus JSON con dueño, diálogos y suministros. Verificar la carga en consola. |
-| 4. [Combate](src/modelo/mision/combate/README.md) | Implementar jugador, arma y enemigos. Probar el movimiento con terreno fijo y apariciones manuales. |
-| 5. Controlador y vista | Dibujar las pantallas con estados de ejemplo y probar las transiciones con un consultorio y una misión simulados. |
+| Rol | Entrega | Primera prueba independiente |
+|---|---|---|
+| **1. [Consultorio](src/modelo/clinica/README.md)** | Cola propia, caso activo, reintento, tratamiento y cobro. | Crear dos fichas en C++ y cerrar un caso con un resultado simulado. |
+| **2. [Mapa](src/modelo/mision/mapa/README.md) y [misión](src/modelo/mision/README.md)** | Terreno, oleadas, objetivos, reloj, recolección y resultado del intento. | Usar un combate simulado. Mover su posición hasta los suministros y verificar el resultado. |
+| **3. [Catálogo](src/modelo/catalogo/README.md) y [arte](arte/README.md)** | Fábrica de mascotas, dos [fichas JSON](datos/README.md) y los PNG para la vista. | Cargar fichas en consola y entregar una primera tanda de PNG para probar escala y contraste. |
+| **4. [Combate](src/modelo/mision/combate/README.md)** | Veterinario, arma, enemigos, movimiento, colisiones y daño. | Usar un terreno fijo y crear apariciones manualmente. |
+| **5. [Controlador](src/controlador/README.md) y [vista](src/vista/README.md)** | Clínica, misión, comandos, panel de examen, HUD, pausa, fundido e integración. | Dibujar las pantallas con estados de ejemplo y simular el consultorio y la misión. |
 
-El [formato de datos](datos/README.md) y las [rutas de arte](arte/README.md)
-permiten preparar contenido en paralelo. Quien use ComfyUI en Windows puede
-entregar los PNG al frente de interfaz.
+### Qué se entrega entre roles
+
+| De quién a quién | Contrato |
+|---|---|
+| Catálogo → consultorio, a través de integración | `CargaCasos` contiene las fichas válidas; integración las entrega con `Consultorio::recibir()`. |
+| Consultorio → misión, a través del controlador | `PropuestaMision` contiene el ID del caso, los suministros con cantidades y el límite de tiempo. |
+| Mapa → combate, a través de misión | `Terreno` inicia el combate. Cada `Aparicion` lleva el tipo y la posición de un enemigo. |
+| Combate → misión | `EstadoCombate` expone la vida y la posición del veterinario, además del estado de enemigos y proyectiles. |
+| Misión → consultorio, a través del controlador | `ResultadoMision` lleva las cantidades recogidas, el desenlace y el motivo si falló. |
+| Controlador ↔ vista | La vista entrega `EntradaCuadro` y dibuja según `EstadoPantalla`. Los PNG y sus rutas llegan desde arte. |
+
+### Orden de integración y entrega
+
+1. Cada rol revisa su README y prueba su parte con los datos o módulos de ejemplo.
+2. El rol 5 conecta la clínica con un caso del catálogo y deja que una misión simulada devuelva un resultado. Comprueba el recorrido desde la llegada y el examen hasta el diálogo de tratamiento y el cobro.
+3. Los roles 2 y 4 conectan mapa, oleadas y combate. El rol 5 sustituye la misión simulada y prueba el reloj, la pausa, la recolección y el fundido.
+4. Integren la segunda ficha y los PNG. La demo debe permitir atender dos casos distintos y mostrar al menos un reintento que conserve la ficha, reinicie el intento y pague una sola vez al completarlo.
+
+El rol 5 deja el comando de compilación y ejecución para Windows y Linux en
+el README cuando el juego se pueda ejecutar. Cada rol define los métodos y
+destructores declarados en las cabeceras de sus módulos. Si una cabecera
+compartida necesita un cambio, revisarlo con quienes la consumen antes de
+integrarlo.
 
 ## Pantalla de la clínica
 
