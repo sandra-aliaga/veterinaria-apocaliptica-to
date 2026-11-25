@@ -91,6 +91,7 @@ std::vector<float> firma(const Terreno& terreno) {
         valores.push_back(obstaculo.colision.origen.x);
         valores.push_back(obstaculo.colision.origen.y);
     }
+
     for (const auto& suministro : terreno.suministros) {
         valores.push_back(suministro.posicion.x);
         valores.push_back(suministro.posicion.y);
@@ -157,6 +158,7 @@ bool mismas_apariciones(const std::vector<Aparicion>& a, const std::vector<Entre
     if (a.size() != b.size()) {
         return false;
     }
+
     for (std::size_t i = 0; i < a.size(); ++i) {
         if (a[i].tipo != b[i].aparicion.tipo || a[i].posicion.x != b[i].aparicion.posicion.x ||
             a[i].posicion.y != b[i].aparicion.posicion.y) {
@@ -301,9 +303,11 @@ void prueba_oleadas() {
         if (entrega.segundo < 60.0F && tipo != TipoEnemigo::animal_de_contacto) {
             primer_minuto_solo_animales = false;
         }
+
         if (entrega.segundo < 60.0F && tipo == TipoEnemigo::superviviente_de_contacto) {
             contacto_antes_de_tiempo = true;
         }
+
         if (tipo == TipoEnemigo::superviviente_a_distancia) {
             hay_tirador = true;
             tirador_antes_de_tiempo = tirador_antes_de_tiempo || entrega.segundo < 194.0F;
