@@ -1,0 +1,31 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO CARICATURESCO
+Dibuja sobre una cuadrícula uniforme de píxeles cuadrados y visibles.
+Usa contornos escalonados, colores planos y sombras por bloques. Evita
+el antialiasing, los degradados suaves, el desenfoque y el acabado 3D.
+
+Genera un fondo fijo para una novela visual de veterinaria apocalíptica.
+El consultorio es sombrío y está muy deteriorado. Una ventana tapiada,
+baldosas partidas, pintura descascarada y armarios abollados muestran el
+desgaste. El tablero de la mesa de examen conserva una superficie despejada.
+Sobre ella cuelga una lámpara improvisada de brazo torcido, sujeta con cinta.
+En un estante, un frasco sellado deja ver unos pocos píxeles verde lima
+#B9CC57, como detalle de radiación fantástica.
+
+Composición horizontal 16:9, con la cámara a la altura de los ojos y una
+perspectiva frontal ligeramente en tres cuartos. La mesa de examen queda
+en el centro izquierdo, con la superficie visible para colocar a la mascota.
+Deja espacio a su izquierda para la persona que la trae. Mantén el tercio
+derecho y el cuarto inferior tranquilos, con formas amplias y poco detalle,
+para que la interfaz pueda superponer allí la ficha y el diálogo.
+
+El ambiente es de penumbra fría. El carbón azulado #161F26 domina los
+rincones y el azul petróleo #233C49 apenas distingue las paredes. Reserva
+el gris apagado #526571 para los muebles y el rojo ladrillo #C65353 para
+restos de pintura y señales gastadas. La lámpara ilumina desde arriba a la
+izquierda con un haz estrecho color crema #F3E9D2 que cae sobre la mesa y
+alcanza parcialmente el lugar del dueño. Dibuja el haz con bloques nítidos.
+Conserva legibles la mesa y la lámpara a tamaño de juego.
+
+Entrega el consultorio vacío, con superficies lisas para los rótulos y los
+paneles que se dibujarán en el juego. PNG opaco, con composición preparada
+para un tamaño final de 640 × 360 px.

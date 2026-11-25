@@ -1,0 +1,26 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO SOBRIO Y SOMBRÍO
+Dibuja sobre una cuadrícula uniforme de píxeles cuadrados y visibles.
+Usa contornos escalonados, colores planos y sombras por bloques. Evita
+el antialiasing, los degradados suaves, el desenfoque y el acabado 3D.
+
+Genera un sprite de Elena, la dueña de Mora, para una novela visual de
+veterinaria apocalíptica. Elena es una mujer adulta con el pelo recogido a
+prisa y un mechón gris suelto sobre la frente. Tiene ojeras, las cejas
+juntas y los labios apretados. Lleva un abrigo de trabajo azul petróleo,
+con el cuello deshilachado, los puños gastados y un remiendo opaco cosido
+a mano. Evita joyas, adornos y telas brillantes.
+
+Figura de medio cuerpo en tres cuartos, girada ligeramente hacia la derecha
+para mirar hacia la mesa de examen. Mantiene los hombros tensos y las
+manos juntas delante del cuerpo.
+Mantén reconocibles el mechón y el remiendo al reducir el sprite.
+
+Usa el fondo adjunto como referencia de luz. Simplifica las facciones en
+pocos bloques de color y mantén proporciones contenidas. Usa azul petróleo
+#233C49 para el abrigo y rojo ladrillo apagado #784647 para el remiendo.
+Desde arriba a la izquierda, la lámpara deja unos pocos píxeles crema
+#F3E9D2 en el mechón y el pómulo. Usa carbón #161F26 para las sombras
+profundas y conserva legibles la mirada y las ojeras.
+
+Entrega solo a Elena, centrada con aire alrededor, como PNG con transparencia
+real. Formato vertical 3:4, pensado para un sprite de 96 × 128 px.

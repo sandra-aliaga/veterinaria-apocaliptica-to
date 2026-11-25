@@ -1,0 +1,25 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO SOBRIO Y SOMBRÍO
+Dibuja sobre una cuadrícula uniforme de píxeles cuadrados y visibles.
+Usa contornos escalonados, colores planos y sombras por bloques. Evita
+el antialiasing, los degradados suaves, el desenfoque y el acabado 3D.
+
+Genera un sprite de Mora, una gata gris humo para una novela visual de
+veterinaria apocalíptica. Tiene una oreja grande, la punta de la otra
+mellada y una venda de tela gastada en una pata delantera que apoya con
+cuidado. Se encoge y recoge la cola junto al cuerpo. En la punta de la
+cola, unos pocos píxeles verde lima #B9CC57 señalan la radiación
+fantástica. Tiene los párpados pesados y mira de reojo, desconfiada.
+
+Muéstrala sentada en tres cuartos para colocarla sobre la mesa del consultorio.
+La oreja mellada y la pata vendada deben reconocerse a tamaño pequeño. Elige
+una pose compacta que deje la cola y las orejas dentro del encuadre.
+
+Usa el fondo adjunto como referencia de luz. Dibuja el pelaje revuelto en
+pocos bloques de gris apagado #526571, con contornos carbón #161F26 y
+sombras azul petróleo #233C49. La lámpara deja unos pocos píxeles crema
+#F3E9D2 en la oreja y la venda desde arriba a la izquierda. Mantén la mirada
+legible en la penumbra. Evita los ojos brillantes de mascota de peluche y
+los halos alrededor del mechón.
+
+Entrega solo a Mora como PNG cuadrado con transparencia real y espacio
+alrededor. El tamaño final en el juego será de 64 × 64 px.

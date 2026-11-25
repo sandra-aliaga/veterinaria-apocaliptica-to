@@ -1,0 +1,16 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO SOBRIO Y SOMBRÍO
+Dibuja sobre una cuadrícula uniforme de píxeles cuadrados y visibles.
+Usa contornos escalonados, colores planos y sombras por bloques. Evita
+el antialiasing, los degradados suaves, el desenfoque y el acabado 3D.
+Toma el sprite adjunto como referencia de identidad y encuadre. Mantén
+el tamaño de los píxeles si ya es pixel art. Si la referencia tiene
+bordes suaves, redibuja la variante en la cuadrícula descrita arriba.
+
+Edita el sprite base adjunto de Elena para el diálogo posterior al tratamiento
+de Mora. Afloja un poco los hombros y la tensión entre las cejas. Que el
+alivio se note en la mirada. Conserva las ojeras, el mechón gris, el abrigo
+de trabajo con puños gastados y el remiendo opaco.
+
+Conserva la pose en tres cuartos, el encuadre, el punto de apoyo de la figura,
+la paleta y la luz del sprite base. Entrega un único PNG con transparencia
+real, en formato vertical 3:4 para exportarlo a 96 × 128 px.

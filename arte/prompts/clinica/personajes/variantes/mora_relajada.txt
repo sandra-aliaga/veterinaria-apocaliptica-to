@@ -1,0 +1,17 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO SOBRIO Y SOMBRÍO
+Dibuja sobre una cuadrícula uniforme de píxeles cuadrados y visibles.
+Usa contornos escalonados, colores planos y sombras por bloques. Evita
+el antialiasing, los degradados suaves, el desenfoque y el acabado 3D.
+Toma el sprite adjunto como referencia de identidad y encuadre. Mantén
+el tamaño de los píxeles si ya es pixel art. Si la referencia tiene
+bordes suaves, redibuja la variante en la cuadrícula descrita arriba.
+
+Edita el sprite base adjunto de Mora para el diálogo posterior al tratamiento.
+Relaja un poco la mirada y deja que apoye con más naturalidad la pata
+delantera. Mantén la postura sentada, la venda gastada y el pelaje revuelto.
+Conserva la oreja grande, la oreja mellada y el pequeño mechón verde lima
+en la cola con la misma intensidad.
+
+Mantén la identidad, las proporciones y el acabado de pixel art del sprite
+base. Usa el mismo encuadre, punto de apoyo, luz y colores. Entrega un único
+PNG cuadrado con transparencia real para exportarlo a 64 × 64 px.
