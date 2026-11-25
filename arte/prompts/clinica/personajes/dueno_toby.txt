@@ -1,0 +1,25 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO SOBRIO Y SOMBRÍO
+Dibuja sobre una cuadrícula uniforme de píxeles cuadrados y visibles.
+Usa contornos escalonados, colores planos y sombras por bloques. Evita
+el antialiasing, los degradados suaves, el desenfoque y el acabado 3D.
+
+Genera un sprite de la persona que trae a Toby a la clínica, para una novela
+visual de veterinaria apocalíptica. Es un hombre adulto con cabello cortado
+de forma irregular, barba de varios días y párpados pesados. Lleva una
+chaqueta de trabajo manchada, con un hombro zurcido, y una bufanda gastada
+atada de cualquier modo al cuello. Evita accesorios decorativos y
+acabados brillantes.
+
+Figura de medio cuerpo en tres cuartos, girada ligeramente hacia la derecha
+para mirar a Toby en la mesa de examen. Los hombros caídos, la barba y el
+bulto irregular de la bufanda definen su silueta.
+
+Usa el fondo adjunto como referencia de luz. Simplifica las facciones en
+pocos bloques de color y mantén proporciones contenidas. Usa gris apagado
+#526571 y azul petróleo #233C49 en la chaqueta, rojo ladrillo apagado
+#784647 en la bufanda y carbón #161F26 en las sombras. Desde arriba a la
+izquierda, la lámpara marca la sien con unos pocos píxeles crema #F3E9D2.
+Mantén legibles los ojos cansados en la penumbra.
+
+Entrega solo al dueño de Toby, centrado con aire alrededor, como PNG con
+transparencia real. Formato vertical 3:4, pensado para un sprite de 96 × 128 px.

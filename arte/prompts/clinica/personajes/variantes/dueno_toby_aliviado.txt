@@ -1,0 +1,16 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO SOBRIO Y SOMBRÍO
+Dibuja sobre una cuadrícula uniforme de píxeles cuadrados y visibles.
+Usa contornos escalonados, colores planos y sombras por bloques. Evita
+el antialiasing, los degradados suaves, el desenfoque y el acabado 3D.
+Toma el sprite adjunto como referencia de identidad y encuadre. Mantén
+el tamaño de los píxeles si ya es pixel art. Si la referencia tiene
+bordes suaves, redibuja la variante en la cuadrícula descrita arriba.
+
+Edita el sprite base adjunto del dueño de Toby para el diálogo posterior al
+tratamiento. Endereza apenas los hombros y relaja el ceño. Conserva los
+párpados pesados, la barba de varios días, la bufanda gastada y el hombro
+zurcido de la chaqueta.
+
+Mantén el acabado sobrio, la pose en tres cuartos, la luz, los colores,
+el encuadre y el punto de apoyo. Entrega un único PNG con transparencia real,
+en formato vertical 3:4 para exportarlo a 96 × 128 px.

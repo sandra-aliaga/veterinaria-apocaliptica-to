@@ -1,0 +1,26 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO SOBRIO Y SOMBRÍO
+Dibuja sobre una cuadrícula uniforme de píxeles cuadrados y visibles.
+Usa contornos escalonados, colores planos y sombras por bloques. Evita
+el antialiasing, los degradados suaves, el desenfoque y el acabado 3D.
+
+Genera un sprite de Toby, un perro mestizo bajo y de patas cortas para una
+novela visual de veterinaria apocalíptica. Tiene una oreja larga que cae
+hasta la mejilla y la otra levantada, una mancha oscura alrededor de un ojo
+y una manta de retazos deshilachada sobre el lomo. Dos pequeñas manchas
+verde lima #B9CC57 se distinguen en el hombro descubierto, sin halo. Se ve
+enfermo y cansado. Descansa con la cabeza baja, los ojos entrecerrados y
+las patas delanteras juntas.
+
+Muéstralo echado en tres cuartos para colocarlo sobre la mesa de examen.
+Conserva la silueta completa, con la oreja levantada, el hocico y la manta
+visibles. El cansancio se lee en la postura y en la expresión.
+
+Usa el fondo adjunto como referencia de luz. Dibuja el pelaje opaco en
+marrón apagado #695340, con mancha y contornos carbón #161F26. Usa azul
+petróleo #233C49 para la manta y rojo ladrillo apagado #784647 para el
+remiendo. La lámpara deja unos pocos píxeles crema #F3E9D2 en la frente y
+la manta desde arriba a la izquierda. Conserva legibles el hocico bajo y
+los ojos cansados en la penumbra. Evita los brillos de peluche.
+
+Entrega solo a Toby con su manta como PNG cuadrado con transparencia real.
+Deja aire alrededor de la figura. El tamaño final en el juego será de 64 × 64 px.

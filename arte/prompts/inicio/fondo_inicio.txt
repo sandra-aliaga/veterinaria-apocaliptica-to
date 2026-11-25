@@ -1,0 +1,27 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO SOMBRÍO
+Dibuja sobre una cuadrícula uniforme de píxeles cuadrados visibles. Usa
+contornos escalonados, colores planos y sombras por bloques. Evita el
+antialiasing, los degradados suaves, el desenfoque y el acabado 3D.
+
+Genera el fondo de la pantalla de inicio de Pet Survivors, un juego 2D
+de veterinaria apocalíptica. Muestra desde la calle la fachada de una
+pequeña veterinaria después del anochecer. Hay una persiana torcida,
+ventanas tapiadas y una puerta entreabierta con unos pocos píxeles de
+luz crema. Junto a la entrada se distinguen dos siluetas pequeñas, una
+de gato de orejas asimétricas y otra de perro bajo con una oreja caída.
+La escena debe sentirse silenciosa y gastada.
+
+Plano fijo horizontal 16:9, a la altura de la calle. Coloca la fachada
+y la puerta en la mitad derecha. Deja una superficie oscura y de poco
+detalle en la mitad izquierda, con espacio para el título en el centro
+izquierdo y el botón inmediatamente debajo. Mantén los reflejos y las
+formas con más contraste cerca de la entrada.
+
+Usa carbón azulado #161F26 para la noche y las sombras, azul petróleo
+#233C49 para la fachada, gris apagado #526571 para la persiana y rojo
+ladrillo apagado #784647 para restos de pintura. Limita el crema #F3E9D2
+a la puerta. Si se adjunta el fondo interior de la clínica, úsalo como
+referencia de paleta, desgaste y tamaño de píxel.
+
+Entrega solo el escenario como PNG opaco, preparado para 640 × 360 px.
+Deja el área del título y el botón libre de letras, iconos y paneles.
