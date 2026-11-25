@@ -1,5 +1,63 @@
 # Guía de arte · Veterinaria apocalíptica
 
+## Inventario de imágenes
+
+| Orden | Estado | Archivo PNG | Directorio |
+|---:|---|---|---|
+| 1 | Hecho | [fondo.png](prompts/inicio/fondo_inicio.txt) | `arte/inicio/` |
+| 2 | Hecho | [titulo.png](prompts/inicio/titulo_pet_survivors.txt) | `arte/inicio/` |
+|  | Hecho | `boton_jugar.png` | `arte/inicio/` |
+|  | Hecho | `cursor_normal.png` | `arte/inicio/` |
+| 1 | Hecho | [fondo.png](prompts/clinica/escenarios/fondo_clinica.txt) | `arte/clinica/` |
+| 2 | Hecho | [elena.png](prompts/clinica/personajes/elena.txt) | `arte/duenos/` |
+| 2 | Hecho | [dueno_toby.png](prompts/clinica/personajes/dueno_toby.txt) | `arte/duenos/` |
+| 2 | Hecho | [mora.png](prompts/clinica/personajes/mora.txt) | `arte/mascotas/` |
+| 2 | Hecho | [toby.png](prompts/clinica/personajes/toby.txt) | `arte/mascotas/` |
+| 3 | Hecho | [mora_relajada.png](prompts/clinica/personajes/variantes/mora_relajada.txt) | `arte/mascotas/` |
+| 3 | Hecho | [toby_recuperado.png](prompts/clinica/personajes/variantes/toby_recuperado.txt) | `arte/mascotas/` |
+|  | Hecho | `elena_frente.png` | `arte/duenos/` |
+|  | Hecho | `elena_mirada_baja.png` | `arte/duenos/` |
+|  | Hecho | `dueno_toby_frente.png` | `arte/duenos/` |
+|  | Hecho | `dueno_toby_mueca.png` | `arte/duenos/` |
+| 3 | Pendiente | [elena_aliviada.png](prompts/clinica/personajes/variantes/elena_aliviada.txt) | `arte/duenos/` |
+| 3 | Pendiente | [dueno_toby_aliviado.png](prompts/clinica/personajes/variantes/dueno_toby_aliviado.txt) | `arte/duenos/` |
+| 1 | Pendiente | [pasto.png](prompts/mision/mapa/pasto.txt) | `arte/mapa/` |
+| 2 | Pendiente | [tierra.png](prompts/mision/mapa/tierra.txt) | `arte/mapa/` |
+| 3 | Pendiente | [transicion_pasto_tierra.png](prompts/mision/mapa/transicion_pasto_tierra.txt) | `arte/mapa/` |
+|  | Pendiente | [arbol.png](prompts/mision/mapa/arbol.txt) | `arte/mapa/obstaculos/` |
+|  | Pendiente | [roca.png](prompts/mision/mapa/roca.txt) | `arte/mapa/obstaculos/` |
+|  | Pendiente | [tronco.png](prompts/mision/mapa/tronco.txt) | `arte/mapa/obstaculos/` |
+|  | Pendiente | [hierba_seca.png](prompts/mision/mapa/hierba_seca.txt) | `arte/mapa/decoracion/` |
+|  | Pendiente | [escombros.png](prompts/mision/mapa/escombros.txt) | `arte/mapa/decoracion/` |
+| 1 | Pendiente | [caminar_derecha.png](prompts/mision/veterinario.txt) | `arte/veterinario/` |
+| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/veterinario.txt) | `arte/veterinario/` |
+| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/perro_asilvestrado.txt) | `arte/enemigos/perro_asilvestrado/` |
+| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/perro_asilvestrado.txt) | `arte/enemigos/perro_asilvestrado/` |
+| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/rata_mutada.txt) | `arte/enemigos/rata_mutada/` |
+| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/rata_mutada.txt) | `arte/enemigos/rata_mutada/` |
+| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/saqueador.txt) | `arte/enemigos/saqueador/` |
+| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/saqueador.txt) | `arte/enemigos/saqueador/` |
+| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/errante_radiactivo.txt) | `arte/enemigos/errante_radiactivo/` |
+| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/errante_radiactivo.txt) | `arte/enemigos/errante_radiactivo/` |
+| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/vigia.txt) | `arte/enemigos/vigia/` |
+| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/vigia.txt) | `arte/enemigos/vigia/` |
+| 2 | Pendiente | [lanzar_derecha.png](prompts/mision/enemigos/vigia_lanzamiento.txt) | `arte/enemigos/vigia/` |
+| 3 | Pendiente | [lanzar_izquierda.png](prompts/mision/enemigos/vigia_lanzamiento.txt) | `arte/enemigos/vigia/` |
+|  | Pendiente | [rayo.png](prompts/mision/enemigos/vigia_rayo.txt) | `arte/enemigos/vigia/` |
+| 1 | Pendiente | [latigo.png](prompts/mision/armas/latigo.txt) | `arte/armas/latigo/` |
+| 2 | Pendiente | [ataque_derecha.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
+| 3 | Pendiente | [ataque_izquierda.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
+|  | Pendiente | [vendas.png](prompts/mision/suministros/vendas.txt) | `arte/suministros/` |
+|  | Pendiente | [antiseptico.png](prompts/mision/suministros/antiseptico.txt) | `arte/suministros/` |
+|  | Pendiente | [suero.png](prompts/mision/suministros/suero.txt) | `arte/suministros/` |
+|  | Pendiente | [danio_veterinario.png](prompts/mision/efectos/danio_veterinario.txt) | `arte/efectos/` |
+|  | Pendiente | [impacto_latigo.png](prompts/mision/efectos/impacto_latigo.txt) | `arte/efectos/` |
+|  | Pendiente | [recoger_suministro.png](prompts/mision/efectos/recoger_suministro.txt) | `arte/efectos/` |
+|  | Pendiente | [icono_vida.png](prompts/mision/interfaz/icono_vida.txt) | `arte/interfaz/` |
+|  | Pendiente | [icono_saldo.png](prompts/mision/interfaz/icono_saldo.txt) | `arte/interfaz/` |
+
+## Estilo visual
+
 La clínica, el mapa, los personajes, los objetos y la interfaz siguen una
 dirección de pixel art retro. La clínica es un refugio deteriorado, con
 una ventana tapiada, pintura descascarada y muebles abollados. La penumbra
@@ -124,15 +182,6 @@ copa. [Plan del mapa y oleadas](../src/modelo/mision/mapa/README.md)
 
 ### Prompts del suelo y los obstáculos
 
-| Recurso | Prompt | Tamaño | PNG final |
-|---|---|---:|---|
-| Pasto | [Pasto repetible](prompts/mision/mapa/pasto.txt) | 16 × 16 px | `arte/mapa/pasto.png` |
-| Tierra | [Tierra compacta](prompts/mision/mapa/tierra.txt) | 16 × 16 px | `arte/mapa/tierra.png` |
-| Transición | [Borde de pasto y tierra](prompts/mision/mapa/transicion_pasto_tierra.txt) | 16 × 16 px | `arte/mapa/transicion_pasto_tierra.png` |
-| Árbol | [Árbol de copa irregular](prompts/mision/mapa/arbol.txt) | 32 × 48 px | `arte/mapa/obstaculos/arbol.png` |
-| Roca | [Roca gris baja](prompts/mision/mapa/roca.txt) | 32 × 24 px | `arte/mapa/obstaculos/roca.png` |
-| Tronco | [Tronco caído](prompts/mision/mapa/tronco.txt) | 48 × 24 px | `arte/mapa/obstaculos/tronco.png` |
-
 Generar primero el pasto. Usarlo como referencia para la tierra y adjuntar
 las dos baldosas al generar la transición. Los obstáculos comparten la
 cámara de tres cuartos de los personajes y apoyan el centro del borde
@@ -143,20 +192,6 @@ PNG por tipo de obstáculo. Para generar claros con tierra y bordes, el
 planificador deberá entregar el material de cada zona o pieza del suelo.
 
 ## Archivos para la demo
-
-| Recurso | Tamaño base | Ruta |
-|---|---:|---|
-| Fondo de inicio | 640 × 360 px | `arte/inicio/fondo.png` |
-| Título ilustrado | 256 × 85 px | `arte/inicio/titulo.png` |
-| Botón Jugar | 128 × 43 px | `arte/inicio/boton_jugar.png` |
-| Cursor normal | 24 × 22 px | `arte/inicio/cursor_normal.png` |
-| Fondo fijo de la clínica | 640 × 360 px | `arte/clinica/fondo.png` |
-| Dueño, pose frontal o tres cuartos | 96 × 128 px | `arte/duenos/<id>.png` |
-| Mascota | 64 × 64 px | `arte/mascotas/<id>.png` |
-| Veterinario y enemigos humanos | 32 × 32 px por fotograma | `arte/veterinario/` y `arte/enemigos/<personaje>/` |
-| Enemigo animal | 24 × 24 px por fotograma | `arte/enemigos/<personaje>/` |
-| Piezas de terreno y suministros | 16 × 16 px por pieza | `arte/mapa/` y `arte/suministros/<id>.png` |
-| Obstáculos | Árbol 32 × 48 px, roca 32 × 24 px, tronco 48 × 24 px | `arte/mapa/obstaculos/` |
 
 Cada personaje de misión tendrá una hoja `caminar_izquierda.png` y otra
 `caminar_derecha.png`. Para la primera versión, usar cuatro fotogramas en una
@@ -170,11 +205,6 @@ Se guardan en `arte/duenos/` y tienen el mismo tamaño que los retratos base.
 
 ## Prompts de la pantalla inicial
 
-| Recurso | Prompt | PNG final |
-|---|---|---|
-| Fondo exterior | [Calle y fachada de noche](prompts/inicio/fondo_inicio.txt) | `arte/inicio/fondo.png` |
-| Título ilustrado | [PET SURVIVORS](prompts/inicio/titulo_pet_survivors.txt) | `arte/inicio/titulo.png` |
-
 Generar primero el fondo. Adjuntarlo al pedir el título para comprobar
 el contraste. Dar al título unos 256 px de ancho en el lienzo de 640 × 360 px.
 
@@ -185,15 +215,6 @@ completo, con cabeza, torso y pies o patas visibles.
 Generar primero el [veterinario](prompts/mision/veterinario.txt) y el perro
 para comparar sus siluetas sobre el suelo a tamaño real. Cada hoja tiene
 cuatro celdas de izquierda a derecha. La primera sirve para el reposo.
-
-| Personaje | Prompt | Carpeta de salida | Hoja por dirección |
-|---|---|---|---|
-| Veterinario | [Mochila crema](prompts/mision/veterinario.txt) | `arte/veterinario/` | 128 × 32 px |
-| Perro asilvestrado | [Animal de silueta alargada](prompts/mision/enemigos/perro_asilvestrado.txt) | `arte/enemigos/perro_asilvestrado/` | 96 × 24 px |
-| Rata mutada | [Animal redondo de cola larga](prompts/mision/enemigos/rata_mutada.txt) | `arte/enemigos/rata_mutada/` | 96 × 24 px |
-| Saqueador | [Superviviente de contacto](prompts/mision/enemigos/saqueador.txt) | `arte/enemigos/saqueador/` | 128 × 32 px |
-| Errante radiactivo | [Figura humana encorvada](prompts/mision/enemigos/errante_radiactivo.txt) | `arte/enemigos/errante_radiactivo/` | 128 × 32 px |
-| Vigía | [Superviviente a distancia](prompts/mision/enemigos/vigia.txt) | `arte/enemigos/vigia/` | 128 × 32 px |
 
 Exportar primero `caminar_derecha.png` y luego `caminar_izquierda.png`.
 Al voltear un personaje simétrico, voltear cada celda por separado para
@@ -217,16 +238,6 @@ Reutilizar el PNG de cada suministro
 en el mapa, el HUD y la ficha. El nombre del PNG coincide con su
 identificador en los datos del caso.
 
-| Recurso | Prompt | Tamaño final | PNG final |
-|---|---|---:|---|
-| Látigo simple | [Látigo enrollado](prompts/mision/armas/latigo.txt) | 16 × 16 px | `arte/armas/latigo/latigo.png` |
-| Ataque de látigo | [Cuatro fotogramas del látigo](prompts/mision/armas/latigo_ataque.txt) | 192 × 48 px por dirección | `arte/armas/latigo/ataque_derecha.png`, `ataque_izquierda.png` en la misma carpeta |
-| Proyectil del vigía | [Rayo corto verde lima](prompts/mision/enemigos/vigia_rayo.txt) | 16 × 8 px | `arte/enemigos/vigia/rayo.png` |
-| Daño del veterinario | [Salpicadura de tres fotogramas](prompts/mision/efectos/danio_veterinario.txt) | 48 × 16 px | `arte/efectos/danio_veterinario.png` |
-| Vendas | [Rollo de tela](prompts/mision/suministros/vendas.txt) | 16 × 16 px | `arte/suministros/vendas.png` |
-| Antiséptico | [Frasco cuadrado](prompts/mision/suministros/antiseptico.txt) | 16 × 16 px | `arte/suministros/antiseptico.png` |
-| Suero | [Bolsa achatada](prompts/mision/suministros/suero.txt) | 16 × 16 px | `arte/suministros/suero.png` |
-
 La animación del látigo usa el icono y el veterinario como referencias.
 Al integrar la animación, la vista colocará el centro de la celda en la
 mano del personaje. El modelo conserva las reglas de contacto. Para reproducir
@@ -244,29 +255,11 @@ efectivo. La barra de vida refleja el mismo cambio de estado.
 
 ### Animaciones y detalles opcionales
 
-| Recurso | Prompt | Tamaño final | PNG final |
-|---|---|---:|---|
-| Lanzamiento del vigía | [Cuatro poses de lanzamiento](prompts/mision/enemigos/vigia_lanzamiento.txt) | 128 × 32 px por dirección | `arte/enemigos/vigia/lanzar_derecha.png`, `lanzar_izquierda.png` en la misma carpeta |
-| Impacto del látigo | [Destello crema](prompts/mision/efectos/impacto_latigo.txt) | 48 × 16 px | `arte/efectos/impacto_latigo.png` |
-| Recolección | [Motas verde menta](prompts/mision/efectos/recoger_suministro.txt) | 48 × 16 px | `arte/efectos/recoger_suministro.png` |
-| Hierba seca | [Mata baja](prompts/mision/mapa/hierba_seca.txt) | 16 × 16 px | `arte/mapa/decoracion/hierba_seca.png` |
-| Escombros | [Fragmentos dispersos](prompts/mision/mapa/escombros.txt) | 16 × 16 px | `arte/mapa/decoracion/escombros.png` |
-| Vida | [Corazón](prompts/mision/interfaz/icono_vida.txt) | 12 × 12 px | `arte/interfaz/icono_vida.png` |
-| Saldo | [Moneda gastada](prompts/mision/interfaz/icono_saldo.txt) | 12 × 12 px | `arte/interfaz/icono_saldo.png` |
-
 Para repartir la generación, asignar suministros, arma, vigía y efectos,
 y decoración e interfaz. Compartir primero los sprites aprobados del
 veterinario y del vigía para que cada animación conserve su escala.
 
 ## Prompts de la clínica
-
-| Recurso | Prompt | PNG final |
-|---|---|---|
-| Consultorio | [Fondo de la clínica](prompts/clinica/escenarios/fondo_clinica.txt) | `arte/clinica/fondo.png` |
-| Elena | [Dueña de Mora](prompts/clinica/personajes/elena.txt) | `arte/duenos/elena.png` |
-| Mora | [Gata de orejas asimétricas y cola luminosa](prompts/clinica/personajes/mora.txt) | `arte/mascotas/mora.png` |
-| Dueño de Toby | [Dueño con chaqueta de trabajo y bufanda gastada](prompts/clinica/personajes/dueno_toby.txt) | `arte/duenos/dueno_toby.png` |
-| Toby | [Perro mestizo cansado con manchas luminosas y manta](prompts/clinica/personajes/toby.txt) | `arte/mascotas/toby.png` |
 
 Generar primero el fondo y usarlo como referencia al generar por separado
 a Elena y Mora. Comprobar que el tamaño y la iluminación encajen antes de
@@ -279,13 +272,6 @@ el prompt de edición correspondiente, para conservar identidad, escala y
 punto de apoyo al cambiar la expresión. Los PNG base son los que se usan
 en el JSON de las fichas. Las variantes quedan listas para cuando la vista
 seleccione el sprite según la etapa del diálogo.
-
-| Personaje | Prompt de edición | PNG final |
-|---|---|---|
-| Elena | [Elena aliviada](prompts/clinica/personajes/variantes/elena_aliviada.txt) | `arte/duenos/elena_aliviada.png` |
-| Mora | [Mora relajada](prompts/clinica/personajes/variantes/mora_relajada.txt) | `arte/mascotas/mora_relajada.png` |
-| Dueño de Toby | [Dueño de Toby aliviado](prompts/clinica/personajes/variantes/dueno_toby_aliviado.txt) | `arte/duenos/dueno_toby_aliviado.png` |
-| Toby | [Toby recuperado](prompts/clinica/personajes/variantes/toby_recuperado.txt) | `arte/mascotas/toby_recuperado.png` |
 
 ## Entrega del arte
 
