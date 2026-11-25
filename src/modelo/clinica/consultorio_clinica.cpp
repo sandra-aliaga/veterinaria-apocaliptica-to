@@ -17,6 +17,7 @@ bool cubre_requeridos(const std::vector<CantidadSuministro>& requeridos,
             disponibles[suministro.id] += suministro.cantidad;
         }
     }
+
     for (const CantidadSuministro& requerido : requeridos) {
         const auto encontrado = disponibles.find(requerido.id);
         const long long tengo = encontrado == disponibles.end() ? 0 : encontrado->second;
@@ -84,6 +85,7 @@ RegistroMision ConsultorioClinica::registrar_resultado(const ResultadoMision& re
     if (!activo_) {
         return RegistroMision::sin_caso_activo;
     }
+
     if (!intento_en_curso_ || resultado.id_caso != activo_->id) {
         return RegistroMision::resultado_invalido;
     }

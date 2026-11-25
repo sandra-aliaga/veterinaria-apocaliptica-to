@@ -121,6 +121,7 @@ bool mismos_requisitos(const std::vector<CantidadSuministro>& a,
     if (a.size() != b.size()) {
         return false;
     }
+
     for (std::size_t i = 0; i < a.size(); ++i) {
         if (a[i].id != b[i].id || a[i].cantidad != b[i].cantidad) {
             return false;

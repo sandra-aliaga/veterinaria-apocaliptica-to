@@ -28,7 +28,9 @@ void ColaCasosClinicos::encolar(CasoClinico caso) {
     Nodo* const nuevo = nodo.get();
     if (ultimo_ == nullptr) {
         primero_ = std::move(nodo);
-    } else {
+    }
+
+    else {
         ultimo_->siguiente = std::move(nodo);
     }
     ultimo_ = nuevo;
