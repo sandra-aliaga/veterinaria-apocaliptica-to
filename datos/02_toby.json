@@ -1,0 +1,37 @@
+{
+  "id": "caso_toby",
+  "mascota": {
+    "id": "toby",
+    "nombre": "Toby",
+    "especie": "perro",
+    "edad_meses": 48,
+    "retrato": "arte/mascotas/toby.png"
+  },
+  "dueno": {
+    "id": "dueno_toby",
+    "nombre": "Dueño de Toby",
+    "sprite": "arte/duenos/dueno_toby.png"
+  },
+  "dialogos": {
+    "llegada": [
+      { "hablante": "dueno", "texto": "Toby no ha levantado la cabeza desde ayer." },
+      { "hablante": "veterinario", "texto": "Está deshidratado. Necesita suero." }
+    ],
+    "aceptacion": [
+      { "hablante": "veterinario", "texto": "Quédate con él. Buscaré el suero." }
+    ],
+    "rechazo": [
+      { "hablante": "dueno", "texto": "Me lo llevaré de vuelta al refugio." }
+    ],
+    "fallo": [
+      { "hablante": "veterinario", "texto": "Aún podemos volver a buscar el suero." }
+    ],
+    "tratamiento": [
+      { "hablante": "dueno", "texto": "Abrió los ojos en cuanto le hablé." }
+    ]
+  },
+  "suministros": [
+    { "id": "suero", "cantidad": 1 }
+  ],
+  "recompensa": 25
+}

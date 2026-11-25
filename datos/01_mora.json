@@ -1,0 +1,41 @@
+{
+  "id": "caso_mora",
+  "mascota": {
+    "id": "mora",
+    "nombre": "Mora",
+    "especie": "gato",
+    "edad_meses": 24,
+    "retrato": "arte/mascotas/mora.png"
+  },
+  "dueno": {
+    "id": "elena",
+    "nombre": "Elena",
+    "sprite": "arte/duenos/elena.png"
+  },
+  "dialogos": {
+    "llegada": [
+      { "hablante": "dueno", "texto": "Mora volvió del patio sin apoyar la pata." },
+      { "hablante": "veterinario", "texto": "Déjala sobre la mesa. Voy a revisarla." },
+      { "hablante": "dueno", "texto": "Se queda aquí conmigo mientras la revisas." }
+    ],
+    "aceptacion": [
+      { "hablante": "veterinario", "texto": "Necesito vendas y antiséptico. Voy a buscarlos." }
+    ],
+    "rechazo": [
+      { "hablante": "dueno", "texto": "Entiendo. Buscaré otro lugar para atenderla." }
+    ],
+    "fallo": [
+      { "hablante": "veterinario", "texto": "No conseguí los suministros a tiempo." },
+      { "hablante": "dueno", "texto": "Mora sigue aquí. Puedes intentarlo otra vez." }
+    ],
+    "tratamiento": [
+      { "hablante": "veterinario", "texto": "Ya pude curarle la pata." },
+      { "hablante": "dueno", "texto": "Ya apoya un poco mejor la pata. Gracias." }
+    ]
+  },
+  "suministros": [
+    { "id": "vendas", "cantidad": 2 },
+    { "id": "antiseptico", "cantidad": 1 }
+  ],
+  "recompensa": 20
+}
