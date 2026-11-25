@@ -67,7 +67,7 @@ Debe contener `include/raylib.h` y `lib/libraylib.a` para MinGW o
 |---|---|
 | Catálogo → consultorio, a través de integración | `CargaCasos` contiene las fichas válidas; integración las entrega con `Consultorio::recibir()`. |
 | Consultorio → misión, a través del controlador | `PropuestaMision` contiene el ID del caso, los suministros con cantidades y el límite de tiempo. |
-| Mapa → combate, a través de misión | `Terreno` inicia el combate. Cada `Aparicion` lleva el tipo y la posición de un enemigo. |
+| Mapa → combate, a través de misión | `Terreno` inicia el combate. Incluye la colisión de cada obstáculo. Cada `Aparicion` lleva el tipo y la posición de un enemigo. |
 | Combate → misión | `EstadoCombate` expone la vida y la posición del veterinario, además del estado de enemigos y proyectiles. |
 | Misión → consultorio, a través del controlador | `ResultadoMision` lleva las cantidades recogidas, el desenlace y el motivo si falló. |
 | Controlador ↔ vista | La vista entrega `EntradaCuadro` y dibuja según `EstadoPantalla`. Los PNG y sus rutas llegan desde arte. |
@@ -165,9 +165,16 @@ suministro termina el intento en el momento. Si se agota el reloj con
 suministros pendientes, el veterinario vuelve a la clínica y puede reintentar.
 Las oleadas empiezan dispersas y se hacen más densas con el tiempo.
 
-Para el pixel art, la [guía de arte](arte/README.md) propone azul petróleo y
-rojo ladrillo como base, con crema para el contraste y verde menta para los
-suministros.
+La [guía de arte retro](arte/README.md) define el lienzo de 640 × 360 px y
+los tamaños de los sprites. La clínica usa azul petróleo y rojo ladrillo.
+La misión transcurre en un campo abierto con verdes, tierras y obstáculos
+dispersos. Usar Pixelify Sans para títulos y Handjet para diálogos y HUD.
+
+[`PlanificadorCampoAbierto`](src/modelo/mision/mapa/planificador_campo_abierto.h)
+hereda de `PlanificadorMapa` y declara cómo preparar el campo y las oleadas.
+Un [`ObstaculoMapa`](src/modelo/mision/mapa/obstaculo_mapa.h)
+lleva su tipo, el anclaje del sprite y el rectángulo de colisión. Combate y
+vista reciben el mismo terreno.
 
 ## Patrones y principios
 
@@ -260,6 +267,27 @@ classDiagram
     }
     class PlanificadorMapa {
         <<interface>>
+        +preparar(propuesta)
+        +avanzar(segundos)
+    }
+    class PlanificadorCampoAbierto {
+        -limites_
+        -semilla_fija_
+        -generador_
+        -oleadas_
+        +preparar(propuesta)
+        +avanzar(segundos)
+    }
+    class Terreno {
+        +limites
+        +inicio
+        +obstaculos
+        +suministros
+    }
+    class ObstaculoMapa {
+        +tipo
+        +anclaje
+        +colision
     }
     class Combate {
         <<interface>>
@@ -271,6 +299,9 @@ classDiagram
     Controlador ..> Consultorio : gestiona el caso
     Controlador ..> Mision : coordina el intento
     Mision ..> PlanificadorMapa : prepara el terreno
+    PlanificadorMapa <|-- PlanificadorCampoAbierto
+    PlanificadorMapa ..> Terreno : devuelve
+    Terreno "1" *-- "0..*" ObstaculoMapa : contiene
     Mision ..> Combate : actualiza
     Mision ..> ReceptorEventosMision : notifica
 ```

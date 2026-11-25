@@ -47,6 +47,10 @@ El combate entrega el estado final de cada cuadro. La misión consulta este
 estado para resolver el fallo y, si el veterinario sigue vivo, la recolección
 de suministros.
 
+Para resolver el terreno, usar el rectángulo `colision` de cada
+`ObstaculoMapa`. Un árbol bloquea el paso en la base del tronco. El sprite
+puede tener una copa mayor que esa zona sólida.
+
 ## Prueba independiente
 
 1. Usa un terreno con un obstáculo y dos apariciones manuales. Verifica que el

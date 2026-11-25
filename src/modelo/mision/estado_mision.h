@@ -2,21 +2,12 @@
 
 #include "../catalogo/cantidad_suministro.h"
 #include "estado_movimiento.h"
+#include "geometria_mapa.h"
+#include "mapa/obstaculo_mapa.h"
 
 #include <vector>
 
 namespace veterinaria {
-
-struct Punto {
-    float x;
-    float y;
-};
-
-struct Rectangulo {
-    Punto origen;
-    float ancho;
-    float alto;
-};
 
 struct SuministroEnMapa {
     CantidadSuministro contenido;
@@ -26,7 +17,7 @@ struct SuministroEnMapa {
 struct Terreno {
     Rectangulo limites;
     Punto inicio;
-    std::vector<Rectangulo> obstaculos;
+    std::vector<ObstaculoMapa> obstaculos;
     std::vector<SuministroEnMapa> suministros;
 };
 
