@@ -65,6 +65,10 @@ elige la hoja izquierda o derecha y avanza los fotogramas si el personaje
 camina. El modelo mantiene su orientación al detenerse o al moverse solo
 en vertical.
 
+Para dibujar el campo, usar `ObstaculoMapa::tipo` para elegir el sprite y
+`anclaje` para colocar su punto de apoyo. El rectángulo `colision` lo usa
+combate. En un árbol, la copa se dibuja por encima de la base del tronco.
+
 W, A, S y D se traducen a una dirección y Esc alterna el menú. Primero se
 dibuja la escena y la capa del fundido con `opacidad_fundido`. Luego se
 dibuja el menú encima si está abierto. La vista puede recibir eventos de la
