@@ -1,0 +1,19 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO ANIMADO
+
+Crea la animación del látigo de Pet Survivors como una capa que se dibuja
+sobre el veterinario. Usa latigo.png como referencia de forma y color y
+el sprite del veterinario para igualar el ángulo de tres cuartos y el
+tamaño aparente. Dibuja solo el mango y la cuerda hacia la derecha.
+
+Haz cuatro fotogramas en una fila. Primero se recoge la cuerda cerca
+del mango. En el segundo se abre el arco. En el tercero la punta está
+extendida hacia la derecha. En el cuarto vuelve a recogerse. Mantén el
+mango anclado al centro geométrico de cada celda. La cuerda se ve con
+unos pocos píxeles de ancho, con contorno carbón #161F26 y toques ocre
+#8B7854. Un acento crema #F3E9D2 de pocos píxeles basta en el tercer
+fotograma. Evita arcos que oculten a los enemigos cercanos.
+
+Entrega una hoja PNG transparente de 192 × 48 px, con cuatro celdas
+contiguas de 48 × 48 px, llamada ataque_derecha.png. Deja fuera al
+personaje, el suelo, los divisores y el texto. Para ataque_izquierda.png
+refleja cada celda horizontalmente conservando el orden de la fila.

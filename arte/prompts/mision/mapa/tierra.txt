@@ -1,0 +1,12 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO PARA TERRENO
+
+Dibuja una baldosa de tierra seca y compacta para los claros de Pet Survivors.
+Usa la baldosa de pasto adjunta como referencia de escala de píxel y densidad
+de detalle. Vista desde arriba. Usa marrón tierra #695340 y pequeñas motas ocre
+apagado #8B7854. Mantén el contraste bajo para que se lean los sprites encima.
+
+Haz que los cuatro bordes coincidan con sus opuestos al repetir la pieza.
+Dibuja píxeles cuadrados, colores planos y unas pocas motas pequeñas.
+Evita piedras grandes, huellas, contornos de baldosa y suavizado.
+
+Entrega solo una baldosa cuadrada opaca. Exporta como tierra.png a 16 × 16 px.

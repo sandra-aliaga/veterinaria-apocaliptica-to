@@ -1,0 +1,33 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO DE CUERPO COMPLETO
+
+Crea una hoja de sprites del veterinario jugable para Pet Survivors.
+Usa una cuadrícula de píxeles cuadrados, bordes nítidos y sombras por
+bloques. Sin antialiasing, degradados, acabado 3D ni líneas finas.
+El personaje debe leerse al tamaño final sobre pasto oliva #586346,
+entre muchos personajes en pantalla.
+
+Perspectiva de tres cuartos desde una cámara ligeramente elevada, propia
+de un juego 2D de acción. Muestra el personaje de cuerpo completo, desde
+la cabeza hasta los pies o patas. El torso y la longitud de las piernas
+deben apreciarse en la silueta. El personaje camina hacia la derecha.
+Conserva esta altura de cámara y el cuerpo entero en las cuatro celdas.
+
+Un veterinario de campo que recorre un terreno abierto en busca de
+suministros. Lleva una chaqueta corta azul petróleo #233C49 y una mochila
+rectangular crema #F3E9D2, reconocible desde arriba, con un solo parche
+rojo ladrillo apagado #784647. Usa carbón #161F26 para el contorno y la
+sombra. Separa las botas y deja que un brazo se mueva al caminar. La mochila
+es la señal principal para encontrar al jugador entre muchos enemigos.
+
+Entrega una fila de cuatro fotogramas de caminata, centrados en cuatro
+celdas iguales y contiguas. Usa la primera celda como pose de apoyo para
+reposo, luego alterna el apoyo de las patas o pies sin variar el tamaño
+ni mover el cuerpo fuera de su anclaje. Usa PNG con transparencia real,
+sin suelo, sombras proyectadas, cuadrícula dibujada, etiquetas ni divisores.
+Tamaño final por fotograma de 32 × 32 px. La hoja completa mide 128 × 32 px.
+Guárdala como caminar_derecha.png.
+
+Para sacar caminar_izquierda.png, usa esta hoja como referencia y cambia
+la orientación de cada celda por separado. Conserva el orden de los cuatro
+fotogramas. Si el personaje es simétrico, puedes voltear cada celda
+horizontalmente con un editor de imágenes.

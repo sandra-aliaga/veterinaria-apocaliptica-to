@@ -1,0 +1,17 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO ANIMADO
+
+Dibuja una salpicadura pequeña de sangre para indicar que el veterinario de
+Pet Survivors recibió daño. Usa tres o cuatro gotas hechas con bloques
+cortos de rojo ladrillo #C65353 y rojo oscuro #784647. El dibujo debe leerse
+sobre la chaqueta azul petróleo sin cubrir la cara ni la silueta.
+
+Haz tres fotogramas contiguos en una fila. En el primero aparecen las gotas
+cerca del centro. En el segundo se separan unos pocos píxeles. En el tercero
+quedan solo una o dos gotas oscuras. Mantén el centro de cada celda como
+anclaje. La forma debe funcionar con el veterinario orientado hacia cualquier
+lado.
+
+Dibuja únicamente las gotas, con píxeles cuadrados y colores planos. Evita
+heridas, charcos, marcas persistentes, marcos y suavizado. Entrega un PNG
+transparente de 48 × 16 px con tres celdas de 16 × 16 px, llamado
+danio_veterinario.png.

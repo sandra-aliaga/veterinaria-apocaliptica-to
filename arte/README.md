@@ -19,11 +19,10 @@ como un frasco luminoso, el mechón de la cola de Mora y las manchas de Toby.
 - Componer en un lienzo interno de **640 × 360 px** (16:9). Es el espacio
   donde se dibujan los paneles y la parte visible del mapa. El tamaño de la
   ventana puede cambiar y el mapa puede extenderse más allá de la cámara.
-- Escalar el lienzo por múltiplos enteros con filtro de punto. A 1280 × 720
-  se muestra a ×2 y a 1920 × 1080 a ×3. Si la ventana es de 1366 × 768,
-  usar ×2 y centrar con márgenes. Así los píxeles mantienen el mismo tamaño
-  entre sí y la clínica conserva espacio para el diálogo y la ficha lateral.
-  Para la demo, tomar 640 × 360 como tamaño mínimo de la ventana.
+- Ajustar la composición a la mayor área 16:9 que quepa en la ventana y
+  centrarla. Las texturas de los sprites usan filtro de punto. La interfaz
+  se dibuja al doble de resolución para conservar mejor los trazos del
+  texto. El tamaño mínimo de ventana es 640 × 360.
 - Usar una cuadrícula de 16 px para las piezas del mapa. Mantener bordes
   definidos, sombras por bloques y dos o tres tonos por material. Reservar
   el mayor contraste para personajes, suministros e información del HUD.
@@ -98,7 +97,8 @@ mascota**, se abre la ficha de la derecha con los suministros, **Aceptar**
 y **Rechazar**. El fondo se entrega sin texto para que la vista dibuje rótulos
 y botones. [Boceto de la clínica](../src/vista/README.md#clínica)
 
-**Misión.** Vista cenital, terreno de poco contraste y obstáculos con
+**Misión.** Cámara ligeramente elevada y personajes de cuerpo completo
+en tres cuartos. El terreno tiene poco contraste y los obstáculos tienen
 contorno claro. Los animales tienen silueta baja. Los supervivientes
 tienen silueta humana y el atacante a distancia una pose distinguible.
 El HUD muestra vida y tiempo arriba y cantidades pendientes en una zona
@@ -122,6 +122,26 @@ Colocar hierba baja y restos pequeños como decoración. Usar la base del
 tronco como referencia de colisión y mantener libre el paso alrededor de la
 copa. [Plan del mapa y oleadas](../src/modelo/mision/mapa/README.md)
 
+### Prompts del suelo y los obstáculos
+
+| Recurso | Prompt | Tamaño | PNG final |
+|---|---|---:|---|
+| Pasto | [Pasto repetible](prompts/mision/mapa/pasto.txt) | 16 × 16 px | `arte/mapa/pasto.png` |
+| Tierra | [Tierra compacta](prompts/mision/mapa/tierra.txt) | 16 × 16 px | `arte/mapa/tierra.png` |
+| Transición | [Borde de pasto y tierra](prompts/mision/mapa/transicion_pasto_tierra.txt) | 16 × 16 px | `arte/mapa/transicion_pasto_tierra.png` |
+| Árbol | [Árbol de copa irregular](prompts/mision/mapa/arbol.txt) | 32 × 48 px | `arte/mapa/obstaculos/arbol.png` |
+| Roca | [Roca gris baja](prompts/mision/mapa/roca.txt) | 32 × 24 px | `arte/mapa/obstaculos/roca.png` |
+| Tronco | [Tronco caído](prompts/mision/mapa/tronco.txt) | 48 × 24 px | `arte/mapa/obstaculos/tronco.png` |
+
+Generar primero el pasto. Usarlo como referencia para la tierra y adjuntar
+las dos baldosas al generar la transición. Los obstáculos comparten la
+cámara de tres cuartos de los personajes y apoyan el centro del borde
+inferior del PNG sobre el anclaje del mapa.
+
+La vista actual repite el pasto sobre los límites del campo y reutiliza un
+PNG por tipo de obstáculo. Para generar claros con tierra y bordes, el
+planificador deberá entregar el material de cada zona o pieza del suelo.
+
 ## Archivos para la demo
 
 | Recurso | Tamaño base | Ruta |
@@ -133,10 +153,10 @@ copa. [Plan del mapa y oleadas](../src/modelo/mision/mapa/README.md)
 | Fondo fijo de la clínica | 640 × 360 px | `arte/clinica/fondo.png` |
 | Dueño, pose frontal o tres cuartos | 96 × 128 px | `arte/duenos/<id>.png` |
 | Mascota | 64 × 64 px | `arte/mascotas/<id>.png` |
-| Veterinario y supervivientes | 32 × 32 px por fotograma | `arte/veterinario/` y `arte/enemigos/<tipo>/` |
-| Enemigo animal | 24 × 24 px por fotograma | `arte/enemigos/animal_de_contacto/` |
+| Veterinario y enemigos humanos | 32 × 32 px por fotograma | `arte/veterinario/` y `arte/enemigos/<personaje>/` |
+| Enemigo animal | 24 × 24 px por fotograma | `arte/enemigos/<personaje>/` |
 | Piezas de terreno y suministros | 16 × 16 px por pieza | `arte/mapa/` y `arte/suministros/<id>.png` |
-| Árbol | 32 × 48 px | `arte/mapa/obstaculos/arbol.png` |
+| Obstáculos | Árbol 32 × 48 px, roca 32 × 24 px, tronco 48 × 24 px | `arte/mapa/obstaculos/` |
 
 Cada personaje de misión tendrá una hoja `caminar_izquierda.png` y otra
 `caminar_derecha.png`. Para la primera versión, usar cuatro fotogramas en una
@@ -157,6 +177,86 @@ Se guardan en `arte/duenos/` y tienen el mismo tamaño que los retratos base.
 
 Generar primero el fondo. Adjuntarlo al pedir el título para comprobar
 el contraste. Dar al título unos 256 px de ancho en el lienzo de 640 × 360 px.
+
+## Prompts del veterinario y los enemigos
+
+Usar una vista de tres cuartos ligeramente elevada. Mostrar el cuerpo
+completo, con cabeza, torso y pies o patas visibles.
+Generar primero el [veterinario](prompts/mision/veterinario.txt) y el perro
+para comparar sus siluetas sobre el suelo a tamaño real. Cada hoja tiene
+cuatro celdas de izquierda a derecha. La primera sirve para el reposo.
+
+| Personaje | Prompt | Carpeta de salida | Hoja por dirección |
+|---|---|---|---|
+| Veterinario | [Mochila crema](prompts/mision/veterinario.txt) | `arte/veterinario/` | 128 × 32 px |
+| Perro asilvestrado | [Animal de silueta alargada](prompts/mision/enemigos/perro_asilvestrado.txt) | `arte/enemigos/perro_asilvestrado/` | 96 × 24 px |
+| Rata mutada | [Animal redondo de cola larga](prompts/mision/enemigos/rata_mutada.txt) | `arte/enemigos/rata_mutada/` | 96 × 24 px |
+| Saqueador | [Superviviente de contacto](prompts/mision/enemigos/saqueador.txt) | `arte/enemigos/saqueador/` | 128 × 32 px |
+| Errante radiactivo | [Figura humana encorvada](prompts/mision/enemigos/errante_radiactivo.txt) | `arte/enemigos/errante_radiactivo/` | 128 × 32 px |
+| Vigía | [Superviviente a distancia](prompts/mision/enemigos/vigia.txt) | `arte/enemigos/vigia/` | 128 × 32 px |
+
+Exportar primero `caminar_derecha.png` y luego `caminar_izquierda.png`.
+Al voltear un personaje simétrico, voltear cada celda por separado para
+conservar el orden de la animación. Para un personaje con un accesorio
+asimétrico, usar la hoja derecha como referencia para dibujar la izquierda.
+Si se amplía el contrato de orientación, se podrán añadir
+`caminar_abajo.png` (frente) y `caminar_arriba.png` (espalda), con la
+misma cámara.
+
+Los cinco diseños comparten las estrategias existentes. Perro y rata
+corresponden a animal de contacto, saqueador y errante a contacto humano
+y vigía a distancia. Para distinguir los cinco sprites durante una misión,
+el modelo y la vista tendrán que intercambiar también el identificador
+visual de cada variante.
+
+## Prompts del látigo, el proyectil y los suministros
+
+Para la primera tanda, generar los tres suministros, el látigo y su
+animación, el proyectil del vigía y el efecto de daño del veterinario.
+Reutilizar el PNG de cada suministro
+en el mapa, el HUD y la ficha. El nombre del PNG coincide con su
+identificador en los datos del caso.
+
+| Recurso | Prompt | Tamaño final | PNG final |
+|---|---|---:|---|
+| Látigo simple | [Látigo enrollado](prompts/mision/armas/latigo.txt) | 16 × 16 px | `arte/armas/latigo/latigo.png` |
+| Ataque de látigo | [Cuatro fotogramas del látigo](prompts/mision/armas/latigo_ataque.txt) | 192 × 48 px por dirección | `arte/armas/latigo/ataque_derecha.png`, `ataque_izquierda.png` en la misma carpeta |
+| Proyectil del vigía | [Rayo corto verde lima](prompts/mision/enemigos/vigia_rayo.txt) | 16 × 8 px | `arte/enemigos/vigia/rayo.png` |
+| Daño del veterinario | [Salpicadura de tres fotogramas](prompts/mision/efectos/danio_veterinario.txt) | 48 × 16 px | `arte/efectos/danio_veterinario.png` |
+| Vendas | [Rollo de tela](prompts/mision/suministros/vendas.txt) | 16 × 16 px | `arte/suministros/vendas.png` |
+| Antiséptico | [Frasco cuadrado](prompts/mision/suministros/antiseptico.txt) | 16 × 16 px | `arte/suministros/antiseptico.png` |
+| Suero | [Bolsa achatada](prompts/mision/suministros/suero.txt) | 16 × 16 px | `arte/suministros/suero.png` |
+
+La animación del látigo usa el icono y el veterinario como referencias.
+Al integrar la animación, la vista colocará el centro de la celda en la
+mano del personaje. El modelo conserva las reglas de contacto. Para reproducir
+la animación cuando se produzca el golpe, la vista necesitará que combate
+informe del ataque y de su orientación.
+
+El vigía lanzará varios rayos de energía en abanico. Cada rayo reutiliza
+el mismo PNG, girado en su dirección de vuelo. Dejar huecos legibles
+entre rayos para esquivar la ráfaga. La barra de vida muestra el daño
+recibido y el proyectil desaparece al impactar.
+
+El efecto de daño se superpone al torso del veterinario cuando un golpe
+reduce su vida, por contacto o por un rayo. Se reproduce una vez por golpe
+efectivo. La barra de vida refleja el mismo cambio de estado.
+
+### Animaciones y detalles opcionales
+
+| Recurso | Prompt | Tamaño final | PNG final |
+|---|---|---:|---|
+| Lanzamiento del vigía | [Cuatro poses de lanzamiento](prompts/mision/enemigos/vigia_lanzamiento.txt) | 128 × 32 px por dirección | `arte/enemigos/vigia/lanzar_derecha.png`, `lanzar_izquierda.png` en la misma carpeta |
+| Impacto del látigo | [Destello crema](prompts/mision/efectos/impacto_latigo.txt) | 48 × 16 px | `arte/efectos/impacto_latigo.png` |
+| Recolección | [Motas verde menta](prompts/mision/efectos/recoger_suministro.txt) | 48 × 16 px | `arte/efectos/recoger_suministro.png` |
+| Hierba seca | [Mata baja](prompts/mision/mapa/hierba_seca.txt) | 16 × 16 px | `arte/mapa/decoracion/hierba_seca.png` |
+| Escombros | [Fragmentos dispersos](prompts/mision/mapa/escombros.txt) | 16 × 16 px | `arte/mapa/decoracion/escombros.png` |
+| Vida | [Corazón](prompts/mision/interfaz/icono_vida.txt) | 12 × 12 px | `arte/interfaz/icono_vida.png` |
+| Saldo | [Moneda gastada](prompts/mision/interfaz/icono_saldo.txt) | 12 × 12 px | `arte/interfaz/icono_saldo.png` |
+
+Para repartir la generación, asignar suministros, arma, vigía y efectos,
+y decoración e interfaz. Compartir primero los sprites aprobados del
+veterinario y del vigía para que cada animación conserve su escala.
 
 ## Prompts de la clínica
 

@@ -1,0 +1,10 @@
+ESTILO OBLIGATORIO — ICONO EN PIXEL ART RETRO
+
+Dibuja un icono pequeño de vida para el HUD de Pet Survivors. Usa la
+silueta sencilla de un corazón, con relleno rojo apagado #C65353,
+contorno carbón #161F26 y dos píxeles crema #F3E9D2 para la luz.
+Debe distinguirse junto al número de vida sobre un panel oscuro.
+
+Centra el icono y usa píxeles cuadrados, colores planos y bordes nítidos.
+Evita texto, números, brillos difusos y marcos. Entrega un PNG transparente
+de 12 × 12 px llamado icono_vida.png.

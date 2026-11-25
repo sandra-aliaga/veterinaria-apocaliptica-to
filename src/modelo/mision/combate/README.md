@@ -42,6 +42,18 @@ contacto y administra los proyectiles del enemigo a distancia.
 
 La fábrica elige la estrategia por tipo. La vista usa ese mismo tipo para
 dibujar sprites distintos aunque dos enemigos se comporten de forma parecida.
+El daño se configura por tipo de enemigo y el estado lo expone en
+`EstadoEnemigo::danio`. Combate aplica el daño y comunica la vida actual
+y máxima del veterinario para dibujar la barra en el HUD.
+
+### Ráfaga del vigía
+
+Como próximo ajuste de combate, el vigía hará una pausa breve antes de
+lanzar varios rayos de energía en abanico. Cada rayo se mueve y colisiona
+por separado. Los rayos deben dejar huecos para esquivar la ráfaga.
+Para dibujarlos, el estado del proyectil deberá incluir su dirección de
+vuelo además de la posición. Al acertar se retira el rayo y el HUD refleja
+la pérdida de vida. [Prompt del rayo](../../../../arte/prompts/mision/enemigos/vigia_rayo.txt)
 
 El combate entrega el estado final de cada cuadro. La misión consulta este
 estado para resolver el fallo y, si el veterinario sigue vivo, la recolección

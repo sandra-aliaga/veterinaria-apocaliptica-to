@@ -43,6 +43,7 @@ struct EstadoCombate {
     EstadoMovimiento movimiento_jugador;
     std::vector<EstadoEnemigo> enemigos;
     std::vector<Punto> proyectiles;
+    int vida_maxima = 100;
 };
 
 struct EstadoMision {
