@@ -1,0 +1,17 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO DE CUERPO COMPLETO
+
+Usa la hoja de caminata derecha del vigía de Pet Survivors como referencia.
+Dibuja al mismo personaje con capucha, bolsa y ropa azul petróleo #233C49,
+en tres cuartos desde una cámara ligeramente elevada. Mantén visibles sus
+pies, el mismo apoyo y la misma escala.
+
+Haz cuatro fotogramas orientados a la derecha. En el primero junta las
+manos cerca del pecho. En el segundo aparece una chispa verde lima
+#B9CC57. En el tercero extiende el brazo y desaparece la chispa.
+En el cuarto recoge el brazo. Dibuja el cambio con pocos bloques de color.
+Los rayos en vuelo se dibujan por separado con rayo.png.
+
+Entrega una fila PNG transparente de 128 × 32 px con cuatro celdas de
+32 × 32 px, llamada lanzar_derecha.png. Evita suelo, halos y divisores.
+Para lanzar_izquierda.png usa la hoja aprobada de la izquierda como
+referencia de la bolsa y conserva las poses en el mismo orden.

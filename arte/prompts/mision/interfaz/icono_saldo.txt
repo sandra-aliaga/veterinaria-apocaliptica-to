@@ -1,0 +1,10 @@
+ESTILO OBLIGATORIO — ICONO EN PIXEL ART RETRO
+
+Dibuja una moneda gastada para acompañar el número del saldo de
+Pet Survivors. Usa una forma redonda levemente aplanada, un borde
+ocre #8B7854, un bloque de luz crema #F3E9D2 y contorno carbón #161F26.
+La moneda debe leerse junto al contador en un panel oscuro.
+
+Centra la figura con aire alrededor. Evita logotipos, números, letras,
+marcos, destellos y suavizado. Entrega un PNG transparente de 12 × 12 px
+llamado icono_saldo.png.

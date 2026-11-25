@@ -1,11 +1,16 @@
 # Rol 5 · Controlador e integración
 
-El quinto frente implementa el controlador y conecta los módulos en el futuro
-`main.cpp`. Al iniciar, carga las fichas del catálogo, las entrega al
-consultorio y construye la misión con el planificador y el combate. Combate
+El quinto frente implementa el controlador y conecta los módulos en
+`main.cpp`. La versión de prueba arranca en `Pantalla::inicio` y usa dos
+fichas locales y una misión sencilla para recorrer la vista. Al integrar
+los módulos, el arranque entregará las fichas del catálogo al consultorio
+y construirá la misión con el planificador y el combate. Combate
 recibe la fábrica de enemigos y posee el arma. El controlador recibe el
 consultorio, la misión y la fábrica de mascotas mediante sus contratos. La
 vista conoce la entrada y el estado de pantalla.
+
+El controlador provisional y su formato de guardado están documentados en
+la [prueba jugable](../prueba_jugable/README.md).
 
 ## Entrega
 
@@ -25,21 +30,34 @@ que devuelvan una ficha, un objetivo y un resultado conocidos.
 | Entrada | Acción |
 |---|---|
 | W, A, S, D mantenidas | Arriba, izquierda, abajo y derecha. Direcciones opuestas se cancelan y la diagonal mantiene la misma velocidad. |
-| Esc al pulsar | Abre o cierra el menú de pausa. El menú ofrece Reanudar. |
+| Esc al pulsar | Abre o cierra el menú de pausa. Si se está confirmando un reinicio, vuelve al menú. |
 | Botón o avance de diálogo | La vista produce la acción indicada por el controlador para esa fase. |
 | Contacto con objeto o enemigo | El modelo resuelve la recolección y el combate automáticamente. |
 
-El controlador despacha las acciones discretas a comandos de examinar,
-aceptar, rechazar, reintentar, avanzar diálogo y alternar menú. Cada comando llama solo
-a su operación de `AccionesControlador`. WASD se procesa como la dirección
+El controlador de prueba valida y despacha las acciones en `actualizar()`.
+En el controlador integrado, cada comando llamará a su operación de
+`AccionesControlador`. WASD se procesa como la dirección
 continua de `EntradaCuadro`. Mientras el menú está abierto, se congelan la
-simulación, la recarga y el fundido. Solo queda habilitado cerrar el menú.
-Cerrar la ventana sigue siendo una acción de la aplicación.
+simulación, la recarga y el fundido. En la pausa se puede reanudar, guardar,
+reiniciar o salir. El bucle principal cierra la ventana cuando el controlador
+emite `salida_solicitada`.
+
+## Guardado de la partida de prueba
+
+El controlador traduce su estado a un registro versionado con el caso,
+la fase, la línea de diálogo, el saldo y, si hay una misión, la posición,
+el tiempo y los suministros recogidos. [ArchivoPartida](../persistencia/archivo_partida.h)
+escribe el registro en `datos/progreso_previa.txt`, usando un archivo temporal
+en la misma carpeta antes de reemplazar el guardado. Al pulsar **Jugar**,
+el controlador valida el registro y repone el estado. **Nueva partida**
+y **Reiniciar partida** conservan el guardado previo hasta la siguiente
+escritura explícita. El archivo local queda fuera de Git.
 
 ## Fases y acciones válidas
 
 | Fase | Acciones adicionales a Esc | Qué ocurre al terminar |
 |---|---|---|
+| `portada` | Jugar | Presenta el primer caso. |
 | `sin_casos` | Ninguna | Se muestra que la jornada terminó. |
 | `llegada` | Avanzar diálogo | Se habilita Examinar mascota. |
 | `por_examinar` | Examinar mascota | El controlador pasa a `resultado_examen` y la vista abre la ficha. |

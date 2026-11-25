@@ -1,0 +1,10 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO PARA DECORACIÓN
+
+Dibuja un pequeño grupo de escombros bajos para el campo de Pet Survivors.
+Vista en tres cuartos ligeramente elevada. Combina dos fragmentos
+irregulares de ladrillo apagado #784647 con uno de gris piedra #83847A.
+Usa sombra verde oscura #2B352C. Cada pieza ocupa solo unos pocos píxeles.
+El grupo debe parecer un detalle del suelo que se puede pisar.
+
+Evita figuras altas, brillos, cruces, letreros, suelo pintado y sombras
+proyectadas. Entrega un PNG transparente de 16 × 16 px llamado escombros.png.

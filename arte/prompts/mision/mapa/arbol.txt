@@ -1,0 +1,13 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO DE CUERPO COMPLETO
+
+Dibuja un árbol de copa irregular y escasa para el campo de Pet Survivors.
+Vista en tres cuartos desde una cámara ligeramente elevada. Muestra la
+copa, el tronco y el lugar donde el tronco toca el suelo. Usa verde oscuro
+#2B352C y verde oliva #586346 en la copa, y marrón tierra #695340 en el
+tronco. Usa silueta clara, bordes escalonados y pocos bloques de color.
+
+Coloca el centro de la base del tronco en el centro del borde inferior
+del sprite. La copa se abre hacia arriba y deja visible la base.
+Evita hojas finas, suelo pintado, sombras proyectadas y suavizado.
+
+Entrega solo un árbol en PNG transparente de 32 × 48 px como arbol.png.

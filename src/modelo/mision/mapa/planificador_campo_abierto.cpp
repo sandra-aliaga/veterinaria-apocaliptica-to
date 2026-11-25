@@ -300,6 +300,7 @@ std::vector<SuministroEnMapa> colocar_suministros(const PropuestaMision& propues
         candidatas = celdas_candidatas(rejilla, inicio, tamano_celda,
                                        std::numeric_limits<float>::infinity());
     }
+
     if (candidatas.empty()) {
         candidatas.push_back(inicio);
     }
@@ -406,6 +407,7 @@ Punto punto_en_perimetro(const Terreno& terreno, std::mt19937& generador) {
             punto = {limites.origen.x + limites.ancho - inset_perimetro, y};
             break;
         }
+
         if (posicion_valida_para_enemigo(terreno, punto)) {
             return punto;
         }
@@ -468,7 +470,9 @@ PlanificadorCampoAbierto::PlanificadorCampoAbierto(Rectangulo limites,
 Terreno PlanificadorCampoAbierto::preparar(const PropuestaMision& propuesta) {
     if (semilla_fija_) {
         generador_.seed(*semilla_fija_);
-    } else {
+    }
+
+    else {
         std::random_device dispositivo;
         generador_.seed(dispositivo());
     }

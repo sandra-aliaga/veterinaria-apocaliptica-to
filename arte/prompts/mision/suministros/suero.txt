@@ -1,0 +1,11 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO PARA OBJETOS
+
+Dibuja una bolsa blanda de suero cerrada para Pet Survivors. Vista en
+tres cuartos ligeramente elevada. La bolsa es achatada, más ancha que
+alta, con esquinas suaves dibujadas en escalones y una boquilla corta.
+Usa gris claro apagado #B7C8BC en la bolsa, carbón #161F26 en el contorno
+y verde menta #87C7A1 en la boquilla. Debe distinguirse del frasco rígido
+de antiséptico y del rollo de vendas por su silueta.
+
+Centra el objeto. Evita texto, soportes, mangueras largas, sombras y
+degradados. Entrega un PNG transparente de 16 × 16 px llamado suero.png.

@@ -1,0 +1,31 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO DE CUERPO COMPLETO
+
+Crea una hoja de sprites de una rata mutada para Pet Survivors.
+Usa una cuadrícula de píxeles cuadrados, bordes nítidos y sombras por
+bloques. Sin antialiasing, degradados, acabado 3D ni líneas finas.
+El personaje debe leerse al tamaño final sobre pasto oliva #586346,
+entre muchos personajes en pantalla.
+
+Perspectiva de tres cuartos desde una cámara ligeramente elevada, propia
+de un juego 2D de acción. Muestra el personaje de cuerpo completo, desde
+la cabeza hasta los pies o patas. El torso y la longitud de las piernas
+deben apreciarse en la silueta. El personaje camina hacia la derecha.
+Conserva esta altura de cámara y el cuerpo entero en las cuatro celdas.
+
+Una rata mutada baja y redonda con orejas redondas cortas y cola larga
+curvada hacia atrás. Usa gris piedra #83847A, sombra #2B352C y dos o
+tres píxeles verde lima #B9CC57 en el lomo. Agrupa el cuerpo en un solo
+volumen. Evita dientes finos, halos y múltiples colas.
+
+Entrega una fila de cuatro fotogramas de caminata, centrados en cuatro
+celdas iguales y contiguas. Usa la primera celda como pose de apoyo para
+reposo, luego alterna el apoyo de las patas o pies sin variar el tamaño
+ni mover el cuerpo fuera de su anclaje. Usa PNG con transparencia real,
+sin suelo, sombras proyectadas, cuadrícula dibujada, etiquetas ni divisores.
+Tamaño final por fotograma de 24 × 24 px. La hoja completa mide 96 × 24 px.
+Guárdala como caminar_derecha.png.
+
+Para sacar caminar_izquierda.png, usa esta hoja como referencia y cambia
+la orientación de cada celda por separado. Conserva el orden de los cuatro
+fotogramas. Si el personaje es simétrico, puedes voltear cada celda
+horizontalmente con un editor de imágenes.

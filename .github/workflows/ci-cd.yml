@@ -37,7 +37,8 @@ jobs:
       - name: Comprobar cabeceras, fichas y README
         run: python pruebas/verificar_base.py
 
-      - name: Verificar formato C++
+      - name: Aplicar formato C++
+        id: formato
         if: ${{ matrix.plataforma == 'Linux' }}
         shell: bash
         run: |
@@ -45,8 +46,28 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y clang-format
           fi
-          git ls-files -z -- '*.h' '*.hpp' '*.c' '*.cc' '*.cpp' '*.cxx' \
-            | xargs -0 -r clang-format --dry-run --Werror
+          python pruebas/formato_cpp.py --corregir
+          if git diff --quiet; then
+            echo "cambios=false" >> "$GITHUB_OUTPUT"
+          else
+            git diff --binary > "$RUNNER_TEMP/formato-cpp.patch"
+            echo "cambios=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publicar correcciones propuestas
+        if: ${{ steps.formato.outputs.cambios == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: formato-cpp
+          path: ${{ runner.temp }}/formato-cpp.patch
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Solicitar que se aplique el formato
+        if: ${{ steps.formato.outputs.cambios == 'true' }}
+        run: |
+          echo "::error::Descarga el parche formato-cpp o ejecuta python pruebas/formato_cpp.py --corregir antes de actualizar el PR."
+          exit 1
 
   verificar:
     name: Verificar integración
