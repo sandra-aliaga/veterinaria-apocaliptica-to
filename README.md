@@ -10,9 +10,11 @@ suministros en una misión con oleadas y un arma automática. Al recoger la
 última cantidad necesaria, la pantalla se oscurece y el veterinario vuelve a
 la clínica para completar el tratamiento.
 
-La primera versión de la vista permite recorrer la portada, el consultorio
-y una misión de prueba. Usa dos fichas de ejemplo. El catálogo JSON, el mapa
-procedural y el combate se integrarán cuando estén disponibles sus módulos.
+El juego conecta la portada, el consultorio y la misión. Lee del [catálogo
+JSON](datos/README.md) los casos de Mora y Toby y sus reacciones. Cada
+intento genera un campo con obstáculos y suministros, y programa oleadas
+de enemigos. El consultorio procesa el resultado y aplica el cobro o el
+reintento.
 
 ## Abrir en Qt Creator
 
@@ -21,8 +23,8 @@ procedural y el combate se integrarán cuando estén disponibles sus módulos.
 2. Cada rol añade sus `.cpp` en `src/`. El proyecto toma las cabeceras de
    `src/` y también admite `include/` para la estructura de entrega.
 3. En la configuración de ejecución, usa la raíz del repositorio como
-   directorio de trabajo para cargar los PNG de `arte/`. Qmake compila el
-   ejecutable `veterinaria` en `bin/` dentro del directorio de compilación.
+   directorio de trabajo para cargar los JSON de `datos/` y los PNG de `arte/`.
+   Qmake compila `veterinaria` en `bin/` dentro del directorio de compilación.
 
 En Linux se puede configurar y compilar también desde la raíz:
 
@@ -44,6 +46,10 @@ para recogerlos y usa **Esc** para pausar o reanudar.
 
 En pausa, **Guardar progreso** escribe un punto de guardado local. Al volver
 a abrir el juego, **Jugar** lo carga y **Nueva partida** empieza de cero.
+Se guardan el caso, la fase, la línea de diálogo y el saldo. Una partida
+guardada durante el combate vuelve al inicio de ese intento al cargar.
+Si se guarda durante el fundido de regreso, se retoma en la clínica con
+el resultado registrado.
 **Reiniciar partida** vuelve al primer caso tras pedir confirmación. Una
 partida nueva o reiniciada reemplaza el guardado anterior al pulsar
 **Guardar progreso**. **Salir** cierra el juego.
@@ -240,6 +246,10 @@ classDiagram
         +actualizar(entrada, segundos)
         +estado_pantalla()
     }
+    class ControladorJuego {
+        +actualizar(entrada, segundos)
+        +estado_pantalla()
+    }
     class EstadoPantalla {
         +pantalla
         +fase
@@ -249,10 +259,10 @@ classDiagram
         +ficha
         +dialogo
         +mision
+        +aviso_recogida
         +edad_humana_mascota
         +motivo_fallo
         +saldo
-        +retrato_alternativo
     }
     class AccionesControlador {
         <<interface>>
@@ -313,8 +323,10 @@ classDiagram
     Controlador ..> EstadoPantalla : prepara
     AccionesControlador <|-- Controlador
     Comando ..> AccionesControlador : ejecuta una accion
-    Controlador ..> Consultorio : gestiona el caso
-    Controlador ..> Mision : coordina el intento
+    Controlador <|-- ControladorJuego
+    ReceptorEventosMision <|.. ControladorJuego
+    ControladorJuego ..> Consultorio : gestiona el caso
+    ControladorJuego ..> Mision : coordina el intento
     Mision ..> PlanificadorMapa : prepara el terreno
     PlanificadorMapa <|-- PlanificadorCampoAbierto
     PlanificadorMapa ..> Terreno : devuelve
@@ -371,6 +383,8 @@ classDiagram
     class LineaDialogo {
         +hablante
         +texto
+        +sprite_dueno
+        +retrato_mascota
     }
     class CantidadSuministro {
         +id

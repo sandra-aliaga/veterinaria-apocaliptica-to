@@ -7,8 +7,8 @@ usa una ficha de examen para revisar el caso antes de decidir.
 La implementación en [raylib](vista_raylib.cpp) tiene tres pantallas.
 Convierte botones y teclas en `EntradaCuadro` y dibuja `EstadoPantalla`.
 Lee de ahí la ficha, el diálogo, el saldo, el tiempo y las acciones válidas.
-El [controlador de prueba](../prueba_jugable/controlador_prueba.h) entrega
-dos casos de ejemplo y una misión con formas provisionales.
+El [controlador del juego](../controlador/controlador_juego.h) entrega
+los casos del catálogo y el estado de la misión activa.
 
 ## Inicio
 
@@ -81,20 +81,17 @@ que indica `acciones_disponibles`. La acción de examen se envía como
 
 El HUD de la misión muestra el progreso de cada suministro, el tiempo
 restante en `MM:SS` y una barra con la vida actual y máxima del veterinario.
-La barra cambia a rojo cuando queda un cuarto de vida o menos.
-Si el intento falla, la clínica indica si se agotó el
-tiempo o si el veterinario perdió toda la vida. La vista lee
-la orientación horizontal del veterinario y de los enemigos. Con esos datos
-elige la hoja izquierda o derecha y avanza los fotogramas si el personaje
-camina. El modelo mantiene su orientación al detenerse o al moverse solo
-en vertical.
+La barra cambia a rojo cuando queda un cuarto de vida o menos. Al recoger
+un objeto aparece un aviso. Cuando el suministro más cercano queda fuera
+de cámara, una flecha indica su dirección. Si el intento falla, la clínica
+indica si se agotó el tiempo o el veterinario perdió toda la vida.
 
-La vista dibuja el pasto repetido dentro de los límites de `Terreno` y
-usa `ObstaculoMapa::tipo` para elegir el PNG. Coloca el centro inferior de
-cada sprite sobre su `anclaje`. El rectángulo `colision` lo usa combate.
-Mientras faltan los PNG, se muestran una base de color y figuras provisionales.
-El planificador determinará la distribución de los materiales cuando
-`Terreno` incluya una capa de suelo.
+Los obstáculos y suministros usan sus PNG. La vista apoya cada obstáculo
+sobre su anclaje y el modelo resuelve la colisión. El suelo admite una
+baldosa de pasto. Actualmente usa una base de color con hierba seca y
+escombros distribuidos de forma estable sobre el mapa. El veterinario,
+los distintos tipos de enemigo y los proyectiles se ven con figuras
+provisionales a partir de sus posiciones en el estado de combate.
 [Rutas y prompts del campo](../../arte/README.md#prompts-del-suelo-y-los-obstáculos)
 
 W, A, S y D se traducen a una dirección y Esc alterna el menú. Primero se

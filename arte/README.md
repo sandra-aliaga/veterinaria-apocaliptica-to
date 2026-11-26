@@ -24,11 +24,11 @@
 | 1 | Pendiente | [pasto.png](prompts/mision/mapa/pasto.txt) | `arte/mapa/` |
 | 2 | Pendiente | [tierra.png](prompts/mision/mapa/tierra.txt) | `arte/mapa/` |
 | 3 | Pendiente | [transicion_pasto_tierra.png](prompts/mision/mapa/transicion_pasto_tierra.txt) | `arte/mapa/` |
-|  | Pendiente | [arbol.png](prompts/mision/mapa/arbol.txt) | `arte/mapa/obstaculos/` |
-|  | Pendiente | [roca.png](prompts/mision/mapa/roca.txt) | `arte/mapa/obstaculos/` |
-|  | Pendiente | [tronco.png](prompts/mision/mapa/tronco.txt) | `arte/mapa/obstaculos/` |
-|  | Pendiente | [hierba_seca.png](prompts/mision/mapa/hierba_seca.txt) | `arte/mapa/decoracion/` |
-|  | Pendiente | [escombros.png](prompts/mision/mapa/escombros.txt) | `arte/mapa/decoracion/` |
+|  | Hecho | [arbol.png](prompts/mision/mapa/arbol.txt) | `arte/mapa/obstaculos/` |
+|  | Hecho | [roca.png](prompts/mision/mapa/roca.txt) | `arte/mapa/obstaculos/` |
+|  | Hecho | [tronco.png](prompts/mision/mapa/tronco.txt) | `arte/mapa/obstaculos/` |
+|  | Hecho | [hierba_seca.png](prompts/mision/mapa/hierba_seca.txt) | `arte/mapa/decoracion/` |
+|  | Hecho | [escombros.png](prompts/mision/mapa/escombros.txt) | `arte/mapa/decoracion/` |
 | 1 | Pendiente | [caminar_derecha.png](prompts/mision/veterinario.txt) | `arte/veterinario/` |
 | 2 | Pendiente | [caminar_izquierda.png](prompts/mision/veterinario.txt) | `arte/veterinario/` |
 | 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/perro_asilvestrado.txt) | `arte/enemigos/perro_asilvestrado/` |
@@ -47,9 +47,9 @@
 | 1 | Pendiente | [latigo.png](prompts/mision/armas/latigo.txt) | `arte/armas/latigo/` |
 | 2 | Pendiente | [ataque_derecha.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
 | 3 | Pendiente | [ataque_izquierda.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
-|  | Pendiente | [vendas.png](prompts/mision/suministros/vendas.txt) | `arte/suministros/` |
-|  | Pendiente | [antiseptico.png](prompts/mision/suministros/antiseptico.txt) | `arte/suministros/` |
-|  | Pendiente | [suero.png](prompts/mision/suministros/suero.txt) | `arte/suministros/` |
+|  | Hecho | [vendas.png](prompts/mision/suministros/vendas.txt) | `arte/suministros/` |
+|  | Hecho | [antiseptico.png](prompts/mision/suministros/antiseptico.txt) | `arte/suministros/` |
+|  | Hecho | [suero.png](prompts/mision/suministros/suero.txt) | `arte/suministros/` |
 |  | Pendiente | [danio_veterinario.png](prompts/mision/efectos/danio_veterinario.txt) | `arte/efectos/` |
 |  | Pendiente | [impacto_latigo.png](prompts/mision/efectos/impacto_latigo.txt) | `arte/efectos/` |
 |  | Pendiente | [recoger_suministro.png](prompts/mision/efectos/recoger_suministro.txt) | `arte/efectos/` |

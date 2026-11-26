@@ -10,6 +10,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <system_error>
+#include <utility>
 
 namespace veterinaria {
 
@@ -135,12 +136,26 @@ std::vector<LineaDialogo> leer_etapa(const ValorJson& dialogos, const std::strin
     for (std::size_t i = 0; i < elementos.size(); ++i) {
         const std::string ruta_linea = ruta + "[" + std::to_string(i) + "]";
 
-        if (elementos[i].tipo() != TipoJson::objeto) {
+        const auto& elemento = elementos[i];
+
+        if (elemento.tipo() != TipoJson::objeto) {
             fallar(ruta_linea, "se esperaba un objeto con hablante y texto");
         }
 
-        lineas.push_back(
-            {leer_hablante(elementos[i], ruta_linea), texto_en(elementos[i], ruta_linea, "texto")});
+        LineaDialogo linea{
+            leer_hablante(elemento, ruta_linea),
+            texto_en(elemento, ruta_linea, "texto"),
+        };
+
+        if (elemento.buscar("sprite_dueno")) {
+            linea.sprite_dueno = ruta_recurso_en(elemento, ruta_linea, "sprite_dueno");
+        }
+
+        if (elemento.buscar("retrato_mascota")) {
+            linea.retrato_mascota = ruta_recurso_en(elemento, ruta_linea, "retrato_mascota");
+        }
+
+        lineas.push_back(std::move(linea));
     }
 
     return lineas;

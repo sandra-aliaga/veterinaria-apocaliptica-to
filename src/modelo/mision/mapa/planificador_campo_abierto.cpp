@@ -25,6 +25,7 @@ constexpr float duracion_por_defecto = 300.0F;
 constexpr float primer_grupo = 5.0F;
 constexpr float retraso_entre_enemigos = 0.4F;
 constexpr float distancia_minima_enemigos = 160.0F; // Espacio libre alrededor del veterinario.
+constexpr float radio_maximo_enemigos = 300.0F;
 constexpr float inset_perimetro = 8.0F;
 constexpr float radio_cerca_suministro = 96.0F;
 constexpr int intentos_de_posicion = 20;
@@ -415,6 +416,25 @@ Punto punto_en_perimetro(const Terreno& terreno, std::mt19937& generador) {
     return punto;
 }
 
+std::optional<Punto> punto_alrededor_del_jugador(const Terreno& terreno, Punto jugador,
+                                                 std::mt19937& generador) {
+    for (int intento = 0; intento < intentos_de_posicion; ++intento) {
+        const float angulo = aleatorio_unidad(generador) * 2.0F * pi;
+        const float radio =
+            distancia_minima_enemigos +
+            aleatorio_unidad(generador) * (radio_maximo_enemigos - distancia_minima_enemigos);
+        const Punto punto{jugador.x + std::cos(angulo) * radio,
+                          jugador.y + std::sin(angulo) * radio};
+
+        if (dentro_de_limites(terreno.limites, punto, inset_perimetro) &&
+            !dentro_de_obstaculo(punto, terreno.obstaculos)) {
+            return punto;
+        }
+    }
+
+    return std::nullopt;
+}
+
 // Los tiradores aparecen cerca de un suministro; si no hay sitio, en el perimetro.
 Punto punto_cerca_de_suministro(const Terreno& terreno, std::mt19937& generador) {
     if (!terreno.suministros.empty()) {
@@ -507,6 +527,38 @@ std::vector<Aparicion> PlanificadorCampoAbierto::avanzar(float segundos) {
         ++siguiente_aparicion_;
     }
     return vencidas;
+}
+
+std::vector<Aparicion> PlanificadorCampoAbierto::avanzar(float segundos, Punto jugador,
+                                                         const Terreno& terreno) {
+    auto apariciones = avanzar(segundos);
+
+    for (auto aparicion = apariciones.begin(); aparicion != apariciones.end();) {
+        if (aparicion->tipo == TipoEnemigo::superviviente_a_distancia &&
+            !terreno.suministros.empty()) {
+            aparicion->posicion = punto_cerca_de_suministro(terreno, generador_);
+
+            if (distancia(aparicion->posicion, jugador) >= distancia_minima_enemigos &&
+                dentro_de_limites(terreno.limites, aparicion->posicion, inset_perimetro) &&
+                !dentro_de_obstaculo(aparicion->posicion, terreno.obstaculos)) {
+                ++aparicion;
+                continue;
+            }
+        }
+
+        const auto punto = punto_alrededor_del_jugador(terreno, jugador, generador_);
+
+        if (punto) {
+            aparicion->posicion = *punto;
+            ++aparicion;
+        }
+
+        else {
+            aparicion = apariciones.erase(aparicion);
+        }
+    }
+
+    return apariciones;
 }
 
 } // namespace veterinaria

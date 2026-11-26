@@ -27,10 +27,23 @@ constexpr char pasto_mapa[] = "arte/mapa/pasto.png";
 constexpr char arbol_mapa[] = "arte/mapa/obstaculos/arbol.png";
 constexpr char roca_mapa[] = "arte/mapa/obstaculos/roca.png";
 constexpr char tronco_mapa[] = "arte/mapa/obstaculos/tronco.png";
+constexpr char hierba_mapa[] = "arte/mapa/decoracion/hierba_seca.png";
+constexpr char escombros_mapa[] = "arte/mapa/decoracion/escombros.png";
+
+struct RecursoSuministro {
+    const char* id;
+    const char* ruta;
+};
+
+constexpr std::array recursos_suministros{
+    RecursoSuministro{"antiseptico", "arte/suministros/antiseptico.png"},
+    RecursoSuministro{"suero", "arte/suministros/suero.png"},
+    RecursoSuministro{"vendas", "arte/suministros/vendas.png"},
+};
 
 constexpr std::array texturas_fijas{
-    fondo_inicio, titulo_inicio, boton_jugar, cursor_normal, fondo_clinica,
-    pasto_mapa,   arbol_mapa,    roca_mapa,   tronco_mapa,
+    fondo_inicio, titulo_inicio, boton_jugar, cursor_normal, fondo_clinica,  pasto_mapa,
+    arbol_mapa,   roca_mapa,     tronco_mapa, hierba_mapa,   escombros_mapa,
 };
 
 constexpr int ancho = 640;
@@ -54,6 +67,11 @@ constexpr Color menta{135, 199, 161, 255};
 constexpr Color suelo_base{37, 50, 44, 255};
 constexpr Color copa_arbol{61, 83, 61, 255};
 constexpr float lado_baldosa = 16;
+constexpr float celda_decoracion = 56;
+constexpr float lado_suministro = 18;
+constexpr Rectangle area_aviso_recogida{208, 309, 224, 31};
+constexpr Rectangle area_guia_mision{474, 309, 154, 42};
+constexpr Vector2 centro_flecha_mision{609, 330};
 
 struct RecursoObstaculo {
     TipoObstaculo tipo;
@@ -155,8 +173,11 @@ class VistaRaylib final : public Vista {
     void dibujar_ficha(const EstadoPantalla& estado);
     void dibujar_mision(const EstadoMision& estado);
     void dibujar_suelo(const Rectangulo& limites, Punto camara) const;
+    void dibujar_decoracion(const Rectangulo& limites, Punto camara) const;
+    void dibujar_suministro(const CantidadSuministro& suministro, Vector2 posicion) const;
     void dibujar_obstaculo(TipoObstaculo tipo, Vector2 anclaje) const;
     void dibujar_hud_mision(const EstadoMision& estado);
+    void dibujar_guia_mision(const EstadoMision& estado, Punto camara) const;
     void dibujar_vida(const EstadoCombate& combate) const;
     void dibujar_pausa(const EstadoPantalla& estado);
 
@@ -266,6 +287,10 @@ VistaRaylib::VistaRaylib() {
 
     for (const char* ruta : texturas_fijas) {
         cargar_textura(ruta);
+    }
+
+    for (const auto& recurso : recursos_suministros) {
+        cargar_textura(recurso.ruta);
     }
 
     const auto pasto = textura(pasto_mapa);
@@ -386,7 +411,11 @@ void VistaRaylib::preparar_retratos(const EstadoPantalla& estado) {
 
     cargar_textura(estado.ficha->dueno.sprite);
     cargar_textura(estado.ficha->mascota.retrato);
-    cargar_textura(estado.retrato_alternativo);
+
+    if (estado.dialogo) {
+        cargar_textura(estado.dialogo->sprite_dueno);
+        cargar_textura(estado.dialogo->retrato_mascota);
+    }
 }
 
 bool VistaRaylib::imagen(const std::string& ruta, Rectangle destino, Color tinte) const {
@@ -480,6 +509,14 @@ void VistaRaylib::dibujar(const EstadoPantalla& estado) {
     case Pantalla::mision:
         if (estado.mision) {
             dibujar_mision(*estado.mision);
+
+            if (estado.aviso_recogida) {
+                const auto& recogido = *estado.aviso_recogida;
+                panel(area_aviso_recogida);
+                texto("+" + std::to_string(recogido.cantidad) + " " +
+                          nombre_suministro(recogido.id),
+                      {area_aviso_recogida.x + 12, area_aviso_recogida.y + 6}, 17, menta);
+            }
         }
         break;
     }
@@ -535,12 +572,16 @@ void VistaRaylib::dibujar_clinica(const EstadoPantalla& estado) {
     const auto* ficha = estado.ficha;
 
     if (ficha) {
-        if (!imagen(ficha->dueno.sprite, area_dueno)) {
+        const bool reaccion_dueno =
+            estado.dialogo && imagen(estado.dialogo->sprite_dueno, area_dueno);
+        const bool reaccion_mascota =
+            estado.dialogo && imagen(estado.dialogo->retrato_mascota, area_mascota);
+
+        if (!reaccion_dueno && !imagen(ficha->dueno.sprite, area_dueno)) {
             texto(ficha->dueno.nombre, {22, 238}, 14, crema);
         }
 
-        if (!imagen(estado.retrato_alternativo, area_mascota) &&
-            !imagen(ficha->mascota.retrato, area_mascota)) {
+        if (!reaccion_mascota && !imagen(ficha->mascota.retrato, area_mascota)) {
             texto(ficha->mascota.nombre, {139, 166}, 14, crema);
         }
     }
@@ -629,23 +670,29 @@ void VistaRaylib::dibujar_mision(const EstadoMision& estado) {
         return {std::floor(punto.x - camara_x), std::floor(punto.y - camara_y)};
     };
     dibujar_suelo(limites, {camara_x, camara_y});
+    dibujar_decoracion(limites, {camara_x, camara_y});
 
     for (const auto& obstaculo : estado.terreno.obstaculos) {
         dibujar_obstaculo(obstaculo.tipo, visible(obstaculo.anclaje));
     }
 
     for (const auto& suministro : estado.terreno.suministros) {
-        const auto posicion = visible(suministro.posicion);
-        DrawRectangleV({posicion.x - 7, posicion.y - 6}, {14, 12}, menta);
-        DrawLineV({posicion.x - 4, posicion.y}, {posicion.x + 4, posicion.y}, carbon);
-        DrawLineV({posicion.x, posicion.y - 4}, {posicion.x, posicion.y + 4}, carbon);
-        texto(nombre_suministro(suministro.contenido.id), {posicion.x - 14, posicion.y + 9}, 11,
-              crema);
+        dibujar_suministro(suministro.contenido, visible(suministro.posicion));
     }
 
     for (const auto& enemigo : combate.enemigos) {
         const auto posicion = visible(enemigo.posicion);
-        DrawRectangleV({posicion.x - 6, posicion.y - 9}, {12, 12}, ladrillo);
+        switch (enemigo.tipo) {
+        case TipoEnemigo::animal_de_contacto:
+            DrawEllipse(static_cast<int>(posicion.x), static_cast<int>(posicion.y), 9, 5, ladrillo);
+            break;
+        case TipoEnemigo::superviviente_de_contacto:
+            DrawRectangleV({posicion.x - 6, posicion.y - 13}, {12, 16}, ladrillo);
+            break;
+        case TipoEnemigo::superviviente_a_distancia:
+            DrawRectangleV({posicion.x - 6, posicion.y - 13}, {12, 16}, ORANGE);
+            break;
+        }
     }
 
     for (const auto& proyectil : combate.proyectiles) {
@@ -658,6 +705,7 @@ void VistaRaylib::dibujar_mision(const EstadoMision& estado) {
     DrawRectangleV({jugador.x + (izquierda ? -9 : 4), jugador.y - 8}, {5, 6}, petroleo);
 
     dibujar_hud_mision(estado);
+    dibujar_guia_mision(estado, {camara_x, camara_y});
 }
 
 void VistaRaylib::dibujar_suelo(const Rectangulo& limites, Punto camara) const {
@@ -692,6 +740,49 @@ void VistaRaylib::dibujar_suelo(const Rectangulo& limites, Punto camara) const {
         abajo - arriba,
     };
     DrawTexturePro(pasto, region_textura, region_lienzo, {0, 0}, 0, WHITE);
+}
+
+void VistaRaylib::dibujar_decoracion(const Rectangulo& limites, Punto camara) const {
+    const int primera_columna = static_cast<int>((camara.x - limites.origen.x) / celda_decoracion);
+    const int primera_fila = static_cast<int>((camara.y - limites.origen.y) / celda_decoracion);
+
+    for (int fila = primera_fila; fila <= primera_fila + alto / celda_decoracion + 1; ++fila) {
+        for (int columna = primera_columna;
+             columna <= primera_columna + ancho / celda_decoracion + 1; ++columna) {
+            const unsigned patron = static_cast<unsigned>(fila) * 73856093U ^
+                                    static_cast<unsigned>(columna) * 19349663U;
+            const float x = limites.origen.x + columna * celda_decoracion + patron % 23;
+            const float y = limites.origen.y + fila * celda_decoracion + (patron / 23) % 27;
+
+            if (x + 24 <= limites.origen.x + limites.ancho &&
+                y + 16 <= limites.origen.y + limites.alto) {
+                if (patron % 5 == 0) {
+                    imagen(escombros_mapa, {x - camara.x, y - camara.y, 24, 16});
+                }
+
+                else if (patron % 5 <= 2) {
+                    imagen(hierba_mapa, {x - camara.x, y - camara.y, 16, 16});
+                }
+            }
+        }
+    }
+}
+
+void VistaRaylib::dibujar_suministro(const CantidadSuministro& suministro, Vector2 posicion) const {
+    const auto recurso = std::find_if(recursos_suministros.begin(), recursos_suministros.end(),
+                                      [&suministro](const RecursoSuministro& candidato) {
+                                          return candidato.id == suministro.id;
+                                      });
+    const Rectangle area{posicion.x - lado_suministro / 2, posicion.y - lado_suministro / 2,
+                         lado_suministro, lado_suministro};
+
+    if (recurso == recursos_suministros.end() || !imagen(recurso->ruta, area)) {
+        DrawRectangleRec(area, menta);
+        DrawLineV({posicion.x - 4, posicion.y}, {posicion.x + 4, posicion.y}, carbon);
+        DrawLineV({posicion.x, posicion.y - 4}, {posicion.x, posicion.y + 4}, carbon);
+    }
+
+    texto(nombre_suministro(suministro.id), {posicion.x - 14, posicion.y + 10}, 11, crema);
 }
 
 void VistaRaylib::dibujar_obstaculo(TipoObstaculo tipo, Vector2 anclaje) const {
@@ -751,6 +842,41 @@ void VistaRaylib::dibujar_hud_mision(const EstadoMision& estado) {
     panel(panel_reloj);
     texto(reloj(estado.segundos_restantes), {506, 18}, 19, crema);
     dibujar_vida(estado.combate);
+}
+
+void VistaRaylib::dibujar_guia_mision(const EstadoMision& estado, Punto camara) const {
+    const auto& jugador = estado.combate.jugador;
+    const auto& suministros = estado.terreno.suministros;
+    const auto distancia = [&jugador](const SuministroEnMapa& suministro) {
+        return std::hypot(suministro.posicion.x - jugador.x, suministro.posicion.y - jugador.y);
+    };
+    const auto cercano = std::min_element(
+        suministros.begin(), suministros.end(),
+        [&distancia](const auto& a, const auto& b) { return distancia(a) < distancia(b); });
+
+    if (cercano == suministros.end()) {
+        return;
+    }
+
+    const Vector2 relativo{cercano->posicion.x - camara.x, cercano->posicion.y - camara.y};
+    const float magnitud = distancia(*cercano);
+
+    if (magnitud <= 0.0F || CheckCollisionPointRec(relativo, lienzo_completo)) {
+        return;
+    }
+
+    const Vector2 direccion{(cercano->posicion.x - jugador.x) / magnitud,
+                            (cercano->posicion.y - jugador.y) / magnitud};
+    const Vector2 punta{centro_flecha_mision.x + direccion.x * 9,
+                        centro_flecha_mision.y + direccion.y * 9};
+    const Vector2 cola{centro_flecha_mision.x - direccion.x * 6,
+                       centro_flecha_mision.y - direccion.y * 6};
+    const Vector2 ala_a{cola.x - direccion.y * 5, cola.y + direccion.x * 5};
+    const Vector2 ala_b{cola.x + direccion.y * 5, cola.y - direccion.x * 5};
+    panel(area_guia_mision);
+    texto("Más cercano", {484, 314}, 13, gris);
+    texto(nombre_suministro(cercano->contenido.id), {484, 330}, 15, crema);
+    DrawTriangle(punta, ala_b, ala_a, menta);
 }
 
 void VistaRaylib::dibujar_vida(const EstadoCombate& combate) const {

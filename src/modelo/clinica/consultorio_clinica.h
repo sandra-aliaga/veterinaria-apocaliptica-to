@@ -13,6 +13,7 @@ class ConsultorioClinica : public Consultorio {
     ConsultorioClinica();
     ~ConsultorioClinica() override;
 
+    void reiniciar(int saldo = 0) override;
     void recibir(CasoClinico caso) override;
 
     const CasoClinico* ficha_pendiente() const override;

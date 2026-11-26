@@ -17,6 +17,7 @@ class PlanificadorCampoAbierto final : public PlanificadorMapa {
 
     Terreno preparar(const PropuestaMision& propuesta) override;
     std::vector<Aparicion> avanzar(float segundos) override;
+    std::vector<Aparicion> avanzar(float segundos, Punto jugador, const Terreno& terreno) override;
 
   private:
     struct AparicionProgramada {

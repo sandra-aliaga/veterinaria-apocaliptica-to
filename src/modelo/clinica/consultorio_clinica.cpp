@@ -35,6 +35,15 @@ ConsultorioClinica::ConsultorioClinica() : intento_en_curso_(false), saldo_(0) {
 
 ConsultorioClinica::~ConsultorioClinica() = default;
 
+void ConsultorioClinica::reiniciar(int saldo) {
+    while (cola_.extraer()) {
+    }
+
+    activo_.reset();
+    intento_en_curso_ = false;
+    saldo_ = saldo;
+}
+
 void ConsultorioClinica::recibir(CasoClinico caso) {
     cola_.encolar(std::move(caso));
 }
