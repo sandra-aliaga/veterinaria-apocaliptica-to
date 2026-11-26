@@ -2,3 +2,4 @@
 /entrega/
 __pycache__/
 *.pro.user*
+/datos/progreso_previa.txt*

@@ -1,0 +1,10 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO PARA DECORACIÓN
+
+Dibuja una mata pequeña de hierba seca para Pet Survivors. Vista en tres
+cuartos ligeramente elevada. Usa tres tallos bajos en verde oliva #586346
+y ocre apagado #8B7854 con sombra verde oscura #2B352C. Usa un contraste
+discreto para que la mata se lea como decoración del suelo.
+
+Deja los tallos cerca del centro inferior. Usa píxeles cuadrados, sin
+suelo dibujado, halos, bordes suavizados ni sombras proyectadas. Entrega
+un PNG transparente de 16 × 16 px llamado hierba_seca.png.

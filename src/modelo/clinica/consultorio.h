@@ -13,6 +13,8 @@ class Consultorio {
   public:
     virtual ~Consultorio();
 
+    /// Restablece la jornada con el saldo de un punto de guardado.
+    virtual void reiniciar(int saldo = 0) = 0;
     virtual void recibir(CasoClinico caso) = 0;
 
     /// Los punteros consultados se usan antes de volver a modificar el consultorio.

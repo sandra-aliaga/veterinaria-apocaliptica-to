@@ -23,8 +23,11 @@ Para la prueba de cinco minutos, empezar con grupos pequeños de animales
 durante el primer minuto. Después pueden aparecer supervivientes de contacto
 y, en las oleadas densas del tramo final, supervivientes a distancia cerca
 de los suministros. Los enemigos aparecen en el
-perímetro y dejan espacio alrededor del veterinario. El objetivo se puede
-recoger desde el inicio. En la primera prueba, buscar que un recorrido
+perímetro en el plan base. En el juego, los enemigos de contacto aparecen
+a una distancia segura de la posición actual del veterinario. Los tiradores
+buscan un lugar cerca de un suministro pendiente con esa misma separación.
+El jugador puede recoger el objetivo desde el inicio. En la primera prueba,
+buscar que un recorrido
 directo se pueda completar en dos o tres minutos y ajustar el tamaño y la
 frecuencia de los grupos según cómo se juega.
 

@@ -10,9 +10,11 @@ suministros en una misión con oleadas y un arma automática. Al recoger la
 última cantidad necesaria, la pantalla se oscurece y el veterinario vuelve a
 la clínica para completar el tratamiento.
 
-Esta base contiene contratos C++ en cabeceras `.h` y documentación. El equipo
-implementará los `.cpp`, los archivos JSON, los recursos y la compilación del
-juego. Raylib se usará desde la vista.
+El juego conecta la portada, el consultorio y la misión. Lee del [catálogo
+JSON](datos/README.md) los casos de Mora y Toby y sus reacciones. Cada
+intento genera un campo con obstáculos y suministros, y programa oleadas
+de enemigos. El consultorio procesa el resultado y aplica el cobro o el
+reintento.
 
 ## Abrir en Qt Creator
 
@@ -20,28 +22,37 @@ juego. Raylib se usará desde la vista.
    de escritorio Qt 5 o Qt 6 con un compilador que soporte C++17.
 2. Cada rol añade sus `.cpp` en `src/`. El proyecto toma las cabeceras de
    `src/` y también admite `include/` para la estructura de entrega.
-3. El rol 5 añade `src/main.cpp` como punto de entrada. En la configuración
-   de ejecución, usa la raíz del repositorio como directorio de trabajo para
-   que las rutas `arte/` y `datos/` se resuelvan desde ahí.
-
-Con solo cabeceras, qmake prepara el proyecto. Si hay `.cpp` y aún falta
-`src/main.cpp`, compila una biblioteca estática para comprobar los módulos.
-Cuando se agregue `src/main.cpp`, compila el ejecutable `veterinaria` en la
-carpeta `bin/` del directorio de compilación.
+3. En la configuración de ejecución, usa la raíz del repositorio como
+   directorio de trabajo para cargar los JSON de `datos/` y los PNG de `arte/`.
+   Qmake compila `veterinaria` en `bin/` dentro del directorio de compilación.
 
 En Linux se puede configurar y compilar también desde la raíz:
 
 ```bash
 mkdir -p build/qt
 (cd build/qt && qmake ../../veterinaria.pro && make)
+./build/qt/bin/veterinaria
 ```
 
-Usa `qmake6` en ese comando si tu kit es de Qt 6. Al añadir la vista en
-raylib, agrega `CONFIG+=usar_raylib` a los argumentos de qmake. En Linux la
-biblioteca debe ser visible con `pkg-config --exists raylib`. En Windows
+Usa `qmake6` en ese comando si tu kit es de Qt 6. La vista requiere raylib.
+En Linux la biblioteca debe ser visible con `pkg-config --exists raylib`. En Windows
 define `RAYLIB_DIR` con la ruta de la distribución de raylib para tu kit.
 Debe contener `include/raylib.h` y `lib/libraylib.a` para MinGW o
 `lib/raylib.lib` para MSVC.
+
+Pulsa **Jugar** para abrir la clínica. Usa el ratón para avanzar el diálogo,
+examinar y decidir. En la misión, muévete con **WASD**, toca los suministros
+para recogerlos y usa **Esc** para pausar o reanudar.
+
+En pausa, **Guardar progreso** escribe un punto de guardado local. Al volver
+a abrir el juego, **Jugar** lo carga y **Nueva partida** empieza de cero.
+Se guardan el caso, la fase, la línea de diálogo y el saldo. Una partida
+guardada durante el combate vuelve al inicio de ese intento al cargar.
+Si se guarda durante el fundido de regreso, se retoma en la clínica con
+el resultado registrado.
+**Reiniciar partida** vuelve al primer caso tras pedir confirmación. Una
+partida nueva o reiniciada reemplaza el guardado anterior al pulsar
+**Guardar progreso**. **Salir** cierra el juego.
 
 ## Arquitectura MVC
 
@@ -110,7 +121,7 @@ python pruebas/verificar_base.py
 La prueba compila cada cabecera por separado en C++17 con advertencias como
 errores, valida los identificadores y cantidades del JSON de ejemplo y de las
 fichas reales, y comprueba las rutas de los enlaces locales en los README. El
-CI verifica también el formato C++ con `clang-format`.
+CI verifica también el formato C++ con el mismo comando que usa el hook.
 
 Los paquetes aparecen en **Actions → ejecución → Artifacts**, identificados
 por `staging` o `production` y por el commit. El paquete actual es un ZIP de
@@ -119,20 +130,31 @@ del juego, el rol 5 añadirá al CI su compilación y empaquetado con los recurs
 
 ### Formato antes del commit
 
-Instala `clang-format` y activa el [hook](.githooks/pre-commit) una vez por clon:
+Con Python y `clang-format` instalados, activa el [hook](.githooks/pre-commit)
+una vez por clon.
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-El hook comprueba la versión preparada con `git add`. Si marca un archivo,
-aplica `clang-format -i ruta/al/archivo.cpp` y vuelve a pasarlo a `git add`.
-Para revisar todos los archivos C++ desde Git Bash o Linux:
+El hook comprueba la versión preparada con `git add`. El formato combina
+`clang-format` con una línea vacía entre bloques de control consecutivos
+del mismo nivel, incluidas las ramas `else` y `catch`.
+Para comprobar o aplicar el formato desde la raíz del repositorio, usa estos comandos.
 
 ```bash
-git ls-files -z -- '*.h' '*.hpp' '*.c' '*.cc' '*.cpp' '*.cxx' |
-  xargs -0 clang-format --dry-run --Werror
+python pruebas/formato_cpp.py
+python pruebas/formato_cpp.py --corregir
 ```
+
+Para aplicar el formato a un único archivo, añade su ruta al segundo comando.
+Después de corregir, vuelve a preparar los archivos que quieras incluir en el commit.
+
+En Linux, GitHub Actions aplica el formateador durante la validación. Si
+encuentra cambios, deja el parche en **Actions → ejecución → Artifacts →
+formato-cpp** y marca el check como fallido. Desde la rama del PR, puedes
+aplicar el parche descargado con `git apply formato-cpp.patch` o ejecutar
+el comando de corrección sobre tu copia.
 
 ## Cierre técnico según la guía del Lab 10
 
@@ -224,6 +246,10 @@ classDiagram
         +actualizar(entrada, segundos)
         +estado_pantalla()
     }
+    class ControladorJuego {
+        +actualizar(entrada, segundos)
+        +estado_pantalla()
+    }
     class EstadoPantalla {
         +pantalla
         +fase
@@ -233,6 +259,7 @@ classDiagram
         +ficha
         +dialogo
         +mision
+        +aviso_recogida
         +edad_humana_mascota
         +motivo_fallo
         +saldo
@@ -296,8 +323,10 @@ classDiagram
     Controlador ..> EstadoPantalla : prepara
     AccionesControlador <|-- Controlador
     Comando ..> AccionesControlador : ejecuta una accion
-    Controlador ..> Consultorio : gestiona el caso
-    Controlador ..> Mision : coordina el intento
+    Controlador <|-- ControladorJuego
+    ReceptorEventosMision <|.. ControladorJuego
+    ControladorJuego ..> Consultorio : gestiona el caso
+    ControladorJuego ..> Mision : coordina el intento
     Mision ..> PlanificadorMapa : prepara el terreno
     PlanificadorMapa <|-- PlanificadorCampoAbierto
     PlanificadorMapa ..> Terreno : devuelve
@@ -354,6 +383,8 @@ classDiagram
     class LineaDialogo {
         +hablante
         +texto
+        +sprite_dueno
+        +retrato_mascota
     }
     class CantidadSuministro {
         +id

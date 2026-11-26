@@ -1,0 +1,11 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO PARA OBJETOS
+
+Dibuja un frasco pequeño de antiséptico para Pet Survivors. Vista en
+tres cuartos ligeramente elevada. Usa una botella baja y cuadrada de
+vidrio marrón #695340, una tapa carbón #161F26 y una etiqueta rectangular
+verde menta #87C7A1. Debe distinguirse por su cuerpo rígido y corto cuando
+esté junto a vendas y suero.
+
+Centra el frasco en la celda. Usa píxeles cuadrados y colores planos,
+con un único píxel claro en el vidrio. Evita texto, cruces, suelo, halos
+y sombras. Entrega un PNG transparente de 16 × 16 px llamado antiseptico.png.

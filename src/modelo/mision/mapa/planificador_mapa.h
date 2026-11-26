@@ -16,6 +16,9 @@ class PlanificadorMapa {
 
     /// Devuelve las apariciones correspondientes al tiempo transcurrido.
     virtual std::vector<Aparicion> avanzar(float segundos) = 0;
+
+    /// Devuelve las apariciones usando la posicion y los suministros del cuadro actual.
+    virtual std::vector<Aparicion> avanzar(float segundos, Punto jugador, const Terreno& terreno);
 };
 
 } // namespace veterinaria

@@ -6,12 +6,16 @@ INCLUDEPATH += "$$PWD/include" "$$PWD/src"
 HEADERS += $$files("$$PWD/include/*.h", true) $$files("$$PWD/src/*.h", true)
 SOURCES += $$files("$$PWD/src/*.cpp", true)
 DISTFILES += README.md $$files("$$PWD/src/README.md", true) datos/README.md arte/README.md
+DISTFILES += arte/fuentes/Handjet.ttf arte/fuentes/OFL-Handjet.txt
+DISTFILES += arte/fuentes/PixelifySans.ttf arte/fuentes/OFL-PixelifySans.txt
 
 DESTDIR = "$$OUT_PWD/bin"
 
 # Permite compilar modulos antes de integrar el punto de entrada.
 exists("$$PWD/src/main.cpp") {
     TEMPLATE = app
+    CONFIG += usar_raylib
+    win32-msvc*: QMAKE_CXXFLAGS += /utf-8
 } else:!isEmpty(SOURCES) {
     TEMPLATE = lib
     CONFIG += staticlib

@@ -1,0 +1,99 @@
+{
+  "id": "caso_mora",
+  "mascota": {
+    "id": "mora",
+    "nombre": "Mora",
+    "especie": "gato",
+    "edad_meses": 24,
+    "retrato": "arte/mascotas/mora.png"
+  },
+  "dueno": {
+    "id": "elena",
+    "nombre": "Elena",
+    "sprite": "arte/duenos/elena.png"
+  },
+  "dialogos": {
+    "llegada": [
+      {
+          "hablante": "dueno",
+          "texto": "Buenas. ¿Puede vendarle solo la pata izquierda? La derecha la necesita para firmar.",
+          "sprite_dueno": "arte/duenos/elena_mirada_baja.png"
+      },
+      {
+          "hablante": "veterinario",
+          "texto": "¿Para firmar qué? A ver, déjame mirar esa pata.",
+          "sprite_dueno": "arte/duenos/elena_mirada_baja.png"
+      },
+      {
+          "hablante": "dueno",
+          "texto": "La orden para abrir el pozo. Desde el apagón, Mora es la alcaldesa del refugio.",
+          "sprite_dueno": "arte/duenos/elena_frente.png"
+      },
+      {
+          "hablante": "veterinario",
+          "texto": "Con razón la ficha tiene un sello de sardina. Ponla bajo la lámpara."
+      }
+    ],
+    "aceptacion": [
+      {
+          "hablante": "veterinario",
+          "texto": "Voy por dos vendas y antiséptico. ¿Se puede quedar aquí la alcaldesa?"
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Sí. Si se sube a tu silla, déjala. Confisca todo lo que tiene respaldo.",
+          "sprite_dueno": "arte/duenos/elena_mirada_baja.png"
+      }
+    ],
+    "rechazo": [
+      {
+          "hablante": "veterinario",
+          "texto": "Hoy no puedo salir por las vendas. Mantenle la pata limpia."
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Bueno. Me toca abrir el pozo por decreto. Otra vez tendré que falsificarle la huella.",
+          "sprite_dueno": "arte/duenos/elena_frente.png"
+      }
+    ],
+    "fallo": [
+      {
+          "hablante": "veterinario",
+          "texto": "Tuve que volver. Todavía me faltan suministros."
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Mientras estabas fuera, Mora selló tres papeles y tu manga.",
+          "sprite_dueno": "arte/duenos/elena_mirada_baja.png"
+      },
+      {
+          "hablante": "veterinario",
+          "texto": "Déjale la manga. Esa camisa ya pertenecía al municipio."
+      }
+    ],
+    "tratamiento": [
+      {
+          "hablante": "veterinario",
+          "texto": "Listo. La izquierda queda vendada y la derecha sigue hábil para firmar.",
+          "retrato_mascota": "arte/mascotas/mora_relajada.png"
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Mírala. Ya se quedó dormida encima del decreto.",
+          "sprite_dueno": "arte/duenos/elena_mirada_baja.png",
+          "retrato_mascota": "arte/mascotas/mora_relajada.png"
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Aquí tienes tu pago. Si te preguntan, la apertura del pozo se aplazó por siesta.",
+          "sprite_dueno": "arte/duenos/elena_frente.png",
+          "retrato_mascota": "arte/mascotas/mora_relajada.png"
+      }
+    ]
+  },
+  "suministros": [
+    { "id": "vendas", "cantidad": 2 },
+    { "id": "antiseptico", "cantidad": 1 }
+  ],
+  "recompensa": 20
+}

@@ -42,6 +42,18 @@ contacto y administra los proyectiles del enemigo a distancia.
 
 La fábrica elige la estrategia por tipo. La vista usa ese mismo tipo para
 dibujar sprites distintos aunque dos enemigos se comporten de forma parecida.
+El daño se configura por tipo de enemigo y el estado lo expone en
+`EstadoEnemigo::danio`. Combate aplica el daño y comunica la vida actual
+y máxima del veterinario para dibujar la barra en el HUD.
+
+### Ráfaga del vigía
+
+Como próximo ajuste de combate, el vigía hará una pausa breve antes de
+lanzar varios rayos de energía en abanico. Cada rayo se mueve y colisiona
+por separado. Los rayos deben dejar huecos para esquivar la ráfaga.
+Para dibujarlos, el estado del proyectil deberá incluir su dirección de
+vuelo además de la posición. Al acertar se retira el rayo y el HUD refleja
+la pérdida de vida. [Prompt del rayo](../../../../arte/prompts/mision/enemigos/vigia_rayo.txt)
 
 El combate entrega el estado final de cada cuadro. La misión consulta este
 estado para resolver el fallo y, si el veterinario sigue vivo, la recolección
@@ -61,3 +73,46 @@ puede tener una copa mayor que esa zona sólida.
 3. Coloca un superviviente a distancia y verifica que mantenga distancia y
    genere proyectiles. Comprueba que retirarlos y volver a iniciar el combate
    deje el estado listo para otro intento.
+
+## Implementación
+
+| Clase | Archivo | Qué resuelve |
+|---|---|---|
+| `CombateBase` | [`combate_base.h`](combate_base.h) | Implementa `Combate`. Posee la fábrica, el arma, el veterinario, los enemigos y los proyectiles. |
+| `ConfiguracionCombate` | [`combate_base.h`](combate_base.h) | Vida y velocidad del veterinario, radios de contacto, recarga del daño por contacto y datos de los proyectiles. |
+| `FabricaEnemigosBase` | [`enemigo/fabrica_enemigos_base.h`](enemigo/fabrica_enemigos_base.h) | Crea cada enemigo con el perfil de su tipo y le asigna su estrategia. |
+
+Integración desde la misión:
+
+```cpp
+auto combate = std::make_unique<CombateBase>(std::make_unique<FabricaEnemigosBase>(),
+                                             std::make_unique<ArmaBase>(10, 0.5F));
+```
+
+Valores iniciales de cada tipo:
+
+| Tipo | Vida | Velocidad | Daño |
+|---|---|---|---|
+| `animal_de_contacto` | 30 | 90 | 10 por contacto |
+| `superviviente_de_contacto` | 60 | 60 | 15 por contacto |
+| `superviviente_a_distancia` | 40 | 50 | 8 por proyectil, alcance 220, cada 2 s |
+
+Cada cuerpo es un círculo. El movimiento se resuelve por ejes para que el
+veterinario se deslice junto a los obstáculos, y los pasos de más de 0,05 s
+se dividen. Un enemigo de contacto hace daño como máximo una vez cada 0,5 s.
+Con la vida en cero el combate deja de avanzar.
+
+La ráfaga del vigía queda pendiente: `EstadoCombate::proyectiles` todavía
+expone solo posiciones.
+
+## Pruebas en consola
+
+Desde la raíz del repositorio:
+
+```bash
+mkdir -p build
+g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -Isrc -o build/pruebas_combate \
+    pruebas/pruebas_combate.cpp src/modelo/mision/combate/*.cpp \
+    src/modelo/mision/combate/arma/*.cpp src/modelo/mision/combate/enemigo/*.cpp
+./build/pruebas_combate
+```

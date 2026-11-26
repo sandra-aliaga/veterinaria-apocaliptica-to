@@ -4,10 +4,28 @@ La vista entrega la entrada al controlador y dibuja a partir de
 `EstadoPantalla`. La clínica sigue la composición de una novela visual y
 usa una ficha de examen para revisar el caso antes de decidir.
 
-Implementar [`Vista`](vista.h) con dos pantallas, clínica y misión. La vista
-convierte botones y teclas en `EntradaCuadro` y dibuja `EstadoPantalla`. Lee
-de ahí la ficha, el diálogo, el saldo, el tiempo y las acciones válidas.
-Usa los PNG que entregue el rol 3 con los tamaños de fotograma acordados.
+La implementación en [raylib](vista_raylib.cpp) tiene tres pantallas.
+Convierte botones y teclas en `EntradaCuadro` y dibuja `EstadoPantalla`.
+Lee de ahí la ficha, el diálogo, el saldo, el tiempo y las acciones válidas.
+El [controlador del juego](../controlador/controlador_juego.h) entrega
+los casos del catálogo y el estado de la misión activa.
+
+## Inicio
+
+La vista carga el fondo nocturno, el título, el botón **Jugar** y el cursor
+desde `arte/inicio/`. Al pulsar **Jugar**, la vista envía
+`Accion::iniciar_partida` y el controlador presenta el primer caso.
+La vista conserva las coordenadas de 640 × 360, dibuja al doble de
+resolución y ajusta la imagen al área 16:9 más grande de la ventana.
+Usa Handjet para diálogos, botones y datos, y Pixelify Sans para
+encabezados. El título principal se carga como PNG.
+[Licencia de Handjet](../../arte/fuentes/OFL-Handjet.txt)
+[Licencia de Pixelify Sans](../../arte/fuentes/OFL-PixelifySans.txt)
+
+Las rutas fijas, los tamaños y la composición se declaran al inicio de
+[`vista_raylib.cpp`](vista_raylib.cpp). Las fuentes y las texturas fijas
+se cargan al crear la vista. Los retratos vienen del estado de pantalla y
+se cargan una vez por ruta antes de dibujarlos.
 
 ## Clínica
 
@@ -46,7 +64,11 @@ Boceto de la pantalla después de examinar a Mora:
 | Regreso a la clínica | Vuelven a verse el dueño y la mascota durante el diálogo de tratamiento o fallo. | Pasar a la siguiente ficha al acabar el tratamiento o **Reintentar** tras un fallo. |
 | Jornada terminada | Consultorio vacío y mensaje **No quedan casos**. | Abrir el menú. |
 
-El panel del examen solo aparece en la fase `resultado_examen`.
+El panel del examen solo aparece en la fase `resultado_examen` e incluye
+el retrato de la mascota dentro de la ficha.
+En el lienzo de 640 × 360, el dueño ocupa 120 × 160 px, la mascota en la
+mesa 84 × 84 px y su retrato dentro de la ficha 88 × 88 px. Las figuras
+se amplían hacia arriba para conservar su apoyo en la escena.
 La vista obtiene las cantidades de `ficha->suministros`. Para los recursos
 iniciales se muestran los nombres **Vendas** y **Antiséptico** para los
 identificadores `vendas` y `antiseptico`. Los rótulos de diálogo salen del
@@ -57,17 +79,20 @@ que indica `acciones_disponibles`. La acción de examen se envía como
 
 ## Misión y capas de pantalla
 
-El HUD de la misión muestra el progreso de cada suministro y el tiempo
-restante en `MM:SS`. Si el intento falla, la clínica indica si se agotó el
-tiempo o si el veterinario perdió toda la vida. La vista lee
-la orientación horizontal del veterinario y de los enemigos. Con esos datos
-elige la hoja izquierda o derecha y avanza los fotogramas si el personaje
-camina. El modelo mantiene su orientación al detenerse o al moverse solo
-en vertical.
+El HUD de la misión muestra el progreso de cada suministro, el tiempo
+restante en `MM:SS` y una barra con la vida actual y máxima del veterinario.
+La barra cambia a rojo cuando queda un cuarto de vida o menos. Al recoger
+un objeto aparece un aviso. Cuando el suministro más cercano queda fuera
+de cámara, una flecha indica su dirección. Si el intento falla, la clínica
+indica si se agotó el tiempo o el veterinario perdió toda la vida.
 
-Para dibujar el campo, usar `ObstaculoMapa::tipo` para elegir el sprite y
-`anclaje` para colocar su punto de apoyo. El rectángulo `colision` lo usa
-combate. En un árbol, la copa se dibuja por encima de la base del tronco.
+Los obstáculos y suministros usan sus PNG. La vista apoya cada obstáculo
+sobre su anclaje y el modelo resuelve la colisión. El suelo admite una
+baldosa de pasto. Actualmente usa una base de color con hierba seca y
+escombros distribuidos de forma estable sobre el mapa. El veterinario,
+los distintos tipos de enemigo y los proyectiles se ven con figuras
+provisionales a partir de sus posiciones en el estado de combate.
+[Rutas y prompts del campo](../../arte/README.md#prompts-del-suelo-y-los-obstáculos)
 
 W, A, S y D se traducen a una dirección y Esc alterna el menú. Primero se
 dibuja la escena y la capa del fundido con `opacidad_fundido`. Luego se

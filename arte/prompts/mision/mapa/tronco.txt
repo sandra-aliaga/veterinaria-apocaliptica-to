@@ -1,0 +1,13 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO DE CUERPO COMPLETO
+
+Dibuja un tronco caído de silueta horizontal para el campo de Pet Survivors.
+Vista en tres cuartos desde una cámara ligeramente elevada. Muestra la corteza
+y un extremo partido con su interior. Usa marrón tierra #695340, ocre apagado
+#8B7854 para el corte y sombra verde oscura #2B352C. Reduce la corteza a pocos
+bloques de color y mantén los bordes escalonados.
+
+Coloca el punto de apoyo en el centro del borde inferior del sprite.
+Conserva la forma alargada y la diferencia entre madera y corteza.
+Evita raíces largas, suelo pintado, sombras proyectadas y suavizado.
+
+Entrega solo un tronco en PNG transparente de 48 × 24 px como tronco.png.

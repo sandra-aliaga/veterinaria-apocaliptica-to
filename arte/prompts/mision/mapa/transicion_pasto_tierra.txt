@@ -1,0 +1,13 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO PARA TERRENO
+
+Usa los dos PNG adjuntos de pasto y tierra para dibujar una baldosa de
+transición. Vista desde arriba con la misma cuadrícula de píxeles.
+Coloca pasto verde oliva #586346 arriba y tierra marrón #695340 abajo.
+Separa ambos materiales con una frontera irregular de unos pocos escalones.
+
+El borde superior debe empatar con el pasto de referencia y el borde
+inferior con la tierra. Los extremos izquierdo y derecho de la transición
+deben poder colocarse juntos sin que la frontera salte. Mantén los colores
+y el nivel de detalle de las dos referencias. Evita degradados y marcos.
+
+Entrega una sola baldosa opaca de 16 × 16 px en transicion_pasto_tierra.png.

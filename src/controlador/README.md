@@ -1,45 +1,52 @@
 # Rol 5 · Controlador e integración
 
-El quinto frente implementa el controlador y conecta los módulos en el futuro
-`main.cpp`. Al iniciar, carga las fichas del catálogo, las entrega al
-consultorio y construye la misión con el planificador y el combate. Combate
-recibe la fábrica de enemigos y posee el arma. El controlador recibe el
-consultorio, la misión y la fábrica de mascotas mediante sus contratos. La
-vista conoce la entrada y el estado de pantalla.
+[`main.cpp`](../main.cpp) carga las fichas JSON y construye el consultorio,
+el planificador, el combate, la misión y la vista. [`ControladorJuego`](controlador_juego.h)
+recibe los contratos del consultorio, la misión y la fábrica de mascotas.
+En cada cuadro entrega el estado a la vista.
 
-## Entrega
+Al aceptar, el consultorio mueve la ficha de la cola al caso activo y
+entrega los requisitos. Al terminar el diálogo, el controlador inicia la
+misión. Recibe por Observer los avisos de recolección y fin del intento.
+Registra el resultado una vez en el consultorio y hace el fundido de
+regreso. Conserva la ficha leída del catálogo para mostrar el diálogo
+final aunque el consultorio ya haya cerrado el caso.
 
-Implementar [el controlador](controlador.h), los comandos y el arranque del
-juego. Implementar también [la vista en raylib](../vista/README.md). En el
-arranque, mostrar los errores que informe el catálogo y encolar las fichas
-válidas en el orden recibido. Dejar documentado cómo compilar y ejecutar el
-proyecto en Windows y Linux al integrar los módulos.
-
-En cada cuadro, leer `EntradaCuadro` desde la vista, actualizar el
-controlador y dibujar su `EstadoPantalla` antes de volver a modificarlo.
-Para empezar, reemplazar `Consultorio` y `Mision` por versiones simuladas
-que devuelvan una ficha, un objetivo y un resultado conocidos.
+Los ajustes compartidos están en [`configuracion_juego.h`](configuracion_juego.h).
+[`guardado_partida.cpp`](guardado_partida.cpp) conserva el caso por su ID,
+el saldo y la fase. Un guardado de combate reanuda desde el inicio del
+intento, con vida y reloj restaurados.
 
 ## Entrada y comandos
 
 | Entrada | Acción |
 |---|---|
 | W, A, S, D mantenidas | Arriba, izquierda, abajo y derecha. Direcciones opuestas se cancelan y la diagonal mantiene la misma velocidad. |
-| Esc al pulsar | Abre o cierra el menú de pausa. El menú ofrece Reanudar. |
+| Esc al pulsar | Abre o cierra el menú de pausa. Si se está confirmando un reinicio, vuelve al menú. |
 | Botón o avance de diálogo | La vista produce la acción indicada por el controlador para esa fase. |
 | Contacto con objeto o enemigo | El modelo resuelve la recolección y el combate automáticamente. |
 
-El controlador despacha las acciones discretas a comandos de examinar,
-aceptar, rechazar, reintentar, avanzar diálogo y alternar menú. Cada comando llama solo
-a su operación de `AccionesControlador`. WASD se procesa como la dirección
+El controlador valida y despacha las acciones en `actualizar()`.
+Cada acción llama a su operación de `AccionesControlador`. WASD se procesa como la dirección
 continua de `EntradaCuadro`. Mientras el menú está abierto, se congelan la
-simulación, la recarga y el fundido. Solo queda habilitado cerrar el menú.
-Cerrar la ventana sigue siendo una acción de la aplicación.
+simulación, la recarga y el fundido. En la pausa se puede reanudar, guardar,
+reiniciar o salir. El bucle principal cierra la ventana cuando el controlador
+emite `salida_solicitada`.
+
+## Guardado de la partida
+
+[ArchivoPartida](../persistencia/archivo_partida.h) escribe el registro
+versionado en `datos/progreso_previa.txt`. El archivo conserva el saldo, el
+caso, la fase y la línea. Si la partida está en combate, el siguiente inicio
+carga un nuevo intento para ese caso. Durante el fundido de regreso se
+guarda el resultado ya registrado. **Nueva partida** y **Reiniciar partida**
+conservan el archivo anterior hasta que se vuelva a guardar desde la pausa.
 
 ## Fases y acciones válidas
 
 | Fase | Acciones adicionales a Esc | Qué ocurre al terminar |
 |---|---|---|
+| `portada` | Jugar | Presenta el primer caso. |
 | `sin_casos` | Ninguna | Se muestra que la jornada terminó. |
 | `llegada` | Avanzar diálogo | Se habilita Examinar mascota. |
 | `por_examinar` | Examinar mascota | El controlador pasa a `resultado_examen` y la vista abre la ficha. |
@@ -53,35 +60,25 @@ Cerrar la ventana sigue siendo una acción de la aplicación.
 
 Las etapas con diálogos vacíos se saltan. `acciones_disponibles` indica lo
 que puede ofrecer la vista y lo que el controlador acepta en ese cuadro.
-`examinar_mascota()` solo cambia la fase y revela los requisitos de la ficha.
+`examinar_mascota()` calcula la edad equivalente y revela los requisitos.
 El consultorio conserva la ficha en la cola hasta que el jugador decide.
 
 ## Ficha y fundido
 
-El consultorio es dueño de la cola y del caso activo. Al presentar un caso,
-el controlador copia la ficha a su propio estado. Calcula una vez su edad
-equivalente creando la mascota con `FabricaMascotas` y llamando a
-`calcularEdadHumana()` a través de `Mascota`. La vista recibe punteros
-prestados a los datos que se dibujan en el cuadro.
+El consultorio posee la cola y el caso activo. El controlador mantiene las
+fichas del catálogo y calcula la edad equivalente mediante la fábrica de
+mascotas al examinar. La vista recibe punteros prestados a los datos
+necesarios para dibujar el cuadro.
 
-La copia vive hasta el último diálogo, incluso si el consultorio retira el
-caso de la cola o lo cierra al tratarlo. El controlador extrae el resultado
-una vez, inicia el fundido, cambia de pantalla y registra el resultado cuando
-la pantalla está totalmente oscura. La vista pinta la capa negra según
-`opacidad_fundido`, que va de 0 a 1 y vuelve a 0. Mientras sucede esta
-transición, la misión ya está detenida.
-
-El futuro `main.cpp` suscribe la vista concreta como
-`ReceptorEventosMision` y la da de baja antes de destruirla. La vista puede
-reproducir sonidos al recoger o completar. El controlador coordina la
-transición usando el resultado de la misión y el HUD lee el progreso del
-estado de pantalla.
+La misión se detiene al publicar el resultado. El controlador lo registra
+en el consultorio y sube `opacidad_fundido` de 0 a 1. A oscuridad completa
+cambia a la clínica y baja la opacidad de vuelta a 0.
 
 ## Prueba independiente
 
-1. Con un consultorio simulado, recorre llegada, examen y aceptación.
+1. Recorre llegada, examen y aceptación.
    Verifica que aceptar y rechazar solo aparezcan después de examinar.
-2. Haz que la misión simulada termine con éxito. Comprueba que la clínica
+2. Completa la misión recogiendo todos los suministros. Comprueba que la clínica
    registre el resultado una vez y conserve a los personajes hasta el
    último diálogo.
 3. Simula un fallo y verifica que el motivo se muestre y que reintentar

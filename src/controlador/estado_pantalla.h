@@ -6,11 +6,12 @@
 #include "../modelo/mision/objetivo_mision.h"
 
 #include <optional>
+#include <string>
 #include <vector>
 
 namespace veterinaria {
 
-enum class Pantalla { clinica, mision };
+enum class Pantalla { clinica, mision, inicio };
 
 enum class FasePantalla {
     sin_casos,
@@ -23,10 +24,24 @@ enum class FasePantalla {
     regresando,
     fallo,
     reintento,
-    tratamiento
+    tratamiento,
+    portada
 };
 
-enum class Accion { examinar, aceptar, rechazar, reintentar, avanzar_dialogo, alternar_menu };
+enum class Accion {
+    examinar,
+    aceptar,
+    rechazar,
+    reintentar,
+    avanzar_dialogo,
+    alternar_menu,
+    iniciar_partida,
+    nueva_partida,
+    guardar_progreso,
+    reiniciar_partida,
+    confirmar_reinicio,
+    salir_partida
+};
 
 struct EntradaCuadro {
     Punto direccion;
@@ -45,9 +60,13 @@ struct EstadoPantalla {
     const CasoClinico* ficha;
     const LineaDialogo* dialogo;
     const EstadoMision* mision;
+    const CantidadSuministro* aviso_recogida;
     std::optional<double> edad_humana_mascota;
     std::optional<MotivoFalloMision> motivo_fallo;
     int saldo;
+    std::string mensaje_guardado;
+    bool confirmar_reinicio;
+    bool salida_solicitada;
 };
 
 } // namespace veterinaria

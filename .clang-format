@@ -7,6 +7,10 @@ ColumnLimit: 100
 PointerAlignment: Left
 ReferenceAlignment: Left
 SortIncludes: CaseSensitive
+BreakBeforeBraces: Custom
+BraceWrapping:
+  BeforeCatch: true
+  BeforeElse: true
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: None
 AllowShortLoopsOnASingleLine: false

@@ -2,15 +2,8 @@
 
 set -euo pipefail
 
-while IFS= read -r -d '' archivo; do
-    if ! command -v clang-format >/dev/null; then
-        echo "Instala clang-format para comprobar los archivos C++ preparados." >&2
-        exit 1
-    fi
+if command -v python3 >/dev/null; then
+    exec python3 pruebas/formato_cpp.py --preparados
+fi
 
-    if ! git show ":$archivo" | clang-format --dry-run --Werror --assume-filename="$archivo"; then
-        printf 'Aplica clang-format -i a %s y vuelve a preparar el cambio.\n' "$archivo" >&2
-        exit 1
-    fi
-done < <(git diff --cached --name-only --diff-filter=ACMR -z -- \
-    '*.h' '*.hpp' '*.c' '*.cc' '*.cpp' '*.cxx')
+exec python pruebas/formato_cpp.py --preparados
