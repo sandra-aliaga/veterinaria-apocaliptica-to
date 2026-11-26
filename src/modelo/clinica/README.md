@@ -38,3 +38,21 @@ consultorio en consola antes de que exista la ventana.
    un resultado completo. Comprueba que pague una vez aunque se entregue el
    mismo resultado de nuevo.
 4. Rechaza otra ficha y comprueba que la cola avance sin iniciar una misión.
+
+## Implementación y pruebas automáticas
+
+- [`ConsultorioClinica`](consultorio_clinica.h) implementa la interfaz y
+  [`ColaCasosClinicos`](cola_casos.cpp) la cola. Un fallo debe traer
+  `motivo_fallo`; si falta, el resultado es inválido.
+- [`pruebas_consultorio.cpp`](../../../pruebas/pruebas_consultorio.cpp) cubre los
+  cuatro pasos de la prueba independiente sin ventana ni dependencias nuevas.
+  Desde la raíz del repositorio:
+
+```bash
+mkdir -p build
+g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -Isrc -o build/pruebas_consultorio \
+    pruebas/pruebas_consultorio.cpp src/modelo/clinica/*.cpp
+./build/pruebas_consultorio
+```
+
+El programa termina con código 0 si todo pasa y con 1 si falla alguna comprobación.
