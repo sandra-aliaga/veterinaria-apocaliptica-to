@@ -18,7 +18,8 @@ ColaCasosClinicos::ColaCasosClinicos() : ultimo_(nullptr) {
 // Libera los nodos de uno en uno para no desbordar la pila con colas largas.
 ColaCasosClinicos::~ColaCasosClinicos() {
     while (primero_) {
-        primero_ = std::move(primero_->siguiente);
+        auto retirado = std::move(primero_);
+        primero_ = std::move(retirado->siguiente);
     }
     ultimo_ = nullptr;
 }
