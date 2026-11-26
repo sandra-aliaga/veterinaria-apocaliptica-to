@@ -60,10 +60,10 @@ struct EstadoPantalla {
     const CasoClinico* ficha;
     const LineaDialogo* dialogo;
     const EstadoMision* mision;
+    const CantidadSuministro* aviso_recogida;
     std::optional<double> edad_humana_mascota;
     std::optional<MotivoFalloMision> motivo_fallo;
     int saldo;
-    std::string retrato_alternativo;
     std::string mensaje_guardado;
     bool confirmar_reinicio;
     bool salida_solicitada;

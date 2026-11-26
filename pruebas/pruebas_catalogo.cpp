@@ -178,13 +178,26 @@ void probar_fichas_del_repositorio() {
     comprobar(toby.suministros.size() == 1 && toby.suministros[0].id == "suero",
               "Toby pide un solo tipo de suministro");
 
-    comprobar(mora.dialogos.llegada.size() == 3, "Una etapa conserva varias lineas");
+    comprobar(mora.dialogos.llegada.size() == 4, "Una etapa conserva varias lineas");
     comprobar(mora.dialogos.llegada[1].hablante == Hablante::veterinario,
               "Se conserva quien habla en cada linea");
     comprobar(!mora.dialogos.tratamiento.empty() && !toby.dialogos.fallo.empty(),
               "Se conservan todas las etapas de dialogo");
     comprobar(contiene(mora.dialogos.aceptacion[0].texto, "antiséptico"),
               "El texto UTF-8 se conserva");
+
+    const auto& mirada = toby.dialogos.llegada.at(3);
+    const auto& tratamiento = toby.dialogos.tratamiento.front();
+    comprobar(mirada.sprite_dueno == "arte/duenos/dueno_toby_mueca.png" &&
+                  fs::exists(mirada.sprite_dueno),
+              "La frase de Toby conserva la reaccion del dueno");
+    comprobar(tratamiento.hablante == Hablante::veterinario &&
+                  tratamiento.retrato_mascota == "arte/mascotas/toby_recuperado.png" &&
+                  fs::exists(tratamiento.retrato_mascota),
+              "La mascota puede reaccionar mientras habla el veterinario");
+    comprobar(toby.dialogos.llegada.front().sprite_dueno.empty() &&
+                  toby.dialogos.llegada.front().retrato_mascota.empty(),
+              "Una linea sin reacciones conserva los retratos base");
 }
 
 void probar_ficha_invalida() {
@@ -252,6 +265,9 @@ void probar_validaciones() {
     comprobar(contiene(motivo("\"hablante\": \"dueno\"", "\"hablante\": \"gato\""),
                        "dialogos.llegada[0].hablante"),
               "Se rechaza un hablante desconocido");
+    comprobar(contiene(motivo("arte/duenos/dueno_toby_mueca.png", "/reaccion.png"),
+                       "dialogos.llegada[3].sprite_dueno"),
+              "Una ruta de reaccion invalida identifica la linea del dialogo");
     comprobar(contiene(motivo("\"suministros\": [", "\"suministros\": [{\"id\": \"suero\", "
                                                     "\"cantidad\": 1}, "),
                        "suministro repetido"),

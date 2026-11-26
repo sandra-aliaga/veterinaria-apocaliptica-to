@@ -1,10 +1,11 @@
 // Pruebas en consola del Rol 2 (mision). Sin interfaz grafica ni dependencias.
-// Usa un combate y un planificador simulados, asi que no necesita el codigo de otros roles.
+// Usa un combate y un planificador simulados a partir de sus interfaces.
 //
 // Compilar y ejecutar desde la raiz del repositorio:
 //   mkdir -p build
 //   g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -Isrc -o build/pruebas_mision
 //       pruebas/pruebas_mision.cpp src/modelo/mision/*.cpp
+//       src/modelo/mision/combate/combate.cpp src/modelo/mision/mapa/planificador_mapa.cpp
 //   ./build/pruebas_mision
 
 #include "modelo/mision/mision_base.h"
@@ -14,15 +15,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-namespace veterinaria {
-
-// Los destructores de estas dos interfaces pertenecen a otros modulos. Se definen aqui para
-// que la prueba compile sola. El comando de arriba no incluye los .cpp de esos modulos.
-Combate::~Combate() = default;
-PlanificadorMapa::~PlanificadorMapa() = default;
-
-} // namespace veterinaria
 
 namespace {
 
