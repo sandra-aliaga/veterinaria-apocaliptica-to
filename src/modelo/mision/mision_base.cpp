@@ -115,7 +115,9 @@ void MisionBase::recolectar() {
             acumular(estado_.recogidos, objeto->contenido);
             tomados.push_back(objeto->contenido);
             objeto = objetos.erase(objeto);
-        } else {
+        }
+
+        else {
             ++objeto;
         }
     }
