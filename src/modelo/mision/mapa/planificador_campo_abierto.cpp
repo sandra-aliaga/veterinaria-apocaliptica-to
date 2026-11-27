@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <optional>
 #include <utility>
 
 namespace veterinaria {
@@ -24,12 +25,19 @@ constexpr float separacion_suministros = 48.0F;
 constexpr float duracion_por_defecto = 300.0F;
 constexpr float primer_grupo = 5.0F;
 constexpr float retraso_entre_enemigos = 0.4F;
-constexpr float distancia_minima_enemigos = 160.0F; // Espacio libre alrededor del veterinario.
-constexpr float radio_maximo_enemigos = 300.0F;
-constexpr float inset_perimetro = 8.0F;
+constexpr float ancho_camara = 640.0F; // Lienzo de la vista (src/vista/README.md).
+constexpr float alto_camara = 360.0F;
+constexpr float margen_fuera_de_camara = 24.0F;    // Los enemigos nunca nacen a la vista.
+constexpr float profundidad_aparicion = 64.0F;     // Hasta donde se alejan de la camara.
+constexpr float alcance_maximo_aparicion = 160.0F; // Ningun enemigo nace mas lejos de la camara.
+constexpr float inset_limites = 8.0F;
 constexpr float radio_cerca_suministro = 96.0F;
 constexpr int intentos_de_posicion = 20;
 constexpr float pi = 3.14159265F;
+
+constexpr int radio_parche_inicial = 6; // Piezas de tierra a cada lado del inicio.
+constexpr float area_por_parche = 400.0F * 400.0F;
+constexpr int holgura_entre_parches = 3; // Piezas libres entre dos claros de tierra.
 
 // ---------------------------------------------------------------------------
 // Aleatoriedad. Se evitan las distribuciones de <random> porque su resultado
@@ -327,6 +335,105 @@ std::vector<SuministroEnMapa> colocar_suministros(const PropuestaMision& propues
 }
 
 // ---------------------------------------------------------------------------
+// Suelo
+// ---------------------------------------------------------------------------
+
+struct Parche {
+    int columna;
+    int fila;
+    int ancho;
+    int alto;
+};
+
+bool parches_se_tocan(const Parche& a, const Parche& b, int holgura) {
+    return a.columna < b.columna + b.ancho + holgura && b.columna < a.columna + a.ancho + holgura &&
+           a.fila < b.fila + b.alto + holgura && b.fila < a.fila + a.alto + holgura;
+}
+
+// Claros de tierra rectangulares: uno bajo el inicio y otros repartidos por el campo. Alrededor
+// de cada claro va un anillo de transiciones; el pasto cubre el resto.
+SueloMapa generar_suelo(const Rectangulo& limites, Punto inicio, std::mt19937& generador) {
+    SueloMapa suelo;
+    suelo.tamano_pieza = tamano_celda;
+    suelo.columnas = std::max(1, static_cast<int>(std::ceil(limites.ancho / tamano_celda)));
+    suelo.filas = std::max(1, static_cast<int>(std::ceil(limites.alto / tamano_celda)));
+    const int columnas = suelo.columnas;
+    const int filas = suelo.filas;
+    suelo.piezas.assign(static_cast<std::size_t>(columnas) * static_cast<std::size_t>(filas),
+                        PiezaSuelo{});
+
+    const int columna_inicio =
+        limitar(static_cast<int>((inicio.x - limites.origen.x) / tamano_celda), 0, columnas - 1);
+    const int fila_inicio =
+        limitar(static_cast<int>((inicio.y - limites.origen.y) / tamano_celda), 0, filas - 1);
+    std::vector<Parche> parches{Parche{columna_inicio - radio_parche_inicial,
+                                       fila_inicio - radio_parche_inicial, 2 * radio_parche_inicial,
+                                       2 * radio_parche_inicial}};
+
+    const int objetivo = static_cast<int>(limites.ancho * limites.alto / area_por_parche);
+    for (int intento = 0; intento < objetivo * 20 && static_cast<int>(parches.size()) <= objetivo;
+         ++intento) {
+        const int ancho = 4 + static_cast<int>(generador() % 7);
+        const int alto = 4 + static_cast<int>(generador() % 7);
+        const int libre_columnas = columnas - ancho - 2;
+        const int libre_filas = filas - alto - 2;
+        if (libre_columnas <= 0 || libre_filas <= 0) {
+            continue;
+        }
+        const Parche parche{
+            1 + static_cast<int>(generador() % static_cast<unsigned>(libre_columnas)),
+            1 + static_cast<int>(generador() % static_cast<unsigned>(libre_filas)), ancho, alto};
+        const bool estorba = std::any_of(parches.begin(), parches.end(), [&](const Parche& otro) {
+            return parches_se_tocan(parche, otro, holgura_entre_parches);
+        });
+        if (!estorba) {
+            parches.push_back(parche);
+        }
+    }
+
+    std::vector<char> tierra(suelo.piezas.size(), 0);
+    for (const Parche& parche : parches) {
+        for (int fila = std::max(0, parche.fila); fila < std::min(filas, parche.fila + parche.alto);
+             ++fila) {
+            for (int columna = std::max(0, parche.columna);
+                 columna < std::min(columnas, parche.columna + parche.ancho); ++columna) {
+                tierra[static_cast<std::size_t>(fila * columnas + columna)] = 1;
+            }
+        }
+    }
+
+    const auto es_tierra = [&](int columna, int fila) {
+        return columna >= 0 && columna < columnas && fila >= 0 && fila < filas &&
+               tierra[static_cast<std::size_t>(fila * columnas + columna)] != 0;
+    };
+    for (int fila = 0; fila < filas; ++fila) {
+        for (int columna = 0; columna < columnas; ++columna) {
+            PiezaSuelo& pieza = suelo.piezas[static_cast<std::size_t>(fila * columnas + columna)];
+            if (es_tierra(columna, fila)) {
+                pieza.tipo = TipoPiezaSuelo::tierra;
+            }
+
+            else if (es_tierra(columna, fila + 1)) {
+                pieza = {TipoPiezaSuelo::transicion, 0}; // Tierra al sur: el PNG tal cual.
+            }
+
+            else if (es_tierra(columna - 1, fila)) {
+                pieza = {TipoPiezaSuelo::transicion, 1}; // Tierra al oeste.
+            }
+
+            else if (es_tierra(columna, fila - 1)) {
+                pieza = {TipoPiezaSuelo::transicion, 2}; // Tierra al norte.
+            }
+
+            else if (es_tierra(columna + 1, fila)) {
+                pieza = {TipoPiezaSuelo::transicion, 3}; // Tierra al este.
+            }
+        }
+    }
+    return suelo;
+}
+
+// ---------------------------------------------------------------------------
 // Oleadas
 // ---------------------------------------------------------------------------
 
@@ -380,98 +487,111 @@ TipoEnemigo tipo_de_miembro(Fase fase, int posicion) {
     return TipoEnemigo::animal_de_contacto;
 }
 
-bool posicion_valida_para_enemigo(const Terreno& terreno, Punto punto) {
-    return distancia(punto, terreno.inicio) >= distancia_minima_enemigos &&
+struct EnemigoPlanificado {
+    float segundo;
+    TipoEnemigo tipo;
+    int lado;
+};
+
+// La camara se centra en el veterinario y no sale del campo (igual que la vista).
+Rectangulo camara_en(const Rectangulo& limites, Punto jugador) {
+    const float x_maxima = limites.origen.x + std::max(0.0F, limites.ancho - ancho_camara);
+    const float y_maxima = limites.origen.y + std::max(0.0F, limites.alto - alto_camara);
+    return {{std::clamp(jugador.x - ancho_camara / 2.0F, limites.origen.x, x_maxima),
+             std::clamp(jugador.y - alto_camara / 2.0F, limites.origen.y, y_maxima)},
+            ancho_camara,
+            alto_camara};
+}
+
+bool fuera_de_camara(const Rectangulo& camara, Punto punto) {
+    const Rectangulo ampliada = inflar(camara, margen_fuera_de_camara);
+    return punto.x < ampliada.origen.x || punto.x > ampliada.origen.x + ampliada.ancho ||
+           punto.y < ampliada.origen.y || punto.y > ampliada.origen.y + ampliada.alto;
+}
+
+bool posicion_libre(const Terreno& terreno, Punto punto) {
+    return dentro_de_limites(terreno.limites, punto, inset_limites) &&
            !dentro_de_obstaculo(punto, terreno.obstaculos);
 }
 
-Punto punto_en_perimetro(const Terreno& terreno, std::mt19937& generador) {
-    const Rectangulo& limites = terreno.limites;
-    Punto punto{limites.origen.x, limites.origen.y};
-    for (int intento = 0; intento < intentos_de_posicion; ++intento) {
-        const float a = aleatorio_unidad(generador);
-        const float x =
-            limites.origen.x + inset_perimetro + a * (limites.ancho - 2.0F * inset_perimetro);
-        const float y =
-            limites.origen.y + inset_perimetro + a * (limites.alto - 2.0F * inset_perimetro);
-        switch (generador() % 4) {
-        case 0:
-            punto = {x, limites.origen.y + inset_perimetro};
-            break;
-        case 1:
-            punto = {x, limites.origen.y + limites.alto - inset_perimetro};
-            break;
-        case 2:
-            punto = {limites.origen.x + inset_perimetro, y};
-            break;
-        default:
-            punto = {limites.origen.x + limites.ancho - inset_perimetro, y};
-            break;
-        }
-
-        if (posicion_valida_para_enemigo(terreno, punto)) {
-            return punto;
-        }
+// Lados: 0 arriba, 1 derecha, 2 abajo, 3 izquierda. El punto queda justo fuera de la camara.
+Punto punto_junto_a_camara(const Rectangulo& camara, int lado, std::mt19937& generador) {
+    const float fondo =
+        margen_fuera_de_camara + 4.0F + aleatorio_unidad(generador) * profundidad_aparicion;
+    const float a = aleatorio_unidad(generador);
+    switch (lado) {
+    case 0:
+        return {camara.origen.x + a * camara.ancho, camara.origen.y - fondo};
+    case 1:
+        return {camara.origen.x + camara.ancho + fondo, camara.origen.y + a * camara.alto};
+    case 2:
+        return {camara.origen.x + a * camara.ancho, camara.origen.y + camara.alto + fondo};
+    default:
+        return {camara.origen.x - fondo, camara.origen.y + a * camara.alto};
     }
-    return punto;
 }
 
-std::optional<Punto> punto_alrededor_del_jugador(const Terreno& terreno, Punto jugador,
-                                                 std::mt19937& generador) {
-    for (int intento = 0; intento < intentos_de_posicion; ++intento) {
-        const float angulo = aleatorio_unidad(generador) * 2.0F * pi;
-        const float radio =
-            distancia_minima_enemigos +
-            aleatorio_unidad(generador) * (radio_maximo_enemigos - distancia_minima_enemigos);
-        const Punto punto{jugador.x + std::cos(angulo) * radio,
-                          jugador.y + std::sin(angulo) * radio};
+// Los tiradores prefieren un lugar cerca de un suministro, pero siempre junto a la camara.
+std::optional<Punto> punto_cerca_de_suministro(const Terreno& terreno, const Rectangulo& camara,
+                                               std::mt19937& generador) {
+    if (terreno.suministros.empty()) {
+        return std::nullopt;
+    }
 
-        if (dentro_de_limites(terreno.limites, punto, inset_perimetro) &&
-            !dentro_de_obstaculo(punto, terreno.obstaculos)) {
+    for (int intento = 0; intento < intentos_de_posicion; ++intento) {
+        const Punto centro =
+            terreno.suministros[indice_aleatorio(generador, terreno.suministros.size())].posicion;
+        const float angulo = aleatorio_unidad(generador) * 2.0F * pi;
+        const float radio = 32.0F + aleatorio_unidad(generador) * (radio_cerca_suministro - 32.0F);
+        const Punto punto{centro.x + std::cos(angulo) * radio, centro.y + std::sin(angulo) * radio};
+        if (fuera_de_camara(camara, punto) &&
+            distancia_a_rectangulo(punto, camara) <= alcance_maximo_aparicion &&
+            posicion_libre(terreno, punto)) {
             return punto;
         }
     }
-
     return std::nullopt;
 }
 
-// Los tiradores aparecen cerca de un suministro; si no hay sitio, en el perimetro.
-Punto punto_cerca_de_suministro(const Terreno& terreno, std::mt19937& generador) {
-    if (!terreno.suministros.empty()) {
+// Prueba primero el lado previsto y luego los demas. Sin lugar valido devuelve nada.
+std::optional<Punto> buscar_posicion(const Terreno& terreno, Punto jugador, TipoEnemigo tipo,
+                                     int lado_preferido, std::mt19937& generador) {
+    const Rectangulo camara = camara_en(terreno.limites, jugador);
+
+    if (tipo == TipoEnemigo::superviviente_a_distancia) {
+        if (const auto cerca = punto_cerca_de_suministro(terreno, camara, generador)) {
+            return cerca;
+        }
+    }
+
+    for (int giro = 0; giro < 4; ++giro) {
+        const int lado = (lado_preferido + giro) % 4;
         for (int intento = 0; intento < intentos_de_posicion; ++intento) {
-            const Punto centro =
-                terreno.suministros[indice_aleatorio(generador, terreno.suministros.size())]
-                    .posicion;
-            const float angulo = aleatorio_unidad(generador) * 2.0F * pi;
-            const float radio =
-                32.0F + aleatorio_unidad(generador) * (radio_cerca_suministro - 32.0F);
-            const Punto punto{centro.x + std::cos(angulo) * radio,
-                              centro.y + std::sin(angulo) * radio};
-            if (dentro_de_limites(terreno.limites, punto, inset_perimetro) &&
-                posicion_valida_para_enemigo(terreno, punto)) {
+            const Punto punto = punto_junto_a_camara(camara, lado, generador);
+            if (posicion_libre(terreno, punto)) {
                 return punto;
             }
         }
     }
-    return punto_en_perimetro(terreno, generador);
+    return std::nullopt;
 }
 
-std::vector<std::pair<float, Aparicion>>
-planificar_oleadas(int limite_segundos, const Terreno& terreno, std::mt19937& generador) {
+// Solo fija cuando sale cada enemigo y por que lado prefiere entrar. Dentro de un grupo, cada
+// miembro recibe un lado distinto mientras alcancen los cuatro.
+std::vector<EnemigoPlanificado> planificar_oleadas(int limite_segundos, std::mt19937& generador) {
     const float duracion =
         limite_segundos > 0 ? static_cast<float>(limite_segundos) : duracion_por_defecto;
-    std::vector<std::pair<float, Aparicion>> plan;
+    std::vector<EnemigoPlanificado> plan;
 
     for (float segundo = primer_grupo; segundo < duracion;) {
         const Fase fase = fase_en(segundo, duracion);
         const int tamano = tamano_de_grupo(fase, generador);
+        std::vector<int> lados{0, 1, 2, 3};
+        barajar(lados, generador);
         for (int miembro = 0; miembro < tamano; ++miembro) {
-            const TipoEnemigo tipo = tipo_de_miembro(fase, miembro);
-            const Punto posicion = tipo == TipoEnemigo::superviviente_a_distancia
-                                       ? punto_cerca_de_suministro(terreno, generador)
-                                       : punto_en_perimetro(terreno, generador);
-            plan.emplace_back(segundo + static_cast<float>(miembro) * retraso_entre_enemigos,
-                              Aparicion{tipo, posicion});
+            plan.push_back(EnemigoPlanificado{
+                segundo + static_cast<float>(miembro) * retraso_entre_enemigos,
+                tipo_de_miembro(fase, miembro), lados[static_cast<std::size_t>(miembro % 4)]});
         }
         segundo += intervalo_de(fase);
     }
@@ -484,7 +604,7 @@ PlanificadorCampoAbierto::PlanificadorCampoAbierto(Rectangulo limites,
                                                    std::optional<std::uint32_t> semilla_fija)
     : limites_(limites), semilla_fija_(semilla_fija),
       generador_(semilla_fija.value_or(std::mt19937::default_seed)), segundos_transcurridos_(0.0F),
-      siguiente_aparicion_(0) {
+      terreno_{}, siguiente_aparicion_(0) {
 }
 
 Terreno PlanificadorCampoAbierto::preparar(const PropuestaMision& propuesta) {
@@ -509,56 +629,40 @@ Terreno PlanificadorCampoAbierto::preparar(const PropuestaMision& propuesta) {
     const Rejilla rejilla = construir_rejilla(limites_, terreno.obstaculos, terreno.inicio);
     terreno.suministros = colocar_suministros(propuesta, rejilla, terreno.inicio, generador_);
 
-    for (const auto& [segundo, aparicion] :
-         planificar_oleadas(propuesta.limite_segundos, terreno, generador_)) {
-        oleadas_.push_back(AparicionProgramada{segundo, aparicion});
+    // Las oleadas consultan obstaculos y suministros al vencer; el suelo no les hace falta.
+    terreno_ = terreno;
+    terreno.suelo = generar_suelo(limites_, terreno.inicio, generador_);
+
+    for (const EnemigoPlanificado& enemigo :
+         planificar_oleadas(propuesta.limite_segundos, generador_)) {
+        oleadas_.push_back(AparicionProgramada{enemigo.segundo, enemigo.tipo, enemigo.lado});
     }
     return terreno;
 }
 
 std::vector<Aparicion> PlanificadorCampoAbierto::avanzar(float segundos) {
+    // Sin datos del cuadro, se usa el terreno de preparar() y el veterinario en el inicio.
+    return avanzar(segundos, terreno_.inicio, terreno_);
+}
+
+std::vector<Aparicion> PlanificadorCampoAbierto::avanzar(float segundos, Punto jugador,
+                                                         const Terreno& terreno) {
     if (segundos > 0.0F) {
         segundos_transcurridos_ += segundos;
     }
     std::vector<Aparicion> vencidas;
     while (siguiente_aparicion_ < oleadas_.size() &&
            oleadas_[siguiente_aparicion_].segundo <= segundos_transcurridos_) {
-        vencidas.push_back(oleadas_[siguiente_aparicion_].aparicion);
+        const AparicionProgramada& programada = oleadas_[siguiente_aparicion_];
         ++siguiente_aparicion_;
+
+        // Sin un lugar valido, esta aparicion se omite.
+        if (const auto posicion =
+                buscar_posicion(terreno, jugador, programada.tipo, programada.lado, generador_)) {
+            vencidas.push_back(Aparicion{programada.tipo, *posicion});
+        }
     }
     return vencidas;
-}
-
-std::vector<Aparicion> PlanificadorCampoAbierto::avanzar(float segundos, Punto jugador,
-                                                         const Terreno& terreno) {
-    auto apariciones = avanzar(segundos);
-
-    for (auto aparicion = apariciones.begin(); aparicion != apariciones.end();) {
-        if (aparicion->tipo == TipoEnemigo::superviviente_a_distancia &&
-            !terreno.suministros.empty()) {
-            aparicion->posicion = punto_cerca_de_suministro(terreno, generador_);
-
-            if (distancia(aparicion->posicion, jugador) >= distancia_minima_enemigos &&
-                dentro_de_limites(terreno.limites, aparicion->posicion, inset_perimetro) &&
-                !dentro_de_obstaculo(aparicion->posicion, terreno.obstaculos)) {
-                ++aparicion;
-                continue;
-            }
-        }
-
-        const auto punto = punto_alrededor_del_jugador(terreno, jugador, generador_);
-
-        if (punto) {
-            aparicion->posicion = *punto;
-            ++aparicion;
-        }
-
-        else {
-            aparicion = apariciones.erase(aparicion);
-        }
-    }
-
-    return apariciones;
 }
 
 } // namespace veterinaria
