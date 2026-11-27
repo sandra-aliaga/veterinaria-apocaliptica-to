@@ -21,12 +21,14 @@ namespace {
 
 using veterinaria::Aparicion;
 using veterinaria::CantidadSuministro;
+using veterinaria::PiezaSuelo;
 using veterinaria::PlanificadorCampoAbierto;
 using veterinaria::PropuestaMision;
 using veterinaria::Punto;
 using veterinaria::Rectangulo;
 using veterinaria::Terreno;
 using veterinaria::TipoEnemigo;
+using veterinaria::TipoPiezaSuelo;
 
 int comprobaciones = 0;
 int fallos = 0;
@@ -40,6 +42,10 @@ void comprobar(bool condicion, const std::string& descripcion) {
 }
 
 const Rectangulo limites{{0.0F, 0.0F}, 1600.0F, 1200.0F};
+
+Punto limites_centro() {
+    return {limites.origen.x + limites.ancho / 2.0F, limites.origen.y + limites.alto / 2.0F};
+}
 
 PropuestaMision caso_mora() {
     PropuestaMision propuesta;
@@ -96,6 +102,11 @@ std::vector<float> firma(const Terreno& terreno) {
         valores.push_back(suministro.posicion.x);
         valores.push_back(suministro.posicion.y);
     }
+
+    for (const PiezaSuelo& pieza : terreno.suelo.piezas) {
+        valores.push_back(static_cast<float>(pieza.tipo) * 10.0F +
+                          static_cast<float>(pieza.giro_cuartos));
+    }
     return valores;
 }
 
@@ -138,16 +149,43 @@ bool es_alcanzable(const Terreno& terreno, Punto destino) {
     return false;
 }
 
+// Misma camara que la vista: lienzo de 640 x 360 centrado en el veterinario sin salir del campo.
+Rectangulo camara_de(const Rectangulo& campo, Punto jugador) {
+    const float x_maxima = campo.origen.x + std::max(0.0F, campo.ancho - 640.0F);
+    const float y_maxima = campo.origen.y + std::max(0.0F, campo.alto - 360.0F);
+    return {{std::clamp(jugador.x - 320.0F, campo.origen.x, x_maxima),
+             std::clamp(jugador.y - 180.0F, campo.origen.y, y_maxima)},
+            640.0F,
+            360.0F};
+}
+
+// 0 arriba, 1 derecha, 2 abajo, 3 izquierda, -1 si cae dentro de la camara.
+int lado_de(const Rectangulo& camara, Punto punto) {
+    if (punto.y < camara.origen.y) {
+        return 0;
+    }
+
+    if (punto.x > camara.origen.x + camara.ancho) {
+        return 1;
+    }
+
+    if (punto.y > camara.origen.y + camara.alto) {
+        return 2;
+    }
+    return punto.x < camara.origen.x ? 3 : -1;
+}
+
 struct Entrega {
     float segundo; // Final del paso en que se entrego.
     Aparicion aparicion;
 };
 
-std::vector<Entrega> recorrer(PlanificadorCampoAbierto& planificador, float paso, float total) {
+std::vector<Entrega> recorrer(PlanificadorCampoAbierto& planificador, const Terreno& terreno,
+                              float paso, float total, Punto jugador) {
     std::vector<Entrega> entregas;
     const int pasos = static_cast<int>(total / paso);
     for (int i = 1; i <= pasos; ++i) {
-        for (const Aparicion& aparicion : planificador.avanzar(paso)) {
+        for (const Aparicion& aparicion : planificador.avanzar(paso, jugador, terreno)) {
             entregas.push_back({static_cast<float>(i) * paso, aparicion});
         }
     }
@@ -252,25 +290,99 @@ void prueba_semillas() {
     comprobar(hay_variacion, "sin semilla, las distribuciones varian");
 }
 
+void prueba_suelo() {
+    PlanificadorCampoAbierto planificador(limites, 42U);
+    const Terreno terreno = planificador.preparar(caso_mora());
+    const auto& suelo = terreno.suelo;
+
+    comprobar(suelo.tamano_pieza == 16.0F, "las piezas de suelo miden 16 px");
+    comprobar(suelo.columnas == 100 && suelo.filas == 75, "la cuadricula cubre todo el campo");
+    comprobar(suelo.piezas.size() == 100U * 75U, "hay una pieza por celda");
+
+    const auto pieza_en = [&](Punto punto) {
+        return suelo.pieza(static_cast<int>(punto.x / suelo.tamano_pieza),
+                           static_cast<int>(punto.y / suelo.tamano_pieza));
+    };
+    comprobar(pieza_en(terreno.inicio).tipo == TipoPiezaSuelo::tierra,
+              "el veterinario empieza sobre tierra");
+    bool claro_de_tierra = true;
+    for (float dx = -64.0F; dx <= 64.0F; dx += 8.0F) {
+        for (float dy = -64.0F; dy <= 64.0F; dy += 8.0F) {
+            claro_de_tierra =
+                claro_de_tierra && pieza_en({terreno.inicio.x + dx, terreno.inicio.y + dy}).tipo ==
+                                       TipoPiezaSuelo::tierra;
+        }
+    }
+    comprobar(claro_de_tierra, "el claro de 64 px alrededor del inicio es todo tierra");
+
+    // Cada transicion mira a una tierra segun su giro; el pasto no toca la tierra.
+    const int vecinos[4][2] = {
+        {0, 1}, {-1, 0}, {0, -1}, {1, 0}}; // giro 0..3: sur, oeste, norte, este
+    int tierras = 0;
+    int transiciones = 0;
+    int pastos = 0;
+    bool giros_coherentes = true;
+    bool pasto_aislado = true;
+    for (int fila = 0; fila < suelo.filas; ++fila) {
+        for (int columna = 0; columna < suelo.columnas; ++columna) {
+            const PiezaSuelo pieza = suelo.pieza(columna, fila);
+            if (pieza.tipo == TipoPiezaSuelo::tierra) {
+                ++tierras;
+            }
+
+            else if (pieza.tipo == TipoPiezaSuelo::transicion) {
+                ++transiciones;
+                const bool giro_valido = pieza.giro_cuartos >= 0 && pieza.giro_cuartos < 4;
+                giros_coherentes = giros_coherentes && giro_valido &&
+                                   suelo.pieza(columna + vecinos[pieza.giro_cuartos % 4][0],
+                                               fila + vecinos[pieza.giro_cuartos % 4][1])
+                                           .tipo == TipoPiezaSuelo::tierra;
+            }
+
+            else {
+                ++pastos;
+                for (const auto& vecino : vecinos) {
+                    pasto_aislado =
+                        pasto_aislado && suelo.pieza(columna + vecino[0], fila + vecino[1]).tipo !=
+                                             TipoPiezaSuelo::tierra;
+                }
+            }
+        }
+    }
+    comprobar(tierras > 0 && transiciones > 0 && pastos > tierras,
+              "hay pasto, tierra y transicion");
+    comprobar(giros_coherentes, "el giro de cada transicion apunta a una pieza de tierra");
+    comprobar(pasto_aislado, "ninguna pieza de pasto toca directamente la tierra");
+    comprobar(suelo.pieza(-1, 0).tipo == TipoPiezaSuelo::pasto &&
+                  suelo.pieza(0, 9999).tipo == TipoPiezaSuelo::pasto,
+              "fuera de la cuadricula se devuelve pasto");
+
+    PlanificadorCampoAbierto gemela(limites, 42U);
+    comprobar(firma(gemela.preparar(caso_mora())) == firma(terreno),
+              "con la misma semilla el suelo es el mismo");
+}
+
 void prueba_oleadas() {
+    const Punto jugador = limites_centro();
     PlanificadorCampoAbierto planificador(limites, 42U);
     const Terreno terreno = planificador.preparar(caso_mora());
 
-    const auto gruesas = recorrer(planificador, 0.5F, 300.0F);
+    const auto gruesas = recorrer(planificador, terreno, 0.5F, 300.0F, jugador);
     comprobar(!gruesas.empty(), "hay apariciones durante los 300 s");
     comprobar(gruesas.front().segundo > 1.0F, "no aparece nadie en el primer segundo");
-    comprobar(planificador.avanzar(10.0F).empty(), "pasado el plan no salen mas apariciones");
+    comprobar(planificador.avanzar(10.0F, jugador, terreno).empty(),
+              "pasado el plan no salen mas apariciones");
 
     // Un solo paso grande entrega exactamente la misma lista: nada se pierde ni se repite.
     PlanificadorCampoAbierto de_golpe(limites, 42U);
     de_golpe.preparar(caso_mora());
-    comprobar(mismas_apariciones(de_golpe.avanzar(300.0F), gruesas),
+    comprobar(mismas_apariciones(de_golpe.avanzar(300.0F, jugador, terreno), gruesas),
               "pasos de 0.5 s y un paso de 300 s entregan las mismas apariciones");
 
     // Cada aparicion sale en el paso que le corresponde, ni antes ni mas de un paso despues.
     PlanificadorCampoAbierto fino(limites, 42U);
     fino.preparar(caso_mora());
-    const auto finas = recorrer(fino, 0.25F, 300.0F);
+    const auto finas = recorrer(fino, terreno, 0.25F, 300.0F, jugador);
     bool a_tiempo = finas.size() == gruesas.size();
     for (std::size_t i = 0; a_tiempo && i < finas.size(); ++i) {
         const float retraso = gruesas[i].segundo - finas[i].segundo;
@@ -280,7 +392,7 @@ void prueba_oleadas() {
 
     // Repetir desde preparar() reinicia el reloj y repite el plan.
     planificador.preparar(caso_mora());
-    const auto repetidas = recorrer(planificador, 0.5F, 300.0F);
+    const auto repetidas = recorrer(planificador, terreno, 0.5F, 300.0F, jugador);
     bool igual = repetidas.size() == gruesas.size();
     for (std::size_t i = 0; igual && i < repetidas.size(); ++i) {
         igual = repetidas[i].segundo == gruesas[i].segundo &&
@@ -288,18 +400,13 @@ void prueba_oleadas() {
     }
     comprobar(igual, "preparar() reinicia el reloj de las oleadas");
 
-    // Ritmo del plan y lugares de aparicion.
+    // Ritmo del plan.
     bool primer_minuto_solo_animales = true;
     bool contacto_antes_de_tiempo = false;
     bool tirador_antes_de_tiempo = false;
     bool hay_tirador = false;
-    bool tirador_cerca_de_suministro = false;
-    bool lejos_del_veterinario = true;
-    bool en_el_campo = true;
-    bool libres = true;
     for (const Entrega& entrega : gruesas) {
         const TipoEnemigo tipo = entrega.aparicion.tipo;
-        const Punto posicion = entrega.aparicion.posicion;
         if (entrega.segundo < 60.0F && tipo != TipoEnemigo::animal_de_contacto) {
             primer_minuto_solo_animales = false;
         }
@@ -311,30 +418,14 @@ void prueba_oleadas() {
         if (tipo == TipoEnemigo::superviviente_a_distancia) {
             hay_tirador = true;
             tirador_antes_de_tiempo = tirador_antes_de_tiempo || entrega.segundo < 194.0F;
-            for (const auto& suministro : terreno.suministros) {
-                tirador_cerca_de_suministro = tirador_cerca_de_suministro ||
-                                              distancia(posicion, suministro.posicion) <= 120.0F;
-            }
         }
-        lejos_del_veterinario =
-            lejos_del_veterinario && distancia(posicion, terreno.inicio) >= 100.0F;
-        en_el_campo =
-            en_el_campo &&
-            dentro(Rectangulo{{-1.0F, -1.0F}, limites.ancho + 2.0F, limites.alto + 2.0F}, posicion);
-        libres = libres && !bloqueado(terreno, posicion);
     }
     comprobar(primer_minuto_solo_animales, "el primer minuto solo trae animales de contacto");
     comprobar(!contacto_antes_de_tiempo,
               "los supervivientes de contacto llegan despues del minuto 1");
     comprobar(hay_tirador, "el tramo final trae supervivientes a distancia");
     comprobar(!tirador_antes_de_tiempo, "los supervivientes a distancia solo llegan al final");
-    comprobar(tirador_cerca_de_suministro,
-              "algun superviviente a distancia aparece cerca de un suministro");
-    comprobar(lejos_del_veterinario, "las apariciones dejan espacio alrededor del veterinario");
-    comprobar(en_el_campo, "las apariciones caen dentro del campo");
-    comprobar(libres, "las apariciones no caen sobre obstaculos");
 
-    // Las oleadas se hacen mas densas con el tiempo.
     const auto contar = [&](float desde, float hasta) {
         return std::count_if(gruesas.begin(), gruesas.end(), [&](const Entrega& e) {
             return e.segundo > desde && e.segundo <= hasta;
@@ -344,6 +435,182 @@ void prueba_oleadas() {
               "el ultimo minuto trae mas enemigos que el primero");
 }
 
+// Las apariciones salen fuera de la camara, cerca de ella, por varios lados y en zonas libres.
+void prueba_lugar_de_aparicion() {
+    const Punto jugador = limites_centro();
+    PlanificadorCampoAbierto planificador(limites, 42U);
+    const Terreno terreno = planificador.preparar(caso_mora());
+    const Rectangulo camara = camara_de(limites, jugador);
+    const auto entregas = recorrer(planificador, terreno, 0.5F, 300.0F, jugador);
+
+    bool fuera = true;
+    bool cerca = true;
+    bool en_el_campo = true;
+    bool libres = true;
+    int por_lado[4] = {0, 0, 0, 0};
+    for (const Entrega& entrega : entregas) {
+        const Punto posicion = entrega.aparicion.posicion;
+        const float lejania = distancia_a_rectangulo(posicion, camara);
+        fuera = fuera && lejania >= 24.0F && lado_de(camara, posicion) >= 0;
+        cerca = cerca && lejania <= 160.0F;
+        en_el_campo =
+            en_el_campo &&
+            dentro(Rectangulo{{-1.0F, -1.0F}, limites.ancho + 2.0F, limites.alto + 2.0F}, posicion);
+        libres = libres && !bloqueado(terreno, posicion);
+        if (lado_de(camara, posicion) >= 0) {
+            ++por_lado[lado_de(camara, posicion)];
+        }
+    }
+    comprobar(!entregas.empty(), "hay apariciones que revisar");
+    comprobar(fuera, "ninguna aparicion nace a menos de 24 px de la camara");
+    comprobar(cerca, "las apariciones nacen cerca de la camara, no al otro lado del campo");
+    comprobar(en_el_campo, "las apariciones caen dentro del campo");
+    comprobar(libres, "las apariciones no caen sobre obstaculos");
+
+    const int total = static_cast<int>(entregas.size());
+    bool varios_lados = true;
+    for (int lado : por_lado) {
+        varios_lados = varios_lados && lado > 0 && lado * 10 < total * 6;
+    }
+    comprobar(varios_lados, "aparecen por los cuatro lados, sin que uno concentre casi todo");
+
+    // Con varias semillas, algun tirador aparece junto a un suministro.
+    bool tirador_cerca = false;
+    for (std::uint32_t semilla = 1; semilla <= 8; ++semilla) {
+        PlanificadorCampoAbierto otro(limites, semilla);
+        const Terreno otro_terreno = otro.preparar(caso_mora());
+        for (const Entrega& entrega : recorrer(otro, otro_terreno, 0.5F, 300.0F, jugador)) {
+            if (entrega.aparicion.tipo != TipoEnemigo::superviviente_a_distancia) {
+                continue;
+            }
+
+            for (const auto& suministro : otro_terreno.suministros) {
+                tirador_cerca = tirador_cerca || distancia(entrega.aparicion.posicion,
+                                                           suministro.posicion) <= 100.0F;
+            }
+        }
+    }
+    comprobar(tirador_cerca, "algun superviviente a distancia aparece cerca de un suministro");
+}
+
+// Las apariciones usan la posicion del veterinario en cada paso, no la del inicio.
+void prueba_posicion_actual() {
+    const Punto esquina{200.0F, 200.0F};
+    const Punto centro = limites_centro();
+    PlanificadorCampoAbierto planificador(limites, 42U);
+    const Terreno terreno = planificador.preparar(caso_mora());
+
+    const Rectangulo camara_centro = camara_de(limites, centro);
+    const Rectangulo camara_esquina = camara_de(limites, esquina);
+    bool primera_mitad_correcta = true;
+    bool segunda_mitad_correcta = true;
+    bool sin_lados_imposibles = true;
+    int cuantas = 0;
+
+    for (int paso = 1; paso <= 600; ++paso) {
+        const bool segunda_mitad = paso > 300;
+        const Punto jugador = segunda_mitad ? esquina : centro;
+        const Rectangulo& camara = segunda_mitad ? camara_esquina : camara_centro;
+        for (const Aparicion& aparicion : planificador.avanzar(0.5F, jugador, terreno)) {
+            ++cuantas;
+            const float lejania = distancia_a_rectangulo(aparicion.posicion, camara);
+            const bool valida = lejania >= 24.0F && lejania <= 160.0F;
+            (segunda_mitad ? segunda_mitad_correcta : primera_mitad_correcta) =
+                (segunda_mitad ? segunda_mitad_correcta : primera_mitad_correcta) && valida;
+            // Con la camara pegada a la esquina superior izquierda, solo caben derecha y abajo.
+            if (segunda_mitad) {
+                const int lado = lado_de(camara, aparicion.posicion);
+                sin_lados_imposibles = sin_lados_imposibles && (lado == 1 || lado == 2);
+            }
+        }
+    }
+    comprobar(cuantas > 0, "hay apariciones en el recorrido con movimiento");
+    comprobar(primera_mitad_correcta, "mientras esta en el centro nacen junto a esa camara");
+    comprobar(segunda_mitad_correcta, "al moverse, nacen junto a la camara de su nueva posicion");
+    comprobar(sin_lados_imposibles, "no nacen fuera del campo cuando la camara toca el borde");
+}
+
+// Sin un lugar valido, la aparicion se omite.
+void prueba_omision() {
+    // Un campo mas chico que la camara: no queda ningun punto fuera de ella dentro del campo.
+    const Rectangulo chico{{0.0F, 0.0F}, 600.0F, 300.0F};
+    PlanificadorCampoAbierto planificador(chico, 42U);
+    const Terreno terreno_chico = planificador.preparar(caso_mora());
+    const auto entregas =
+        recorrer(planificador, terreno_chico, 0.5F, 300.0F, Punto{300.0F, 150.0F});
+    comprobar(entregas.empty(), "si no hay lugar valido se omiten las apariciones");
+    comprobar(planificador.avanzar(1.0F, Punto{300.0F, 150.0F}, terreno_chico).empty(),
+              "omitir una aparicion no deja pendientes");
+
+    // El campo normal si las entrega.
+    PlanificadorCampoAbierto normal(limites, 42U);
+    const Terreno terreno_normal = normal.preparar(caso_mora());
+    comprobar(!recorrer(normal, terreno_normal, 0.5F, 300.0F, limites_centro()).empty(),
+              "en el campo normal si hay apariciones");
+}
+
+// La mision pasa el terreno del cuadro: sin suministros ni obstaculos que ya no estan.
+void prueba_terreno_recibido() {
+    const Punto jugador = limites_centro();
+    PlanificadorCampoAbierto planificador(limites, 42U);
+    const Terreno terreno = planificador.preparar(caso_mora());
+
+    // Un muro enorme en la mitad derecha del campo: nada debe nacer dentro.
+    Terreno con_muro = terreno;
+    const Rectangulo muro{{900.0F, 0.0F}, 700.0F, 1200.0F};
+    con_muro.obstaculos.push_back({veterinaria::TipoObstaculo::roca, {900.0F, 1200.0F}, muro});
+    con_muro.suministros.clear(); // Ya se recogieron todos.
+    const auto entregas = recorrer(planificador, con_muro, 0.5F, 300.0F, jugador);
+    bool fuera_del_muro = true;
+    for (const Entrega& entrega : entregas) {
+        fuera_del_muro = fuera_del_muro && !dentro(muro, entrega.aparicion.posicion);
+    }
+    comprobar(!entregas.empty(), "con el terreno recibido sigue habiendo apariciones");
+    comprobar(fuera_del_muro, "las apariciones respetan los obstaculos del terreno recibido");
+
+    // La version sin posicion usa el terreno de preparar() y el veterinario en el inicio.
+    PlanificadorCampoAbierto a(limites, 42U);
+    PlanificadorCampoAbierto b(limites, 42U);
+    const Terreno ta = a.preparar(caso_mora());
+    b.preparar(caso_mora());
+    bool equivalentes = true;
+    for (int paso = 0; paso < 600; ++paso) {
+        const auto sola = b.avanzar(0.5F);
+        const auto completa = a.avanzar(0.5F, ta.inicio, ta);
+        equivalentes = equivalentes && sola.size() == completa.size();
+        for (std::size_t i = 0; equivalentes && i < sola.size(); ++i) {
+            equivalentes = sola[i].tipo == completa[i].tipo &&
+                           sola[i].posicion.x == completa[i].posicion.x &&
+                           sola[i].posicion.y == completa[i].posicion.y;
+        }
+    }
+    comprobar(equivalentes,
+              "avanzar(segundos) equivale a avanzar con el inicio y el terreno propios");
+}
+
+// El campo real del juego (src/main.cpp) es de 1280 x 900.
+void prueba_campo_del_juego() {
+    const Rectangulo campo{{0.0F, 0.0F}, 1280.0F, 900.0F};
+    PlanificadorCampoAbierto planificador(campo, 42U);
+    const Terreno terreno = planificador.preparar(caso_mora());
+    comprobar(terreno.suelo.columnas == 80 && terreno.suelo.filas == 57,
+              "el suelo del campo de juego es de 80 x 57 piezas");
+    comprobar(total_de(terreno, "vendas") == 2 && total_de(terreno, "antiseptico") == 1,
+              "el campo de juego ofrece las cantidades pedidas");
+
+    const Punto jugador{terreno.inicio.x, terreno.inicio.y};
+    const Rectangulo camara = camara_de(campo, jugador);
+    bool todas_bien = true;
+    const auto entregas = recorrer(planificador, terreno, 0.5F, 300.0F, jugador);
+    for (const Entrega& entrega : entregas) {
+        const Punto posicion = entrega.aparicion.posicion;
+        todas_bien = todas_bien && distancia_a_rectangulo(posicion, camara) >= 24.0F &&
+                     !bloqueado(terreno, posicion);
+    }
+    comprobar(!entregas.empty() && todas_bien,
+              "en el campo de juego las apariciones salen fuera de camara y en zonas libres");
+}
+
 } // namespace
 
 int main() {
@@ -351,7 +618,13 @@ int main() {
     prueba_claro_y_obstaculos();
     prueba_alcanzables();
     prueba_semillas();
+    prueba_suelo();
     prueba_oleadas();
+    prueba_lugar_de_aparicion();
+    prueba_posicion_actual();
+    prueba_omision();
+    prueba_terreno_recibido();
+    prueba_campo_del_juego();
 
     std::cout << comprobaciones - fallos << " de " << comprobaciones
               << " comprobaciones correctas.\n";

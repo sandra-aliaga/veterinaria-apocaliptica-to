@@ -4,6 +4,7 @@
 #include "estado_movimiento.h"
 #include "geometria_mapa.h"
 #include "mapa/obstaculo_mapa.h"
+#include "mapa/suelo_mapa.h"
 
 #include <vector>
 
@@ -19,6 +20,7 @@ struct Terreno {
     Punto inicio;
     std::vector<ObstaculoMapa> obstaculos;
     std::vector<SuministroEnMapa> suministros;
+    SueloMapa suelo;
 };
 
 enum class TipoEnemigo { animal_de_contacto, superviviente_de_contacto, superviviente_a_distancia };
