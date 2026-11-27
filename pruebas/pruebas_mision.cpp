@@ -86,7 +86,13 @@ class PlanificadorSimulado final : public PlanificadorMapa {
         return vencidas;
     }
 
+    std::vector<Aparicion> avanzar(float paso, Punto jugador, const Terreno&) override {
+        jugador_consultado = jugador;
+        return avanzar(paso);
+    }
+
     std::vector<std::pair<float, Aparicion>> guion;
+    Punto jugador_consultado{};
     int preparaciones = 0;
 
   private:
@@ -114,6 +120,11 @@ class CombateSimulado final : public Combate {
         ultima_direccion = direccion;
         ultimo_paso = segundos;
         segundos_simulados += segundos;
+
+        if (avanzar_jugador) {
+            estado_.jugador.x += direccion.x * segundos;
+            estado_.jugador.y += direccion.y * segundos;
+        }
     }
 
     const EstadoCombate& estado() const override {
@@ -130,6 +141,7 @@ class CombateSimulado final : public Combate {
 
     int inicios = 0;
     int enemigos_agregados = 0;
+    bool avanzar_jugador = false;
     Punto ultima_direccion{0.0F, 0.0F};
     float ultimo_paso = 0.0F;
     float segundos_simulados = 0.0F;
@@ -327,10 +339,13 @@ void prueba_reloj_y_oleadas() {
     CombateSimulado combate;
     MisionBase mision(planificador, combate);
     mision.iniciar(caso_mora(10));
+    combate.avanzar_jugador = true;
 
     mision.actualizar({1.0F, 0.0F}, 4.0F);
     comprobar(combate.enemigos_agregados == 0, "antes de su segundo no pasa ninguna aparicion");
     comprobar(combate.ultima_direccion.x == 1.0F, "la direccion llega al combate");
+    comprobar(planificador.jugador_consultado.x == inicio.x + 4.0F,
+              "las apariciones usan la posicion del jugador despues de moverlo");
     mision.actualizar(sin_movimiento, 1.0F);
     comprobar(combate.enemigos_agregados == 1, "la aparicion de los 5 s llega al combate una vez");
     mision.actualizar(sin_movimiento, 1.0F);

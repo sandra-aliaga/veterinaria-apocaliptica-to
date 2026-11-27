@@ -60,12 +60,13 @@ void MisionBase::actualizar(Punto direccion, float segundos) {
     // Nunca se simula mas alla del tiempo que queda.
     const float paso = std::max(0.0F, std::min(segundos, estado_.segundos_restantes));
 
-    const auto apariciones = planificador_.avanzar(paso, estado_.combate.jugador, estado_.terreno);
+    combate_.actualizar(direccion, paso);
+    const auto apariciones =
+        planificador_.avanzar(paso, combate_.estado().jugador, estado_.terreno);
 
     for (const Aparicion& aparicion : apariciones) {
         combate_.agregar_enemigo(aparicion);
     }
-    combate_.actualizar(direccion, paso);
     estado_.combate = combate_.estado();
     estado_.segundos_restantes -= paso;
 

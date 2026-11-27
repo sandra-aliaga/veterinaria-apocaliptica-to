@@ -29,6 +29,14 @@ bool dentro_de_limites(Punto centro, float radio, const Rectangulo& limites) {
            centro.y + radio <= limites.origen.y + limites.alto;
 }
 
+OrientacionHorizontal orientacion_hacia(float diferencia, OrientacionHorizontal actual) {
+    if (diferencia == 0.0F) {
+        return actual;
+    }
+
+    return diferencia < 0.0F ? OrientacionHorizontal::izquierda : OrientacionHorizontal::derecha;
+}
+
 } // namespace
 
 CombateBase::CombateBase(std::unique_ptr<FabricaEnemigos> fabrica, std::unique_ptr<Arma> arma,
@@ -48,6 +56,9 @@ void CombateBase::iniciar(const Terreno& terreno) {
                                       configuracion_.velocidad_jugador);
     enemigos_.clear();
     proyectiles_.clear();
+    alternar_animal_ = false;
+    alternar_superviviente_ = false;
+    estado_ = {};
 
     if (arma_) {
         arma_->reiniciar();
@@ -64,7 +75,19 @@ void CombateBase::agregar_enemigo(const Aparicion& aparicion) {
     auto enemigo = fabrica_->crear(aparicion);
 
     if (enemigo) {
-        enemigos_.push_back({std::move(enemigo), 0.0F});
+        bool variante = false;
+
+        if (aparicion.tipo == TipoEnemigo::animal_de_contacto) {
+            variante = alternar_animal_;
+            alternar_animal_ = !alternar_animal_;
+        }
+
+        else if (aparicion.tipo == TipoEnemigo::superviviente_de_contacto) {
+            variante = alternar_superviviente_;
+            alternar_superviviente_ = !alternar_superviviente_;
+        }
+
+        enemigos_.push_back({std::move(enemigo), 0.0F, variante, std::nullopt});
         publicar_estado();
     }
 }
@@ -93,6 +116,9 @@ const EstadoCombate& CombateBase::estado() const {
 }
 
 void CombateBase::avanzar(Punto direccion, float segundos) {
+    estado_.segundos_combate += segundos;
+    const int vida_anterior = veterinario_.vida();
+
     if (arma_) {
         arma_->actualizar(segundos);
     }
@@ -100,6 +126,11 @@ void CombateBase::avanzar(Punto direccion, float segundos) {
     mover_jugador(direccion, segundos);
     actualizar_enemigos(segundos);
     actualizar_proyectiles(segundos);
+
+    if (veterinario_.vida() < vida_anterior) {
+        estado_.instante_danio = estado_.segundos_combate;
+    }
+
     atacar_con_arma();
     retirar_eliminados();
 }
@@ -143,6 +174,8 @@ void CombateBase::actualizar_enemigos(float segundos) {
 
         else if (intencion.ataque == AtaqueEnemigo::proyectil) {
             const Punto hacia = direccion_hacia(destino, jugador);
+            const auto orientacion = orientacion_hacia(hacia.x, actual.movimiento.orientacion);
+            activo.disparo = GestoCombate{orientacion, estado_.segundos_combate};
             proyectiles_.push_back({destino,
                                     {hacia.x * configuracion_.velocidad_proyectil,
                                      hacia.y * configuracion_.velocidad_proyectil},
@@ -200,6 +233,10 @@ void CombateBase::atacar_con_arma() {
     const int danio = arma_->intentar_atacar();
 
     if (danio > 0) {
+        const auto impacto = objetivo->enemigo->estado().posicion;
+        const auto orientacion = orientacion_hacia(impacto.x - veterinario_.posicion().x,
+                                                   veterinario_.movimiento().orientacion);
+        estado_.ultimo_golpe = GolpeArma{impacto, {orientacion, estado_.segundos_combate}};
         objetivo->enemigo->recibir_danio(danio);
     }
 }
@@ -220,12 +257,15 @@ void CombateBase::publicar_estado() {
 
     estado_.enemigos.clear();
     for (const auto& activo : enemigos_) {
-        estado_.enemigos.push_back(activo.enemigo->estado());
+        auto enemigo = activo.enemigo->estado();
+        enemigo.variante_visual = activo.variante_visual;
+        enemigo.disparo = activo.disparo;
+        estado_.enemigos.push_back(enemigo);
     }
 
     estado_.proyectiles.clear();
     for (const auto& proyectil : proyectiles_) {
-        estado_.proyectiles.push_back(proyectil.posicion);
+        estado_.proyectiles.push_back({proyectil.posicion, proyectil.velocidad});
     }
 }
 

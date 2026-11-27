@@ -19,42 +19,42 @@
 |  | Hecho | `elena_mirada_baja.png` | `arte/duenos/` |
 |  | Hecho | `dueno_toby_frente.png` | `arte/duenos/` |
 |  | Hecho | `dueno_toby_mueca.png` | `arte/duenos/` |
-| 3 | Pendiente | [elena_aliviada.png](prompts/clinica/personajes/variantes/elena_aliviada.txt) | `arte/duenos/` |
-| 3 | Pendiente | [dueno_toby_aliviado.png](prompts/clinica/personajes/variantes/dueno_toby_aliviado.txt) | `arte/duenos/` |
-| 1 | Pendiente | [pasto.png](prompts/mision/mapa/pasto.txt) | `arte/mapa/` |
-| 2 | Pendiente | [tierra.png](prompts/mision/mapa/tierra.txt) | `arte/mapa/` |
-| 3 | Pendiente | [transicion_pasto_tierra.png](prompts/mision/mapa/transicion_pasto_tierra.txt) | `arte/mapa/` |
+| 3 | Hecho | [elena_aliviada.png](prompts/clinica/personajes/variantes/elena_aliviada.txt) | `arte/duenos/` |
+| 3 | Hecho | [dueno_toby_aliviado.png](prompts/clinica/personajes/variantes/dueno_toby_aliviado.txt) | `arte/duenos/` |
+| 1 | Hecho | [pasto.png](prompts/mision/mapa/pasto.txt) | `arte/mapa/` |
+| 2 | Hecho | [tierra.png](prompts/mision/mapa/tierra.txt) | `arte/mapa/` |
+| 3 | Hecho | [transicion_pasto_tierra.png](prompts/mision/mapa/transicion_pasto_tierra.txt) | `arte/mapa/` |
 |  | Hecho | [arbol.png](prompts/mision/mapa/arbol.txt) | `arte/mapa/obstaculos/` |
 |  | Hecho | [roca.png](prompts/mision/mapa/roca.txt) | `arte/mapa/obstaculos/` |
 |  | Hecho | [tronco.png](prompts/mision/mapa/tronco.txt) | `arte/mapa/obstaculos/` |
 |  | Hecho | [hierba_seca.png](prompts/mision/mapa/hierba_seca.txt) | `arte/mapa/decoracion/` |
 |  | Hecho | [escombros.png](prompts/mision/mapa/escombros.txt) | `arte/mapa/decoracion/` |
-| 1 | Pendiente | [caminar_derecha.png](prompts/mision/veterinario.txt) | `arte/veterinario/` |
-| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/veterinario.txt) | `arte/veterinario/` |
-| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/perro_asilvestrado.txt) | `arte/enemigos/perro_asilvestrado/` |
-| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/perro_asilvestrado.txt) | `arte/enemigos/perro_asilvestrado/` |
-| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/rata_mutada.txt) | `arte/enemigos/rata_mutada/` |
-| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/rata_mutada.txt) | `arte/enemigos/rata_mutada/` |
-| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/saqueador.txt) | `arte/enemigos/saqueador/` |
-| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/saqueador.txt) | `arte/enemigos/saqueador/` |
-| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/errante_radiactivo.txt) | `arte/enemigos/errante_radiactivo/` |
-| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/errante_radiactivo.txt) | `arte/enemigos/errante_radiactivo/` |
-| 1 | Pendiente | [caminar_derecha.png](prompts/mision/enemigos/vigia.txt) | `arte/enemigos/vigia/` |
-| 2 | Pendiente | [caminar_izquierda.png](prompts/mision/enemigos/vigia.txt) | `arte/enemigos/vigia/` |
-| 2 | Pendiente | [lanzar_derecha.png](prompts/mision/enemigos/vigia_lanzamiento.txt) | `arte/enemigos/vigia/` |
-| 3 | Pendiente | [lanzar_izquierda.png](prompts/mision/enemigos/vigia_lanzamiento.txt) | `arte/enemigos/vigia/` |
-|  | Pendiente | [rayo.png](prompts/mision/enemigos/vigia_rayo.txt) | `arte/enemigos/vigia/` |
-| 1 | Pendiente | [latigo.png](prompts/mision/armas/latigo.txt) | `arte/armas/latigo/` |
-| 2 | Pendiente | [ataque_derecha.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
-| 3 | Pendiente | [ataque_izquierda.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
+| 1 | Hecho | [caminar_derecha.png](prompts/mision/veterinario.txt) | `arte/veterinario/` |
+| 2 | Hecho | [caminar_izquierda.png](prompts/mision/veterinario.txt) | `arte/veterinario/` |
+| 1 | Hecho | [caminar_derecha.png](prompts/mision/enemigos/perro_asilvestrado.txt) | `arte/enemigos/perro_asilvestrado/` |
+| 2 | Hecho | [caminar_izquierda.png](prompts/mision/enemigos/perro_asilvestrado.txt) | `arte/enemigos/perro_asilvestrado/` |
+| 1 | Hecho | [caminar_derecha.png](prompts/mision/enemigos/rata_mutada.txt) | `arte/enemigos/rata_mutada/` |
+| 2 | Hecho | [caminar_izquierda.png](prompts/mision/enemigos/rata_mutada.txt) | `arte/enemigos/rata_mutada/` |
+| 1 | Hecho | [caminar_derecha.png](prompts/mision/enemigos/saqueador.txt) | `arte/enemigos/saqueador/` |
+| 2 | Hecho | [caminar_izquierda.png](prompts/mision/enemigos/saqueador.txt) | `arte/enemigos/saqueador/` |
+| 1 | Hecho | [caminar_derecha.png](prompts/mision/enemigos/errante_radiactivo.txt) | `arte/enemigos/errante_radiactivo/` |
+| 2 | Hecho | [caminar_izquierda.png](prompts/mision/enemigos/errante_radiactivo.txt) | `arte/enemigos/errante_radiactivo/` |
+| 1 | Hecho | [caminar_derecha.png](prompts/mision/enemigos/vigia.txt) | `arte/enemigos/vigia/` |
+| 2 | Hecho | [caminar_izquierda.png](prompts/mision/enemigos/vigia.txt) | `arte/enemigos/vigia/` |
+| 2 | Hecho | [lanzar_derecha.png](prompts/mision/enemigos/vigia_lanzamiento.txt) | `arte/enemigos/vigia/` |
+| 3 | Hecho | [lanzar_izquierda.png](prompts/mision/enemigos/vigia_lanzamiento.txt) | `arte/enemigos/vigia/` |
+|  | Hecho | [rayo.png](prompts/mision/enemigos/vigia_rayo.txt) | `arte/enemigos/vigia/` |
+| 1 | Hecho | [latigo.png](prompts/mision/armas/latigo.txt) | `arte/armas/latigo/` |
+| 2 | Hecho | [ataque_derecha.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
+| 3 | Hecho | [ataque_izquierda.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
 |  | Hecho | [vendas.png](prompts/mision/suministros/vendas.txt) | `arte/suministros/` |
 |  | Hecho | [antiseptico.png](prompts/mision/suministros/antiseptico.txt) | `arte/suministros/` |
 |  | Hecho | [suero.png](prompts/mision/suministros/suero.txt) | `arte/suministros/` |
-|  | Pendiente | [danio_veterinario.png](prompts/mision/efectos/danio_veterinario.txt) | `arte/efectos/` |
-|  | Pendiente | [impacto_latigo.png](prompts/mision/efectos/impacto_latigo.txt) | `arte/efectos/` |
-|  | Pendiente | [recoger_suministro.png](prompts/mision/efectos/recoger_suministro.txt) | `arte/efectos/` |
-|  | Pendiente | [icono_vida.png](prompts/mision/interfaz/icono_vida.txt) | `arte/interfaz/` |
-|  | Pendiente | [icono_saldo.png](prompts/mision/interfaz/icono_saldo.txt) | `arte/interfaz/` |
+|  | Hecho | [danio_veterinario.png](prompts/mision/efectos/danio_veterinario.txt) | `arte/efectos/` |
+|  | Hecho | [impacto_latigo.png](prompts/mision/efectos/impacto_latigo.txt) | `arte/efectos/` |
+|  | Hecho | [recoger_suministro.png](prompts/mision/efectos/recoger_suministro.txt) | `arte/efectos/` |
+|  | Hecho | [icono_vida.png](prompts/mision/interfaz/icono_vida.txt) | `arte/interfaz/` |
+|  | Hecho | [icono_saldo.png](prompts/mision/interfaz/icono_saldo.txt) | `arte/interfaz/` |
 
 ## Estilo visual
 

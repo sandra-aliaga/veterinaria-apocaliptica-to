@@ -86,12 +86,15 @@ un objeto aparece un aviso. Cuando el suministro más cercano queda fuera
 de cámara, una flecha indica su dirección. Si el intento falla, la clínica
 indica si se agotó el tiempo o el veterinario perdió toda la vida.
 
-Los obstáculos y suministros usan sus PNG. La vista apoya cada obstáculo
-sobre su anclaje y el modelo resuelve la colisión. El suelo admite una
-baldosa de pasto. Actualmente usa una base de color con hierba seca y
-escombros distribuidos de forma estable sobre el mapa. El veterinario,
-los distintos tipos de enemigo y los proyectiles se ven con figuras
-provisionales a partir de sus posiciones en el estado de combate.
+La vista dibuja las baldosas visibles de `Terreno.suelo` y gira las
+transiciones según su orientación. Los obstáculos y suministros usan sus
+PNG, y la hierba seca y los escombros se distribuyen como decoración.
+El modelo resuelve las colisiones.
+
+El veterinario y los enemigos usan hojas de cuatro fotogramas por dirección.
+El vigía tiene una animación de lanzamiento y el rayo gira según su
+velocidad. El daño, el golpe del látigo y la recogida tienen efectos
+breves ligados a la simulación, que se congelan al pausar.
 [Rutas y prompts del campo](../../arte/README.md#prompts-del-suelo-y-los-obstáculos)
 
 W, A, S y D se traducen a una dirección y Esc alterna el menú. Primero se

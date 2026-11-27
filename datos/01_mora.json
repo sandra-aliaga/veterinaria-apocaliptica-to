@@ -86,7 +86,7 @@
       {
           "hablante": "dueno",
           "texto": "Aquí tienes tu pago. Si te preguntan, la apertura del pozo se aplazó por siesta.",
-          "sprite_dueno": "arte/duenos/elena_frente.png",
+          "sprite_dueno": "arte/duenos/elena_aliviada.png",
           "retrato_mascota": "arte/mascotas/mora_relajada.png"
       }
     ]

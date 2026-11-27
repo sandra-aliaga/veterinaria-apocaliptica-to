@@ -24,6 +24,8 @@ constexpr char boton_jugar[] = "arte/inicio/boton_jugar.png";
 constexpr char cursor_normal[] = "arte/inicio/cursor_normal.png";
 constexpr char fondo_clinica[] = "arte/clinica/fondo.png";
 constexpr char pasto_mapa[] = "arte/mapa/pasto.png";
+constexpr char tierra_mapa[] = "arte/mapa/tierra.png";
+constexpr char transicion_mapa[] = "arte/mapa/transicion_pasto_tierra.png";
 constexpr char arbol_mapa[] = "arte/mapa/obstaculos/arbol.png";
 constexpr char roca_mapa[] = "arte/mapa/obstaculos/roca.png";
 constexpr char tronco_mapa[] = "arte/mapa/obstaculos/tronco.png";
@@ -41,9 +43,71 @@ constexpr std::array recursos_suministros{
     RecursoSuministro{"vendas", "arte/suministros/vendas.png"},
 };
 
+struct HojaSprites {
+    const char* ruta;
+    int lado;
+    int fotogramas;
+};
+
+struct HojasOrientadas {
+    HojaSprites derecha;
+    HojaSprites izquierda;
+};
+
+constexpr HojasOrientadas caminar_veterinario{
+    {"arte/veterinario/caminar_derecha.png", 32, 4},
+    {"arte/veterinario/caminar_izquierda.png", 32, 4},
+};
+constexpr HojasOrientadas caminar_perro{
+    {"arte/enemigos/perro_asilvestrado/caminar_derecha.png", 24, 4},
+    {"arte/enemigos/perro_asilvestrado/caminar_izquierda.png", 24, 4},
+};
+constexpr HojasOrientadas caminar_rata{
+    {"arte/enemigos/rata_mutada/caminar_derecha.png", 24, 4},
+    {"arte/enemigos/rata_mutada/caminar_izquierda.png", 24, 4},
+};
+constexpr HojasOrientadas caminar_saqueador{
+    {"arte/enemigos/saqueador/caminar_derecha.png", 32, 4},
+    {"arte/enemigos/saqueador/caminar_izquierda.png", 32, 4},
+};
+constexpr HojasOrientadas caminar_errante{
+    {"arte/enemigos/errante_radiactivo/caminar_derecha.png", 32, 4},
+    {"arte/enemigos/errante_radiactivo/caminar_izquierda.png", 32, 4},
+};
+constexpr HojasOrientadas caminar_vigia{
+    {"arte/enemigos/vigia/caminar_derecha.png", 32, 4},
+    {"arte/enemigos/vigia/caminar_izquierda.png", 32, 4},
+};
+constexpr HojasOrientadas lanzar_vigia{
+    {"arte/enemigos/vigia/lanzar_derecha.png", 32, 4},
+    {"arte/enemigos/vigia/lanzar_izquierda.png", 32, 4},
+};
+constexpr HojasOrientadas atacar_latigo{
+    {"arte/armas/latigo/ataque_derecha.png", 48, 4},
+    {"arte/armas/latigo/ataque_izquierda.png", 48, 4},
+};
+constexpr HojaSprites efecto_danio{"arte/efectos/danio_veterinario.png", 16, 3};
+constexpr HojaSprites efecto_impacto{"arte/efectos/impacto_latigo.png", 16, 3};
+constexpr HojaSprites efecto_recogida{"arte/efectos/recoger_suministro.png", 16, 3};
+constexpr char rayo_vigia[] = "arte/enemigos/vigia/rayo.png";
+constexpr char icono_latigo[] = "arte/armas/latigo/latigo.png";
+constexpr char icono_vida[] = "arte/interfaz/icono_vida.png";
+constexpr char icono_saldo[] = "arte/interfaz/icono_saldo.png";
+
+constexpr std::array hojas_orientadas{
+    caminar_veterinario, caminar_perro, caminar_rata, caminar_saqueador,
+    caminar_errante,     caminar_vigia, lanzar_vigia, atacar_latigo,
+};
+constexpr std::array hojas_efectos{efecto_danio, efecto_impacto, efecto_recogida};
+constexpr std::array iconos_combate{rayo_vigia, icono_latigo, icono_vida, icono_saldo};
+constexpr float segundos_fotograma_caminar = 0.12F;
+constexpr float segundos_fotograma_gesto = 0.065F;
+constexpr float segundos_fotograma_efecto = 0.09F;
+
 constexpr std::array texturas_fijas{
-    fondo_inicio, titulo_inicio, boton_jugar, cursor_normal, fondo_clinica,  pasto_mapa,
-    arbol_mapa,   roca_mapa,     tronco_mapa, hierba_mapa,   escombros_mapa,
+    fondo_inicio,   titulo_inicio, boton_jugar,     cursor_normal, fondo_clinica,
+    pasto_mapa,     arbol_mapa,    roca_mapa,       tronco_mapa,   hierba_mapa,
+    escombros_mapa, tierra_mapa,   transicion_mapa,
 };
 
 constexpr int ancho = 640;
@@ -65,8 +129,9 @@ constexpr Color crema{243, 233, 210, 255};
 constexpr Color ladrillo{223, 125, 118, 255};
 constexpr Color menta{135, 199, 161, 255};
 constexpr Color suelo_base{37, 50, 44, 255};
+constexpr Color color_pasto{88, 99, 70, 255};
+constexpr Color color_tierra{105, 83, 64, 255};
 constexpr Color copa_arbol{61, 83, 61, 255};
-constexpr float lado_baldosa = 16;
 constexpr float celda_decoracion = 56;
 constexpr float lado_suministro = 18;
 constexpr Rectangle area_aviso_recogida{208, 309, 224, 31};
@@ -163,6 +228,11 @@ class VistaRaylib final : public Vista {
     void cargar_textura(const std::string& ruta);
     Texture2D textura(const std::string& ruta) const;
     bool imagen(const std::string& ruta, Rectangle destino, Color tinte = WHITE) const;
+    bool dibujar_fotograma(const HojaSprites& hoja, int indice, Vector2 centro,
+                           bool reflejar = false) const;
+    bool dibujar_hoja_orientada(const HojasOrientadas& hojas, OrientacionHorizontal orientacion,
+                                int indice, Vector2 centro) const;
+    void dibujar_efecto(const HojaSprites& hoja, float segundos, Vector2 centro) const;
     void preparar_retratos(const EstadoPantalla& estado);
     void texto(const std::string& contenido, Vector2 posicion, float tamano, Color color) const;
     void titulo(const char* contenido, Vector2 posicion, float tamano, Color color) const;
@@ -171,11 +241,14 @@ class VistaRaylib final : public Vista {
     void dibujar_inicio(const EstadoPantalla& estado);
     void dibujar_clinica(const EstadoPantalla& estado);
     void dibujar_ficha(const EstadoPantalla& estado);
-    void dibujar_mision(const EstadoMision& estado);
-    void dibujar_suelo(const Rectangulo& limites, Punto camara) const;
+    void dibujar_mision(const EstadoMision& estado, const EstadoPantalla& pantalla);
+    void dibujar_suelo(const Terreno& terreno, Punto camara) const;
     void dibujar_decoracion(const Rectangulo& limites, Punto camara) const;
     void dibujar_suministro(const CantidadSuministro& suministro, Vector2 posicion) const;
     void dibujar_obstaculo(TipoObstaculo tipo, Vector2 anclaje) const;
+    void dibujar_enemigo(const EstadoEnemigo& enemigo, Vector2 posicion, float segundos) const;
+    void dibujar_veterinario(const EstadoCombate& combate, Vector2 posicion) const;
+    void dibujar_proyectil(const EstadoProyectil& proyectil, Vector2 posicion) const;
     void dibujar_hud_mision(const EstadoMision& estado);
     void dibujar_guia_mision(const EstadoMision& estado, Punto camara) const;
     void dibujar_vida(const EstadoCombate& combate) const;
@@ -206,6 +279,26 @@ std::string nombre_suministro(const std::string& id) {
         return "Suero";
     }
     return id;
+}
+
+int fotograma_caminar(const HojaSprites& hoja, EstadoMovimiento movimiento, float segundos) {
+    if (!movimiento.en_movimiento) {
+        return 0;
+    }
+
+    return static_cast<int>(segundos / segundos_fotograma_caminar) % hoja.fotogramas;
+}
+
+int fotograma_temporal(const HojaSprites& hoja, float segundos, float duracion) {
+    if (segundos < 0.0F || segundos >= duracion * hoja.fotogramas) {
+        return -1;
+    }
+
+    return static_cast<int>(segundos / duracion);
+}
+
+Vector2 centro_actor(Vector2 anclaje, const HojaSprites& hoja) {
+    return {anclaje.x, anclaje.y - hoja.lado / 2.0F + 2.0F};
 }
 
 std::string reloj(float segundos) {
@@ -293,10 +386,17 @@ VistaRaylib::VistaRaylib() {
         cargar_textura(recurso.ruta);
     }
 
-    const auto pasto = textura(pasto_mapa);
+    for (const auto& hojas : hojas_orientadas) {
+        cargar_textura(hojas.derecha.ruta);
+        cargar_textura(hojas.izquierda.ruta);
+    }
 
-    if (pasto.id != 0) {
-        SetTextureWrap(pasto, TEXTURE_WRAP_REPEAT);
+    for (const auto& hoja : hojas_efectos) {
+        cargar_textura(hoja.ruta);
+    }
+
+    for (const char* ruta : iconos_combate) {
+        cargar_textura(ruta);
     }
 
     if (textura(cursor_normal).id != 0) {
@@ -434,6 +534,48 @@ bool VistaRaylib::imagen(const std::string& ruta, Rectangle destino, Color tinte
     return true;
 }
 
+bool VistaRaylib::dibujar_fotograma(const HojaSprites& hoja, int indice, Vector2 centro,
+                                    bool reflejar) const {
+    if (indice < 0 || indice >= hoja.fotogramas) {
+        return false;
+    }
+
+    const Texture2D recurso = textura(hoja.ruta);
+
+    if (recurso.id == 0 || recurso.width != hoja.lado * hoja.fotogramas ||
+        recurso.height != hoja.lado) {
+        return false;
+    }
+
+    const float lado = static_cast<float>(hoja.lado);
+    const Rectangle origen{indice * lado, 0.0F, reflejar ? -lado : lado, lado};
+    const Rectangle destino{centro.x - lado / 2.0F, centro.y - lado / 2.0F, lado, lado};
+    DrawTexturePro(recurso, origen, destino, {0.0F, 0.0F}, 0.0F, WHITE);
+    return true;
+}
+
+bool VistaRaylib::dibujar_hoja_orientada(const HojasOrientadas& hojas,
+                                         OrientacionHorizontal orientacion, int indice,
+                                         Vector2 centro) const {
+    const bool izquierda = orientacion == OrientacionHorizontal::izquierda;
+    const auto& preferida = izquierda ? hojas.izquierda : hojas.derecha;
+
+    if (dibujar_fotograma(preferida, indice, centro)) {
+        return true;
+    }
+
+    const auto& opuesta = izquierda ? hojas.derecha : hojas.izquierda;
+    return dibujar_fotograma(opuesta, indice, centro, true);
+}
+
+void VistaRaylib::dibujar_efecto(const HojaSprites& hoja, float segundos, Vector2 centro) const {
+    const int indice = fotograma_temporal(hoja, segundos, segundos_fotograma_efecto);
+
+    if (indice >= 0) {
+        dibujar_fotograma(hoja, indice, centro);
+    }
+}
+
 void VistaRaylib::texto(const std::string& contenido, Vector2 posicion, float tamano,
                         Color color) const {
     DrawTextEx(fuente_, contenido.c_str(), posicion, tamano, 1.0f, color);
@@ -508,7 +650,7 @@ void VistaRaylib::dibujar(const EstadoPantalla& estado) {
         break;
     case Pantalla::mision:
         if (estado.mision) {
-            dibujar_mision(*estado.mision);
+            dibujar_mision(*estado.mision, estado);
 
             if (estado.aviso_recogida) {
                 const auto& recogido = *estado.aviso_recogida;
@@ -568,7 +710,8 @@ void VistaRaylib::dibujar_inicio(const EstadoPantalla& estado) {
 void VistaRaylib::dibujar_clinica(const EstadoPantalla& estado) {
     imagen(fondo_clinica, lienzo_completo);
     panel(area_saldo);
-    texto("Saldo: " + std::to_string(estado.saldo), {518, 17}, 17, crema);
+    const bool hay_icono = imagen(icono_saldo, {518, 20, 12, 12});
+    texto("Saldo: " + std::to_string(estado.saldo), {hay_icono ? 535.0F : 518.0F, 17}, 17, crema);
     const auto* ficha = estado.ficha;
 
     if (ficha) {
@@ -657,7 +800,7 @@ void VistaRaylib::dibujar_ficha(const EstadoPantalla& estado) {
     }
 }
 
-void VistaRaylib::dibujar_mision(const EstadoMision& estado) {
+void VistaRaylib::dibujar_mision(const EstadoMision& estado, const EstadoPantalla& pantalla) {
     const auto& combate = estado.combate;
     const auto& limites = estado.terreno.limites;
     const float camara_x_maxima = limites.origen.x + std::max(0.0f, limites.ancho - ancho);
@@ -669,7 +812,7 @@ void VistaRaylib::dibujar_mision(const EstadoMision& estado) {
     const auto visible = [camara_x, camara_y](Punto punto) -> Vector2 {
         return {std::floor(punto.x - camara_x), std::floor(punto.y - camara_y)};
     };
-    dibujar_suelo(limites, {camara_x, camara_y});
+    dibujar_suelo(estado.terreno, {camara_x, camara_y});
     dibujar_decoracion(limites, {camara_x, camara_y});
 
     for (const auto& obstaculo : estado.terreno.obstaculos) {
@@ -681,65 +824,187 @@ void VistaRaylib::dibujar_mision(const EstadoMision& estado) {
     }
 
     for (const auto& enemigo : combate.enemigos) {
-        const auto posicion = visible(enemigo.posicion);
-        switch (enemigo.tipo) {
-        case TipoEnemigo::animal_de_contacto:
-            DrawEllipse(static_cast<int>(posicion.x), static_cast<int>(posicion.y), 9, 5, ladrillo);
-            break;
-        case TipoEnemigo::superviviente_de_contacto:
-            DrawRectangleV({posicion.x - 6, posicion.y - 13}, {12, 16}, ladrillo);
-            break;
-        case TipoEnemigo::superviviente_a_distancia:
-            DrawRectangleV({posicion.x - 6, posicion.y - 13}, {12, 16}, ORANGE);
-            break;
-        }
+        dibujar_enemigo(enemigo, visible(enemigo.posicion), combate.segundos_combate);
     }
 
     for (const auto& proyectil : combate.proyectiles) {
-        DrawCircleV(visible(proyectil), 2, crema);
+        dibujar_proyectil(proyectil, visible(proyectil.posicion));
     }
+
     const auto jugador = visible(combate.jugador);
-    DrawRectangleV({jugador.x - 7, jugador.y - 13}, {14, 16}, crema);
-    const bool izquierda =
-        combate.movimiento_jugador.orientacion == OrientacionHorizontal::izquierda;
-    DrawRectangleV({jugador.x + (izquierda ? -9 : 4), jugador.y - 8}, {5, 6}, petroleo);
+    dibujar_veterinario(combate, jugador);
+
+    if (combate.ultimo_golpe) {
+        const float segundos = combate.segundos_combate - combate.ultimo_golpe->gesto.instante;
+        auto impacto = visible(combate.ultimo_golpe->impacto);
+        impacto.y -= 8.0F;
+        dibujar_efecto(efecto_impacto, segundos, impacto);
+    }
+
+    if (pantalla.aviso_recogida) {
+        auto posicion = visible(pantalla.posicion_recogida);
+        posicion.y -= 15.0F;
+        dibujar_efecto(efecto_recogida, pantalla.segundos_desde_recogida, posicion);
+    }
 
     dibujar_hud_mision(estado);
     dibujar_guia_mision(estado, {camara_x, camara_y});
 }
 
-void VistaRaylib::dibujar_suelo(const Rectangulo& limites, Punto camara) const {
+void VistaRaylib::dibujar_enemigo(const EstadoEnemigo& enemigo, Vector2 posicion,
+                                  float segundos) const {
+    const HojasOrientadas* principal = &caminar_vigia;
+    const HojasOrientadas* variante = nullptr;
+
+    switch (enemigo.tipo) {
+    case TipoEnemigo::animal_de_contacto:
+        principal = &caminar_perro;
+        variante = &caminar_rata;
+        break;
+    case TipoEnemigo::superviviente_de_contacto:
+        principal = &caminar_saqueador;
+        variante = &caminar_errante;
+        break;
+    case TipoEnemigo::superviviente_a_distancia:
+        if (enemigo.disparo) {
+            const float edad = segundos - enemigo.disparo->instante;
+            const int indice =
+                fotograma_temporal(lanzar_vigia.derecha, edad, segundos_fotograma_gesto);
+
+            if (dibujar_hoja_orientada(lanzar_vigia, enemigo.disparo->orientacion, indice,
+                                       centro_actor(posicion, lanzar_vigia.derecha))) {
+                return;
+            }
+        }
+        break;
+    }
+
+    const int indice = fotograma_caminar(principal->derecha, enemigo.movimiento, segundos);
+    const auto orientacion = enemigo.movimiento.orientacion;
+
+    if (enemigo.variante_visual && variante &&
+        dibujar_hoja_orientada(*variante, orientacion, indice,
+                               centro_actor(posicion, variante->derecha))) {
+        return;
+    }
+
+    if (dibujar_hoja_orientada(*principal, orientacion, indice,
+                               centro_actor(posicion, principal->derecha))) {
+        return;
+    }
+
+    if (enemigo.tipo == TipoEnemigo::animal_de_contacto) {
+        DrawEllipse(static_cast<int>(posicion.x), static_cast<int>(posicion.y), 9, 5, ladrillo);
+        return;
+    }
+
+    const Color color = enemigo.tipo == TipoEnemigo::superviviente_a_distancia ? ORANGE : ladrillo;
+    DrawRectangleV({posicion.x - 6, posicion.y - 13}, {12, 16}, color);
+}
+
+void VistaRaylib::dibujar_veterinario(const EstadoCombate& combate, Vector2 posicion) const {
+    const auto movimiento = combate.movimiento_jugador;
+    const int indice =
+        fotograma_caminar(caminar_veterinario.derecha, movimiento, combate.segundos_combate);
+
+    if (!dibujar_hoja_orientada(caminar_veterinario, movimiento.orientacion, indice,
+                                centro_actor(posicion, caminar_veterinario.derecha))) {
+        DrawRectangleV({posicion.x - 7, posicion.y - 13}, {14, 16}, crema);
+        const bool izquierda = movimiento.orientacion == OrientacionHorizontal::izquierda;
+        DrawRectangleV({posicion.x + (izquierda ? -9 : 4), posicion.y - 8}, {5, 6}, petroleo);
+    }
+
+    if (combate.ultimo_golpe) {
+        const auto gesto = combate.ultimo_golpe->gesto;
+        const int ataque =
+            fotograma_temporal(atacar_latigo.derecha, combate.segundos_combate - gesto.instante,
+                               segundos_fotograma_gesto);
+        dibujar_hoja_orientada(atacar_latigo, gesto.orientacion, ataque,
+                               {posicion.x, posicion.y - 8.0F});
+    }
+
+    if (combate.instante_danio) {
+        dibujar_efecto(efecto_danio, combate.segundos_combate - *combate.instante_danio,
+                       {posicion.x, posicion.y - 12.0F});
+    }
+}
+
+void VistaRaylib::dibujar_proyectil(const EstadoProyectil& proyectil, Vector2 posicion) const {
+    const auto recurso = textura(rayo_vigia);
+
+    if (recurso.id == 0) {
+        DrawCircleV(posicion, 2, crema);
+        return;
+    }
+
+    const float angulo = std::atan2(proyectil.velocidad.y, proyectil.velocidad.x) * RAD2DEG;
+    const Rectangle origen{0, 0, static_cast<float>(recurso.width),
+                           static_cast<float>(recurso.height)};
+    DrawTexturePro(recurso, origen, {posicion.x, posicion.y, 16, 8}, {8, 4}, angulo, WHITE);
+}
+
+void dibujar_pieza_suelo(Texture2D imagen, Rectangle area, PiezaSuelo pieza) {
+    const int giros = pieza.tipo == TipoPiezaSuelo::transicion ? pieza.giro_cuartos % 4 : 0;
+    const float rotacion = giros * 90.0F;
+    const Vector2 centro{area.x + area.width / 2, area.y + area.height / 2};
+    const float ancho_pieza = giros % 2 != 0 ? area.height : area.width;
+    const float alto_pieza = giros % 2 != 0 ? area.width : area.height;
+    const Rectangle destino{centro.x, centro.y, ancho_pieza, alto_pieza};
+    const Vector2 origen{ancho_pieza / 2, alto_pieza / 2};
+
+    if (imagen.id != 0) {
+        const Rectangle fuente{0, 0, static_cast<float>(imagen.width),
+                               static_cast<float>(imagen.height)};
+        DrawTexturePro(imagen, fuente, destino, origen, rotacion, WHITE);
+        return;
+    }
+
+    DrawRectangleRec(area, pieza.tipo == TipoPiezaSuelo::tierra ? color_tierra : color_pasto);
+
+    if (pieza.tipo == TipoPiezaSuelo::transicion) {
+        DrawRectanglePro({centro.x, centro.y, ancho_pieza, alto_pieza / 2}, {origen.x, 0}, rotacion,
+                         color_tierra);
+    }
+}
+
+void VistaRaylib::dibujar_suelo(const Terreno& terreno, Punto camara) const {
     DrawRectangleRec(lienzo_completo, suelo_base);
+    const auto& limites = terreno.limites;
+    const auto& suelo = terreno.suelo;
+    const float lado = suelo.tamano_pieza > 0 ? suelo.tamano_pieza : SueloMapa{}.tamano_pieza;
+    const float x_camara = camara.x - limites.origen.x;
+    const float y_camara = camara.y - limites.origen.y;
+    const int columna_inicial = static_cast<int>(std::max(0.0F, x_camara) / lado);
+    const int fila_inicial = static_cast<int>(std::max(0.0F, y_camara) / lado);
+    const int columna_final =
+        static_cast<int>(std::ceil(std::min(limites.ancho, x_camara + ancho) / lado));
+    const int fila_final =
+        static_cast<int>(std::ceil(std::min(limites.alto, y_camara + alto) / lado));
     const auto pasto = textura(pasto_mapa);
+    const auto tierra = textura(tierra_mapa);
+    const auto transicion = textura(transicion_mapa);
 
-    if (pasto.id == 0) {
-        return;
+    for (int fila = fila_inicial; fila < fila_final; ++fila) {
+        for (int columna = columna_inicial; columna < columna_final; ++columna) {
+            const float x = columna * lado;
+            const float y = fila * lado;
+            const Rectangle area{std::floor(x - x_camara), std::floor(y - y_camara),
+                                 std::min(lado, limites.ancho - x),
+                                 std::min(lado, limites.alto - y)};
+            const auto pieza = suelo.pieza(columna, fila);
+            Texture2D imagen = pasto;
+
+            if (pieza.tipo == TipoPiezaSuelo::tierra) {
+                imagen = tierra;
+            }
+
+            else if (pieza.tipo == TipoPiezaSuelo::transicion) {
+                imagen = transicion;
+            }
+
+            dibujar_pieza_suelo(imagen, area, pieza);
+        }
     }
-
-    const float izquierda = std::max(camara.x, limites.origen.x);
-    const float arriba = std::max(camara.y, limites.origen.y);
-    const float derecha = std::min(camara.x + ancho, limites.origen.x + limites.ancho);
-    const float abajo = std::min(camara.y + alto, limites.origen.y + limites.alto);
-
-    if (izquierda >= derecha || arriba >= abajo) {
-        return;
-    }
-
-    const float escala_x = pasto.width / lado_baldosa;
-    const float escala_y = pasto.height / lado_baldosa;
-    const Rectangle region_textura{
-        (izquierda - limites.origen.x) * escala_x,
-        (arriba - limites.origen.y) * escala_y,
-        (derecha - izquierda) * escala_x,
-        (abajo - arriba) * escala_y,
-    };
-    const Rectangle region_lienzo{
-        izquierda - camara.x,
-        arriba - camara.y,
-        derecha - izquierda,
-        abajo - arriba,
-    };
-    DrawTexturePro(pasto, region_textura, region_lienzo, {0, 0}, 0, WHITE);
 }
 
 void VistaRaylib::dibujar_decoracion(const Rectangulo& limites, Punto camara) const {
@@ -841,6 +1106,7 @@ void VistaRaylib::dibujar_hud_mision(const EstadoMision& estado) {
     }
     panel(panel_reloj);
     texto(reloj(estado.segundos_restantes), {506, 18}, 19, crema);
+    imagen(icono_latigo, {598, 20, 16, 16});
     dibujar_vida(estado.combate);
 }
 
@@ -883,7 +1149,8 @@ void VistaRaylib::dibujar_vida(const EstadoCombate& combate) const {
     const int vida_maxima = std::max(0, combate.vida_maxima);
     const int vida = std::clamp(combate.vida, 0, vida_maxima);
     const std::string rotulo = "Vida: " + std::to_string(vida) + "/" + std::to_string(vida_maxima);
-    texto(rotulo, {506, 42}, 13, crema);
+    const bool hay_icono = imagen(icono_vida, {506, 43, 12, 12});
+    texto(rotulo, {hay_icono ? 523.0F : 506.0F, 42}, 13, crema);
     panel(marco_vida, petroleo);
 
     if (vida == 0) {

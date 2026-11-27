@@ -70,6 +70,7 @@ class ControladorJuego final : public Controlador, private ReceptorEventosMision
     bool resultado_pendiente_ = false;
     std::optional<CantidadSuministro> aviso_recogida_;
     float segundos_aviso_recogida_ = 0.0F;
+    Punto posicion_recogida_{};
     std::optional<MotivoFalloMision> motivo_;
     std::optional<double> edad_humana_mascota_;
 };

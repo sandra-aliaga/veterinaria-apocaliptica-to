@@ -165,6 +165,8 @@ void probar_contacto_y_recarga() {
     simular(combate, {0.0F, 0.0F}, 1.5F);
     const auto& estado = combate.estado();
     comprobar(estado.vida < estado.vida_maxima, "El enemigo de contacto hiere al veterinario");
+    comprobar(estado.instante_danio && *estado.instante_danio <= estado.segundos_combate,
+              "El danio publica el instante del impacto");
     comprobar(estado.enemigos.empty() ||
                   estado.enemigos.front().vida <
                       FabricaEnemigosBase::perfil(TipoEnemigo::animal_de_contacto).vida,
@@ -185,10 +187,18 @@ void probar_objetivo_mas_cercano() {
     comprobar(enemigos.size() == 2, "Los dos objetivos siguen en combate");
     comprobar(enemigos[1].vida == 100 - danio_arma, "El arma golpea al enemigo mas cercano");
     comprobar(enemigos[0].vida == 100, "Solo golpea a un enemigo por intervalo");
+    comprobar(!enemigos[0].variante_visual && enemigos[1].variante_visual,
+              "Los animales alternan sus variantes visuales al aparecer");
+
+    const auto golpe = combate.estado().ultimo_golpe;
+    comprobar(golpe && golpe->impacto.y == 135.0F, "El golpe guarda la posicion del objetivo");
 
     combate.actualizar({0.0F, 0.0F}, cuadro);
     comprobar(combate.estado().enemigos[1].vida == 100 - danio_arma,
               "Durante la recarga no vuelve a golpear");
+    const auto ultimo = combate.estado().ultimo_golpe;
+    comprobar(golpe && ultimo && golpe->gesto.instante == ultimo->gesto.instante,
+              "La recarga no vuelve a disparar la animacion de golpe");
 
     simular(combate, {0.0F, 0.0F}, intervalo_arma);
     comprobar(combate.estado().enemigos[1].vida == 100 - 2 * danio_arma,
@@ -208,16 +218,23 @@ void probar_ataque_a_distancia() {
     combate.agregar_enemigo({TipoEnemigo::superviviente_a_distancia, {100.0F, 290.0F - 8.0F}});
 
     bool hubo_proyectil = false;
+    bool hubo_direccion = false;
     for (float t = 0.0F; t < 4.0F; t += cuadro) {
         combate.actualizar({0.0F, 0.0F}, cuadro);
-        hubo_proyectil = hubo_proyectil || !combate.estado().proyectiles.empty();
+        const auto& proyectiles = combate.estado().proyectiles;
+        hubo_proyectil = hubo_proyectil || !proyectiles.empty();
+        hubo_direccion =
+            hubo_direccion || (!proyectiles.empty() && proyectiles.front().velocidad.y < 0);
     }
 
     comprobar(hubo_proyectil, "El superviviente a distancia genera proyectiles");
+    comprobar(hubo_direccion, "El estado publica la direccion de vuelo");
     comprobar(combate.estado().vida < combate.estado().vida_maxima,
               "Los proyectiles hieren al veterinario");
 
     const auto& enemigos = combate.estado().enemigos;
+    comprobar(!enemigos.empty() && enemigos.front().disparo.has_value(),
+              "El tirador publica su gesto al disparar");
     comprobar(!enemigos.empty() &&
                   std::hypot(enemigos.front().posicion.x - combate.estado().jugador.x,
                              enemigos.front().posicion.y - combate.estado().jugador.y) > 50.0F,
@@ -228,6 +245,9 @@ void probar_ataque_a_distancia() {
     comprobar(reiniciado.enemigos.empty() && reiniciado.proyectiles.empty(),
               "Iniciar limpia enemigos y proyectiles");
     comprobar(reiniciado.vida == reiniciado.vida_maxima, "Iniciar restaura la vida");
+    comprobar(reiniciado.segundos_combate == 0.0F && !reiniciado.instante_danio &&
+                  !reiniciado.ultimo_golpe,
+              "Un combate nuevo reinicia el reloj y sus efectos");
     comprobar(reiniciado.jugador.x == 100.0F && reiniciado.jugador.y == 150.0F,
               "Iniciar coloca al veterinario en el inicio");
 }
