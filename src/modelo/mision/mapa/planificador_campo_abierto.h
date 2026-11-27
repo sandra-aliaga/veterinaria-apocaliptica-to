@@ -28,11 +28,15 @@ class PlanificadorCampoAbierto final : public PlanificadorMapa {
         int lado;
     };
 
+    void agregar_guardias(Punto jugador, const Terreno& terreno,
+                          std::vector<Aparicion>& apariciones);
+
     Rectangulo limites_;
     std::optional<std::uint32_t> semilla_fija_;
     std::mt19937 generador_;
     float segundos_transcurridos_;
     Terreno terreno_;
+    std::vector<Punto> suministros_vigilados_;
     std::vector<AparicionProgramada> oleadas_;
     std::size_t siguiente_aparicion_;
 };

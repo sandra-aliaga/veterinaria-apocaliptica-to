@@ -5,8 +5,8 @@
 namespace veterinaria {
 
 VeterinarioJugable::VeterinarioJugable(Punto inicio, int vida_inicial, float velocidad)
-    : posicion_(inicio), vida_(std::max(0, vida_inicial)), velocidad_(std::max(0.0F, velocidad)),
-      movimiento_{OrientacionHorizontal::derecha, false} {
+    : posicion_(inicio), vida_(std::max(0, vida_inicial)), vida_maxima_(vida_),
+      velocidad_(std::max(0.0F, velocidad)), movimiento_{OrientacionHorizontal::derecha, false} {
 }
 
 Punto VeterinarioJugable::posicion() const {
@@ -48,6 +48,12 @@ void VeterinarioJugable::recibir_danio(int cantidad) {
     }
 
     vida_ = std::max(0, vida_ - cantidad);
+}
+
+void VeterinarioJugable::curar(int cantidad) {
+    if (vida_ > 0 && cantidad > 0) {
+        vida_ += std::min(cantidad, vida_maxima_ - vida_);
+    }
 }
 
 } // namespace veterinaria

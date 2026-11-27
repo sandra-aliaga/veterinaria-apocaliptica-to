@@ -3,15 +3,21 @@
 #include "geometria_combate.h"
 
 #include <algorithm>
-#include <limits>
+#include <cmath>
 #include <utility>
 
 namespace veterinaria {
 
 namespace {
 
+constexpr float proporcion_altura_latigo = 0.36F;
+constexpr int rayos_por_rafaga = 5;
+constexpr float separacion_de_rayos = 0.27925268F; // 16 grados.
+constexpr std::size_t reserva_guardias = 18;
+
 using geometria_combate::direccion_hacia;
 using geometria_combate::distancia;
+using geometria_combate::distancia_a_segmento;
 using geometria_combate::normalizar;
 
 /// Indica si un circulo toca un rectangulo.
@@ -56,6 +62,7 @@ void CombateBase::iniciar(const Terreno& terreno) {
                                       configuracion_.velocidad_jugador);
     enemigos_.clear();
     proyectiles_.clear();
+    segundos_invulnerable_ = 0.0F;
     alternar_animal_ = false;
     alternar_superviviente_ = false;
     estado_ = {};
@@ -68,7 +75,11 @@ void CombateBase::iniciar(const Terreno& terreno) {
 }
 
 void CombateBase::agregar_enemigo(const Aparicion& aparicion) {
-    if (!fabrica_) {
+    const auto capacidad = configuracion_.max_enemigos_activos;
+    const auto reserva = std::min(reserva_guardias, capacidad / 10);
+    const auto limite = aparicion.guardia ? capacidad : capacidad - reserva;
+
+    if (!fabrica_ || enemigos_.size() >= limite) {
         return;
     }
 
@@ -87,7 +98,7 @@ void CombateBase::agregar_enemigo(const Aparicion& aparicion) {
             alternar_superviviente_ = !alternar_superviviente_;
         }
 
-        enemigos_.push_back({std::move(enemigo), 0.0F, variante, std::nullopt});
+        enemigos_.push_back({std::move(enemigo), variante, std::nullopt});
         publicar_estado();
     }
 }
@@ -117,7 +128,7 @@ const EstadoCombate& CombateBase::estado() const {
 
 void CombateBase::avanzar(Punto direccion, float segundos) {
     estado_.segundos_combate += segundos;
-    const int vida_anterior = veterinario_.vida();
+    segundos_invulnerable_ = std::max(0.0F, segundos_invulnerable_ - segundos);
 
     if (arma_) {
         arma_->actualizar(segundos);
@@ -126,10 +137,6 @@ void CombateBase::avanzar(Punto direccion, float segundos) {
     mover_jugador(direccion, segundos);
     actualizar_enemigos(segundos);
     actualizar_proyectiles(segundos);
-
-    if (veterinario_.vida() < vida_anterior) {
-        estado_.instante_danio = estado_.segundos_combate;
-    }
 
     atacar_con_arma();
     retirar_eliminados();
@@ -146,8 +153,6 @@ void CombateBase::actualizar_enemigos(float segundos) {
     const Punto jugador = veterinario_.posicion();
 
     for (auto& activo : enemigos_) {
-        activo.segundos_para_danio = std::max(0.0F, activo.segundos_para_danio - segundos);
-
         const IntencionEnemigo intencion = activo.enemigo->decidir(jugador, segundos);
         const EstadoEnemigo actual = activo.enemigo->estado();
         const Punto unitaria = normalizar(intencion.direccion);
@@ -166,22 +171,36 @@ void CombateBase::actualizar_enemigos(float segundos) {
 
         activo.enemigo->mover_a(destino);
 
-        if (intencion.ataque == AtaqueEnemigo::contacto && en_contacto(destino, 0.0F) &&
-            activo.segundos_para_danio <= 0.0F) {
-            veterinario_.recibir_danio(actual.danio);
-            activo.segundos_para_danio = configuracion_.intervalo_danio_contacto;
+        if (intencion.ataque == AtaqueEnemigo::contacto && en_contacto(destino)) {
+            herir_jugador(actual.danio);
         }
 
         else if (intencion.ataque == AtaqueEnemigo::proyectil) {
             const Punto hacia = direccion_hacia(destino, jugador);
             const auto orientacion = orientacion_hacia(hacia.x, actual.movimiento.orientacion);
             activo.disparo = GestoCombate{orientacion, estado_.segundos_combate};
-            proyectiles_.push_back({destino,
-                                    {hacia.x * configuracion_.velocidad_proyectil,
-                                     hacia.y * configuracion_.velocidad_proyectil},
-                                    actual.danio,
-                                    configuracion_.duracion_proyectil});
+            lanzar_rafaga(destino, hacia, actual.danio);
         }
+    }
+}
+
+void CombateBase::lanzar_rafaga(Punto origen, Punto direccion, int danio) {
+    const float centro = std::atan2(direccion.y, direccion.x);
+
+    for (int i = 0; i < rayos_por_rafaga; ++i) {
+        const float angulo = centro + (i - rayos_por_rafaga / 2) * separacion_de_rayos;
+        const Punto velocidad{std::cos(angulo) * configuracion_.velocidad_proyectil,
+                              std::sin(angulo) * configuracion_.velocidad_proyectil};
+        proyectiles_.push_back(
+            {origen, velocidad, origen, danio, configuracion_.duracion_proyectil});
+    }
+}
+
+void CombateBase::herir_jugador(int danio) {
+    if (segundos_invulnerable_ <= 0.0F && danio > 0 && veterinario_.vida() > 0) {
+        veterinario_.recibir_danio(danio);
+        segundos_invulnerable_ = configuracion_.intervalo_danio_jugador;
+        estado_.instante_danio = estado_.segundos_combate;
     }
 }
 
@@ -193,13 +212,18 @@ void CombateBase::actualizar_proyectiles(float segundos) {
         proyectil.posicion.x += proyectil.velocidad.x * segundos;
         proyectil.posicion.y += proyectil.velocidad.y * segundos;
 
-        if (distancia(proyectil.posicion, veterinario_.posicion()) <= alcance_impacto) {
-            veterinario_.recibir_danio(proyectil.danio);
+        if (proyectil.segundos_restantes <= 0.0F ||
+            !es_transitable(proyectil.posicion, configuracion_.radio_proyectil)) {
             return true;
         }
 
-        return proyectil.segundos_restantes <= 0.0F ||
-               !es_transitable(proyectil.posicion, configuracion_.radio_proyectil);
+        if (distancia_a_segmento(veterinario_.posicion(), proyectil.origen, proyectil.posicion) <=
+            alcance_impacto) {
+            herir_jugador(proyectil.danio);
+            return true;
+        }
+
+        return false;
     };
 
     proyectiles_.erase(std::remove_if(proyectiles_.begin(), proyectiles_.end(), termina),
@@ -211,34 +235,40 @@ void CombateBase::atacar_con_arma() {
         return;
     }
 
-    // Golpea solo al enemigo mas cercano entre los que estan al alcance.
-    EnemigoActivo* objetivo = nullptr;
-    float mas_cercano = std::numeric_limits<float>::max();
+    const int danio = arma_->intentar_atacar();
 
-    for (auto& activo : enemigos_) {
-        const EstadoEnemigo actual = activo.enemigo->estado();
-        const float separacion = distancia(actual.posicion, veterinario_.posicion());
-
-        if (actual.vida > 0 && en_contacto(actual.posicion, arma_->alcance()) &&
-            separacion < mas_cercano) {
-            mas_cercano = separacion;
-            objetivo = &activo;
-        }
-    }
-
-    if (objetivo == nullptr) {
+    if (danio <= 0) {
         return;
     }
 
-    const int danio = arma_->intentar_atacar();
+    const Punto jugador = veterinario_.posicion();
+    const auto orientacion = veterinario_.movimiento().orientacion;
+    const float alcance = arma_->alcance();
+    const float sentido = orientacion == OrientacionHorizontal::derecha ? 1.0F : -1.0F;
+    const float media_altura = alcance * proporcion_altura_latigo + configuracion_.radio_enemigo;
 
-    if (danio > 0) {
-        const auto impacto = objetivo->enemigo->estado().posicion;
-        const auto orientacion = orientacion_hacia(impacto.x - veterinario_.posicion().x,
-                                                   veterinario_.movimiento().orientacion);
-        estado_.ultimo_golpe = GolpeArma{impacto, {orientacion, estado_.segundos_combate}};
-        objetivo->enemigo->recibir_danio(danio);
+    GolpeArma golpe{std::nullopt, {orientacion, estado_.segundos_combate}, alcance};
+
+    for (auto& activo : enemigos_) {
+        const auto enemigo = activo.enemigo->estado();
+        const float al_frente = (enemigo.posicion.x - jugador.x) * sentido;
+        const float desnivel = std::abs(enemigo.posicion.y - jugador.y);
+
+        if (enemigo.vida > 0 && al_frente >= 0.0F &&
+            al_frente <= alcance + configuracion_.radio_enemigo && desnivel <= media_altura) {
+            if (!golpe.impacto) {
+                golpe.impacto = enemigo.posicion;
+            }
+
+            activo.enemigo->recibir_danio(danio);
+
+            if (activo.enemigo->estado().vida <= 0) {
+                veterinario_.curar(configuracion_.cura_por_baja);
+            }
+        }
     }
+
+    estado_.ultimo_golpe = golpe;
 }
 
 void CombateBase::retirar_eliminados() {
@@ -265,7 +295,7 @@ void CombateBase::publicar_estado() {
 
     estado_.proyectiles.clear();
     for (const auto& proyectil : proyectiles_) {
-        estado_.proyectiles.push_back({proyectil.posicion, proyectil.velocidad});
+        estado_.proyectiles.push_back({proyectil.posicion, proyectil.velocidad, proyectil.origen});
     }
 }
 
@@ -298,10 +328,8 @@ bool CombateBase::es_transitable(Punto centro, float radio) const {
                         });
 }
 
-bool CombateBase::en_contacto(Punto enemigo, float alcance_extra) const {
-    // El alcance se mide desde los limites de contacto de ambos cuerpos.
-    const float limite =
-        configuracion_.radio_jugador + configuracion_.radio_enemigo + alcance_extra + 0.5F;
+bool CombateBase::en_contacto(Punto enemigo) const {
+    const float limite = configuracion_.radio_jugador + configuracion_.radio_enemigo + 0.5F;
     return distancia(enemigo, veterinario_.posicion()) <= limite;
 }
 

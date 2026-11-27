@@ -19,12 +19,14 @@ constexpr float separacion_obstaculos = 40.0F; // Espacio libre minimo entre dos
 constexpr float area_por_obstaculo = 96.0F * 96.0F;
 constexpr int intentos_por_obstaculo = 30;
 
-constexpr float distancia_minima_suministro = 160.0F;
-constexpr float separacion_suministros = 48.0F;
+constexpr float distancia_objetivo_suministro = 960.0F;
+constexpr float separacion_suministros = 360.0F;
+constexpr float fraccion_minima_suministro = 0.50F;
+constexpr float fraccion_maxima_suministro = 0.80F;
 
 constexpr float duracion_por_defecto = 300.0F;
-constexpr float primer_grupo = 5.0F;
-constexpr float retraso_entre_enemigos = 0.4F;
+constexpr float primera_oleada = 2.0F;
+constexpr int enemigos_por_oleada = 50;
 constexpr float ancho_camara = 640.0F; // Lienzo de la vista (src/vista/README.md).
 constexpr float alto_camara = 360.0F;
 constexpr float margen_fuera_de_camara = 24.0F;    // Los enemigos nunca nacen a la vista.
@@ -32,6 +34,10 @@ constexpr float profundidad_aparicion = 64.0F;     // Hasta donde se alejan de l
 constexpr float alcance_maximo_aparicion = 160.0F; // Ningun enemigo nace mas lejos de la camara.
 constexpr float inset_limites = 8.0F;
 constexpr float radio_cerca_suministro = 96.0F;
+constexpr float distancia_activar_guardias = 500.0F;
+constexpr int puestos_guardia = 6;
+constexpr float radio_anillo = 84.0F;
+constexpr float variacion_radio_anillo = 12.0F;
 constexpr int intentos_de_posicion = 20;
 constexpr float pi = 3.14159265F;
 
@@ -300,11 +306,19 @@ std::vector<SuministroEnMapa> colocar_suministros(const PropuestaMision& propues
                                                   const Rejilla& rejilla, Punto inicio,
                                                   std::mt19937& generador) {
     const Rectangulo& limites = rejilla.limites;
-    const float maxima =
-        std::max(distancia_minima_suministro + 80.0F, 0.4F * std::min(limites.ancho, limites.alto));
+    const float lado_menor = std::min(limites.ancho, limites.alto);
+    const float minima =
+        std::min(distancia_objetivo_suministro, lado_menor * fraccion_minima_suministro);
+    const float maxima = lado_menor * fraccion_maxima_suministro;
+    const float separacion = std::min(separacion_suministros, minima / 2.0F);
 
-    std::vector<Punto> candidatas =
-        celdas_candidatas(rejilla, inicio, distancia_minima_suministro, maxima);
+    auto candidatas = celdas_candidatas(rejilla, inicio, minima, maxima);
+
+    if (candidatas.empty()) {
+        candidatas =
+            celdas_candidatas(rejilla, inicio, minima, std::numeric_limits<float>::infinity());
+    }
+
     if (candidatas.empty()) {
         candidatas = celdas_candidatas(rejilla, inicio, tamano_celda,
                                        std::numeric_limits<float>::infinity());
@@ -319,10 +333,10 @@ std::vector<SuministroEnMapa> colocar_suministros(const PropuestaMision& propues
     for (const CantidadSuministro& requerido : propuesta.requeridos) {
         for (int unidad = 0; unidad < requerido.cantidad; ++unidad) {
             const auto separada = [&](Punto candidata) {
-                return std::all_of(
-                    colocados.begin(), colocados.end(), [&](const SuministroEnMapa& otro) {
-                        return distancia(otro.posicion, candidata) >= separacion_suministros;
-                    });
+                return std::all_of(colocados.begin(), colocados.end(),
+                                   [&](const SuministroEnMapa& otro) {
+                                       return distancia(otro.posicion, candidata) >= separacion;
+                                   });
             };
             const auto elegida = std::find_if(candidatas.begin(), candidatas.end(), separada);
             const Punto posicion = elegida != candidatas.end()
@@ -449,25 +463,13 @@ Fase fase_en(float segundo, float duracion) {
 float intervalo_de(Fase fase) {
     switch (fase) {
     case Fase::dispersa:
-        return 12.0F;
-    case Fase::mixta:
         return 10.0F;
+    case Fase::mixta:
+        return 8.0F;
     case Fase::densa:
         return 6.0F;
     }
-    return 12.0F;
-}
-
-int tamano_de_grupo(Fase fase, std::mt19937& generador) {
-    switch (fase) {
-    case Fase::dispersa:
-        return 2 + static_cast<int>(generador() % 2); // 2 a 3
-    case Fase::mixta:
-        return 3 + static_cast<int>(generador() % 2); // 3 a 4
-    case Fase::densa:
-        return 4 + static_cast<int>(generador() % 3); // 4 a 6
-    }
-    return 2;
+    return 10.0F;
 }
 
 TipoEnemigo tipo_de_miembro(Fase fase, int posicion) {
@@ -475,14 +477,14 @@ TipoEnemigo tipo_de_miembro(Fase fase, int posicion) {
     case Fase::dispersa:
         return TipoEnemigo::animal_de_contacto;
     case Fase::mixta:
-        return posicion == 0 ? TipoEnemigo::superviviente_de_contacto
-                             : TipoEnemigo::animal_de_contacto;
+        return posicion % 5 == 0 ? TipoEnemigo::superviviente_de_contacto
+                                 : TipoEnemigo::animal_de_contacto;
     case Fase::densa:
-        if (posicion == 0 || posicion == 4) {
+        if (posicion % 10 == 0) {
             return TipoEnemigo::superviviente_a_distancia;
         }
-        return posicion == 1 ? TipoEnemigo::superviviente_de_contacto
-                             : TipoEnemigo::animal_de_contacto;
+        return posicion % 5 == 1 ? TipoEnemigo::superviviente_de_contacto
+                                 : TipoEnemigo::animal_de_contacto;
     }
     return TipoEnemigo::animal_de_contacto;
 }
@@ -531,7 +533,22 @@ Punto punto_junto_a_camara(const Rectangulo& camara, int lado, std::mt19937& gen
     }
 }
 
-// Los tiradores prefieren un lugar cerca de un suministro, pero siempre junto a la camara.
+std::optional<Punto> posicion_de_tirador(const Terreno& terreno, const Rectangulo& camara,
+                                         Punto centro, std::mt19937& generador) {
+    const float angulo = aleatorio_unidad(generador) * 2.0F * pi;
+    const float radio = 32.0F + aleatorio_unidad(generador) * (radio_cerca_suministro - 32.0F);
+    const Punto punto{centro.x + std::cos(angulo) * radio, centro.y + std::sin(angulo) * radio};
+
+    if (fuera_de_camara(camara, punto) &&
+        distancia_a_rectangulo(punto, camara) <= alcance_maximo_aparicion &&
+        posicion_libre(terreno, punto)) {
+        return punto;
+    }
+
+    return std::nullopt;
+}
+
+// Los tiradores de las oleadas prefieren aparecer cerca de un suministro pendiente.
 std::optional<Punto> punto_cerca_de_suministro(const Terreno& terreno, const Rectangulo& camara,
                                                std::mt19937& generador) {
     if (terreno.suministros.empty()) {
@@ -539,17 +556,15 @@ std::optional<Punto> punto_cerca_de_suministro(const Terreno& terreno, const Rec
     }
 
     for (int intento = 0; intento < intentos_de_posicion; ++intento) {
-        const Punto centro =
-            terreno.suministros[indice_aleatorio(generador, terreno.suministros.size())].posicion;
-        const float angulo = aleatorio_unidad(generador) * 2.0F * pi;
-        const float radio = 32.0F + aleatorio_unidad(generador) * (radio_cerca_suministro - 32.0F);
-        const Punto punto{centro.x + std::cos(angulo) * radio, centro.y + std::sin(angulo) * radio};
-        if (fuera_de_camara(camara, punto) &&
-            distancia_a_rectangulo(punto, camara) <= alcance_maximo_aparicion &&
-            posicion_libre(terreno, punto)) {
+        const auto indice = indice_aleatorio(generador, terreno.suministros.size());
+        const Punto centro = terreno.suministros[indice].posicion;
+        const auto punto = posicion_de_tirador(terreno, camara, centro, generador);
+
+        if (punto) {
             return punto;
         }
     }
+
     return std::nullopt;
 }
 
@@ -576,22 +591,19 @@ std::optional<Punto> buscar_posicion(const Terreno& terreno, Punto jugador, Tipo
     return std::nullopt;
 }
 
-// Solo fija cuando sale cada enemigo y por que lado prefiere entrar. Dentro de un grupo, cada
-// miembro recibe un lado distinto mientras alcancen los cuatro.
+// La oleada completa vence al mismo tiempo y se reparte entre cuatro lados preferidos.
 std::vector<EnemigoPlanificado> planificar_oleadas(int limite_segundos, std::mt19937& generador) {
     const float duracion =
         limite_segundos > 0 ? static_cast<float>(limite_segundos) : duracion_por_defecto;
     std::vector<EnemigoPlanificado> plan;
 
-    for (float segundo = primer_grupo; segundo < duracion;) {
+    for (float segundo = primera_oleada; segundo < duracion;) {
         const Fase fase = fase_en(segundo, duracion);
-        const int tamano = tamano_de_grupo(fase, generador);
         std::vector<int> lados{0, 1, 2, 3};
         barajar(lados, generador);
-        for (int miembro = 0; miembro < tamano; ++miembro) {
-            plan.push_back(EnemigoPlanificado{
-                segundo + static_cast<float>(miembro) * retraso_entre_enemigos,
-                tipo_de_miembro(fase, miembro), lados[static_cast<std::size_t>(miembro % 4)]});
+        for (int miembro = 0; miembro < enemigos_por_oleada; ++miembro) {
+            plan.push_back({segundo, tipo_de_miembro(fase, miembro),
+                            lados[static_cast<std::size_t>(miembro % 4)]});
         }
         segundo += intervalo_de(fase);
     }
@@ -619,6 +631,7 @@ Terreno PlanificadorCampoAbierto::preparar(const PropuestaMision& propuesta) {
     segundos_transcurridos_ = 0.0F;
     siguiente_aparicion_ = 0;
     oleadas_.clear();
+    suministros_vigilados_.clear();
 
     Terreno terreno;
     terreno.limites = limites_;
@@ -651,6 +664,8 @@ std::vector<Aparicion> PlanificadorCampoAbierto::avanzar(float segundos, Punto j
         segundos_transcurridos_ += segundos;
     }
     std::vector<Aparicion> vencidas;
+    agregar_guardias(jugador, terreno, vencidas);
+
     while (siguiente_aparicion_ < oleadas_.size() &&
            oleadas_[siguiente_aparicion_].segundo <= segundos_transcurridos_) {
         const AparicionProgramada& programada = oleadas_[siguiente_aparicion_];
@@ -663,6 +678,57 @@ std::vector<Aparicion> PlanificadorCampoAbierto::avanzar(float segundos, Punto j
         }
     }
     return vencidas;
+}
+
+void PlanificadorCampoAbierto::agregar_guardias(Punto jugador, const Terreno& terreno,
+                                                std::vector<Aparicion>& apariciones) {
+    const Rectangulo camara = camara_en(terreno.limites, jugador);
+
+    for (const auto& suministro : terreno.suministros) {
+        const Punto centro = suministro.posicion;
+
+        if (distancia(centro, jugador) > distancia_activar_guardias) {
+            continue;
+        }
+
+        const auto coincide = [centro](Punto vigilado) {
+            return vigilado.x == centro.x && vigilado.y == centro.y;
+        };
+
+        if (std::any_of(suministros_vigilados_.begin(), suministros_vigilados_.end(), coincide)) {
+            continue;
+        }
+
+        const auto cantidad_previa = apariciones.size();
+        const float angulo_inicial = aleatorio_unidad(generador_) * 2.0F * pi;
+        const float sector = 2.0F * pi / puestos_guardia;
+
+        for (int puesto = 0; puesto < puestos_guardia; ++puesto) {
+            const float angulo_base = angulo_inicial + puesto * sector;
+
+            for (int intento = 0; intento < intentos_de_posicion; ++intento) {
+                const float angulo =
+                    intento == 0
+                        ? angulo_base
+                        : angulo_base + (aleatorio_unidad(generador_) - 0.5F) * sector * 0.7F;
+                const float radio =
+                    intento == 0 ? radio_anillo
+                                 : radio_anillo + (2.0F * aleatorio_unidad(generador_) - 1.0F) *
+                                                      variacion_radio_anillo;
+                const Punto punto{centro.x + std::cos(angulo) * radio,
+                                  centro.y + std::sin(angulo) * radio};
+
+                if (fuera_de_camara(camara, punto) && posicion_libre(terreno, punto)) {
+                    apariciones.push_back({TipoEnemigo::superviviente_a_distancia, punto, true});
+                    break;
+                }
+            }
+        }
+
+        if (apariciones.size() > cantidad_previa) {
+            suministros_vigilados_.push_back(centro);
+        }
+    }
 }
 
 } // namespace veterinaria

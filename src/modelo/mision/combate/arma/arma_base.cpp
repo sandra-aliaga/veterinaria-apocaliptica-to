@@ -4,8 +4,9 @@
 
 namespace veterinaria {
 
-ArmaBase::ArmaBase(int danio, float intervalo_entre_ataques)
-    : danio_(std::max(0, danio)), intervalo_entre_ataques_(std::max(0.0F, intervalo_entre_ataques)),
+ArmaBase::ArmaBase(int danio, float intervalo_entre_ataques, float alcance)
+    : danio_(std::max(0, danio)), alcance_(std::max(0.0F, alcance)),
+      intervalo_entre_ataques_(std::max(0.0F, intervalo_entre_ataques)),
       segundos_para_atacar_(0.0F) {
 }
 
@@ -23,8 +24,7 @@ void ArmaBase::actualizar(float segundos) {
 }
 
 float ArmaBase::alcance() const {
-    // El arma basica golpea solo al contacto.
-    return 0.0F;
+    return alcance_;
 }
 
 int ArmaBase::intentar_atacar() {

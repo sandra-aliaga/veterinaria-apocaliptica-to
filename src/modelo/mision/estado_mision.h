@@ -29,6 +29,7 @@ enum class TipoEnemigo { animal_de_contacto, superviviente_de_contacto, superviv
 struct Aparicion {
     TipoEnemigo tipo;
     Punto posicion;
+    bool guardia = false;
 };
 
 struct GestoCombate {
@@ -45,16 +46,19 @@ struct EstadoEnemigo {
     EstadoMovimiento movimiento;
     bool variante_visual = false;
     std::optional<GestoCombate> disparo{};
+    int vida_maxima = vida;
 };
 
 struct EstadoProyectil {
     Punto posicion;
     Punto velocidad;
+    Punto origen;
 };
 
 struct GolpeArma {
-    Punto impacto;
+    std::optional<Punto> impacto;
     GestoCombate gesto;
+    float alcance;
 };
 
 struct EstadoCombate {

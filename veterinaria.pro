@@ -8,6 +8,7 @@ SOURCES += $$files("$$PWD/src/*.cpp", true)
 DISTFILES += README.md $$files("$$PWD/src/README.md", true) datos/README.md arte/README.md
 DISTFILES += arte/fuentes/Handjet.ttf arte/fuentes/OFL-Handjet.txt
 DISTFILES += arte/fuentes/PixelifySans.ttf arte/fuentes/OFL-PixelifySans.txt
+DISTFILES += arte/audio/boton.wav arte/audio/refugio.wav arte/audio/generar_audio.py
 
 DESTDIR = "$$OUT_PWD/bin"
 

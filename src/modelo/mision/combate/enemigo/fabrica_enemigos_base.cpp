@@ -12,10 +12,11 @@ namespace {
 constexpr float alcance_disparo = 220.0F;
 constexpr float intervalo_entre_disparos = 2.0F;
 
-std::unique_ptr<EstrategiaEnemigo> crear_estrategia(TipoEnemigo tipo) {
-    switch (tipo) {
+std::unique_ptr<EstrategiaEnemigo> crear_estrategia(const Aparicion& aparicion) {
+    switch (aparicion.tipo) {
     case TipoEnemigo::superviviente_a_distancia:
-        return std::make_unique<AtacarADistancia>(alcance_disparo, intervalo_entre_disparos);
+        return std::make_unique<AtacarADistancia>(alcance_disparo, intervalo_entre_disparos,
+                                                  aparicion.guardia);
     case TipoEnemigo::animal_de_contacto:
     case TipoEnemigo::superviviente_de_contacto:
         break;
@@ -31,14 +32,14 @@ FabricaEnemigosBase::~FabricaEnemigosBase() = default;
 PerfilEnemigo FabricaEnemigosBase::perfil(TipoEnemigo tipo) {
     switch (tipo) {
     case TipoEnemigo::animal_de_contacto:
-        return {30, 90.0F, 10}; // Rapido y fragil.
+        return {30, 80.0F, 10}; // Rapido y fragil.
     case TipoEnemigo::superviviente_de_contacto:
-        return {60, 60.0F, 15}; // Lento y resistente.
+        return {60, 54.0F, 15}; // Lento y resistente.
     case TipoEnemigo::superviviente_a_distancia:
-        return {40, 50.0F, 8}; // El dano lo aplica cada proyectil.
+        return {40, 45.0F, 8}; // El dano lo aplica cada proyectil.
     }
 
-    return {30, 90.0F, 10};
+    return {30, 80.0F, 10};
 }
 
 std::unique_ptr<Enemigo> FabricaEnemigosBase::crear(const Aparicion& aparicion) const {
@@ -47,7 +48,7 @@ std::unique_ptr<Enemigo> FabricaEnemigosBase::crear(const Aparicion& aparicion) 
                                valores.vida,   valores.velocidad,
                                valores.danio,  {OrientacionHorizontal::derecha, false}};
 
-    return std::make_unique<EnemigoConEstrategia>(estado, crear_estrategia(aparicion.tipo));
+    return std::make_unique<EnemigoConEstrategia>(estado, crear_estrategia(aparicion));
 }
 
 } // namespace veterinaria

@@ -13,12 +13,37 @@
 
 #include <cstdlib>
 #include <exception>
+#include <filesystem>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <utility>
+
+namespace {
+
+constexpr char directorio_arte[] = "arte";
+
+void usar_recursos_del_ejecutable() {
+    namespace ajustes = veterinaria::configuracion_juego;
+    const auto directorio = std::filesystem::u8path(GetApplicationDirectory());
+
+    if (std::filesystem::is_directory(directorio / ajustes::directorio_casos) &&
+        std::filesystem::is_directory(directorio / directorio_arte)) {
+        std::error_code error;
+        std::filesystem::current_path(directorio, error);
+
+        if (error) {
+            throw std::runtime_error("No se pudo abrir la carpeta de recursos del juego.");
+        }
+    }
+}
+
+} // namespace
 
 int main() try {
     namespace ajustes = veterinaria::configuracion_juego;
+
+    usar_recursos_del_ejecutable();
 
     const veterinaria::FabricaMascotasBase fabrica_mascotas;
     const veterinaria::CatalogoCasosJson catalogo(fabrica_mascotas);
@@ -36,7 +61,8 @@ int main() try {
     veterinaria::ConsultorioClinica consultorio;
     veterinaria::PlanificadorCampoAbierto mapa(ajustes::limites_mision);
     auto fabrica_enemigos = std::make_unique<veterinaria::FabricaEnemigosBase>();
-    auto arma = std::make_unique<veterinaria::ArmaBase>(ajustes::danio_arma, ajustes::recarga_arma);
+    auto arma = std::make_unique<veterinaria::ArmaBase>(ajustes::danio_arma, ajustes::recarga_arma,
+                                                        ajustes::alcance_arma);
     veterinaria::CombateBase combate(std::move(fabrica_enemigos), std::move(arma));
     veterinaria::MisionBase mision(mapa, combate, ajustes::radio_recogida);
     veterinaria::ControladorJuego controlador(consultorio, mision, fabrica_mascotas,

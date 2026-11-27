@@ -3,3 +3,4 @@
 __pycache__/
 *.pro.user*
 /datos/progreso_previa.txt*
+/compile_commands.json

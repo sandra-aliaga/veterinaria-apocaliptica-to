@@ -92,8 +92,8 @@ PNG, y la hierba seca y los escombros se distribuyen como decoración.
 El modelo resuelve las colisiones.
 
 El veterinario y los enemigos usan hojas de cuatro fotogramas por dirección.
-El vigía tiene una animación de lanzamiento y el rayo gira según su
-velocidad. El daño, el golpe del látigo y la recogida tienen efectos
+El vigía tiene una animación de lanzamiento. Cada abanico muestra el
+tramo recorrido de sus cinco rayos, desde su origen hasta la punta. El daño, el golpe del látigo y la recogida tienen efectos
 breves ligados a la simulación, que se congelan al pausar.
 [Rutas y prompts del campo](../../arte/README.md#prompts-del-suelo-y-los-obstáculos)
 

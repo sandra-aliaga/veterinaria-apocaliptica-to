@@ -6,6 +6,7 @@
 //       pruebas/pruebas_mapa.cpp src/modelo/mision/mapa/*.cpp
 //   ./build/pruebas_mapa
 
+#include "controlador/configuracion_juego.h"
 #include "modelo/mision/mapa/planificador_campo_abierto.h"
 
 #include <algorithm>
@@ -474,23 +475,18 @@ void prueba_lugar_de_aparicion() {
     }
     comprobar(varios_lados, "aparecen por los cuatro lados, sin que uno concentre casi todo");
 
-    // Con varias semillas, algun tirador aparece junto a un suministro.
-    bool tirador_cerca = false;
-    for (std::uint32_t semilla = 1; semilla <= 8; ++semilla) {
-        PlanificadorCampoAbierto otro(limites, semilla);
-        const Terreno otro_terreno = otro.preparar(caso_mora());
-        for (const Entrega& entrega : recorrer(otro, otro_terreno, 0.5F, 300.0F, jugador)) {
-            if (entrega.aparicion.tipo != TipoEnemigo::superviviente_a_distancia) {
-                continue;
-            }
-
-            for (const auto& suministro : otro_terreno.suministros) {
-                tirador_cerca = tirador_cerca || distancia(entrega.aparicion.posicion,
-                                                           suministro.posicion) <= 100.0F;
-            }
-        }
-    }
-    comprobar(tirador_cerca, "algun superviviente a distancia aparece cerca de un suministro");
+    PlanificadorCampoAbierto con_suministro(limites, 42U);
+    Terreno terreno_con_suministro = con_suministro.preparar(caso_mora());
+    terreno_con_suministro.obstaculos.clear();
+    const Punto suministro{camara.origen.x + camara.ancho + 60.0F, jugador.y};
+    terreno_con_suministro.suministros = {{{"vendas", 1}, suministro}};
+    const auto refuerzos = recorrer(con_suministro, terreno_con_suministro, 0.5F, 300.0F, jugador);
+    const auto cercano = [&](const Entrega& entrega) {
+        return entrega.aparicion.tipo == TipoEnemigo::superviviente_a_distancia &&
+               distancia(entrega.aparicion.posicion, suministro) <= 100.0F;
+    };
+    comprobar(std::any_of(refuerzos.begin(), refuerzos.end(), cercano),
+              "algun tirador aparece cerca de un suministro fuera de camara");
 }
 
 // Las apariciones usan la posicion del veterinario en cada paso, no la del inicio.
@@ -514,7 +510,7 @@ void prueba_posicion_actual() {
         for (const Aparicion& aparicion : planificador.avanzar(0.5F, jugador, terreno)) {
             ++cuantas;
             const float lejania = distancia_a_rectangulo(aparicion.posicion, camara);
-            const bool valida = lejania >= 24.0F && lejania <= 160.0F;
+            const bool valida = lejania >= 24.0F && (aparicion.guardia || lejania <= 160.0F);
             (segunda_mitad ? segunda_mitad_correcta : primera_mitad_correcta) =
                 (segunda_mitad ? segunda_mitad_correcta : primera_mitad_correcta) && valida;
             // Con la camara pegada a la esquina superior izquierda, solo caben derecha y abajo.
@@ -588,17 +584,59 @@ void prueba_terreno_recibido() {
               "avanzar(segundos) equivale a avanzar con el inicio y el terreno propios");
 }
 
-// El campo real del juego (src/main.cpp) es de 1280 x 900.
+void prueba_guardias_de_suministro() {
+    PlanificadorCampoAbierto planificador(limites, 42U);
+    Terreno terreno = planificador.preparar(caso_mora());
+    terreno.obstaculos.clear();
+    const Punto suministro{1250.0F, 600.0F};
+    const Punto lejos{700.0F, 600.0F};
+    const Punto cerca{800.0F, 600.0F};
+    terreno.suministros = {{{"vendas", 1}, suministro}};
+
+    comprobar(planificador.avanzar(0.1F, lejos, terreno).empty(),
+              "los guardias esperan mientras el veterinario este lejos");
+
+    const auto guardias = planificador.avanzar(0.1F, cerca, terreno);
+    const Rectangulo camara = camara_de(limites, cerca);
+    comprobar(guardias.size() == 6,
+              "un suministro activa un anillo de seis guardias antes de la oleada");
+    comprobar(std::all_of(guardias.begin(), guardias.end(),
+                          [&](const Aparicion& guardia) {
+                              const float radio = distancia(guardia.posicion, suministro);
+                              return guardia.guardia &&
+                                     guardia.tipo == TipoEnemigo::superviviente_a_distancia &&
+                                     radio >= 72.0F && radio <= 96.0F &&
+                                     distancia_a_rectangulo(guardia.posicion, camara) >= 24.0F;
+                          }),
+              "los puestos del anillo quedan cerca del suministro y fuera de camara");
+    comprobar(planificador.avanzar(0.1F, cerca, terreno).empty(),
+              "un mismo suministro no activa guardias dos veces");
+
+    planificador.preparar(caso_mora());
+    Terreno sin_suministro = terreno;
+    sin_suministro.suministros.clear();
+    comprobar(planificador.avanzar(0.1F, cerca, sin_suministro).empty(),
+              "un suministro recogido no genera guardias");
+    comprobar(planificador.avanzar(0.1F, cerca, terreno).size() == 6,
+              "una mision nueva reactiva las guardias");
+}
+
+// Verifica las dimensiones y distancias de la configuracion del juego.
 void prueba_campo_del_juego() {
-    const Rectangulo campo{{0.0F, 0.0F}, 1280.0F, 900.0F};
+    const Rectangulo campo = veterinaria::configuracion_juego::limites_mision;
     PlanificadorCampoAbierto planificador(campo, 42U);
     const Terreno terreno = planificador.preparar(caso_mora());
-    comprobar(terreno.suelo.columnas == 80 && terreno.suelo.filas == 57,
-              "el suelo del campo de juego es de 80 x 57 piezas");
+    comprobar(terreno.suelo.columnas == 192 && terreno.suelo.filas == 128,
+              "el suelo del campo de juego es de 192 x 128 piezas");
     comprobar(total_de(terreno, "vendas") == 2 && total_de(terreno, "antiseptico") == 1,
               "el campo de juego ofrece las cantidades pedidas");
 
     const Punto jugador{terreno.inicio.x, terreno.inicio.y};
+    comprobar(std::all_of(terreno.suministros.begin(), terreno.suministros.end(),
+                          [&jugador](const auto& suministro) {
+                              return distancia(suministro.posicion, jugador) >= 960.0F;
+                          }),
+              "todos los suministros arrancan a 960 px o mas en el campo del juego");
     const Rectangulo camara = camara_de(campo, jugador);
     bool todas_bien = true;
     const auto entregas = recorrer(planificador, terreno, 0.5F, 300.0F, jugador);
@@ -609,6 +647,10 @@ void prueba_campo_del_juego() {
     }
     comprobar(!entregas.empty() && todas_bien,
               "en el campo de juego las apariciones salen fuera de camara y en zonas libres");
+    const auto primera_oleada =
+        std::count_if(entregas.begin(), entregas.end(),
+                      [](const Entrega& entrega) { return entrega.segundo == 2.0F; });
+    comprobar(primera_oleada == 50, "la primera oleada trae 50 enemigos en un solo cuadro");
 }
 
 } // namespace
@@ -624,6 +666,7 @@ int main() {
     prueba_posicion_actual();
     prueba_omision();
     prueba_terreno_recibido();
+    prueba_guardias_de_suministro();
     prueba_campo_del_juego();
 
     std::cout << comprobaciones - fallos << " de " << comprobaciones

@@ -45,8 +45,8 @@
 | 3 | Hecho | [lanzar_izquierda.png](prompts/mision/enemigos/vigia_lanzamiento.txt) | `arte/enemigos/vigia/` |
 |  | Hecho | [rayo.png](prompts/mision/enemigos/vigia_rayo.txt) | `arte/enemigos/vigia/` |
 | 1 | Hecho | [latigo.png](prompts/mision/armas/latigo.txt) | `arte/armas/latigo/` |
-| 2 | Hecho | [ataque_derecha.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
-| 3 | Hecho | [ataque_izquierda.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
+| 2 | Hecho | [barrido_derecha.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
+| 3 | Hecho | [barrido_izquierda.png](prompts/mision/armas/latigo_ataque.txt) | `arte/armas/latigo/` |
 |  | Hecho | [vendas.png](prompts/mision/suministros/vendas.txt) | `arte/suministros/` |
 |  | Hecho | [antiseptico.png](prompts/mision/suministros/antiseptico.txt) | `arte/suministros/` |
 |  | Hecho | [suero.png](prompts/mision/suministros/suero.txt) | `arte/suministros/` |
@@ -238,11 +238,10 @@ Reutilizar el PNG de cada suministro
 en el mapa, el HUD y la ficha. El nombre del PNG coincide con su
 identificador en los datos del caso.
 
-La animación del látigo usa el icono y el veterinario como referencias.
-Al integrar la animación, la vista colocará el centro de la celda en la
-mano del personaje. El modelo conserva las reglas de contacto. Para reproducir
-la animación cuando se produzca el golpe, la vista necesitará que combate
-informe del ataque y de su orientación.
+La animación del látigo tiene cuatro celdas de 112 × 64 px por dirección.
+La vista alinea el mango con la mano del veterinario y toma del modelo
+el instante, la dirección y el alcance del barrido. La pose de máxima
+extensión ocupa 96 px desde el mango al tamaño base del juego.
 
 El vigía lanzará varios rayos de energía en abanico. Cada rayo reutiliza
 el mismo PNG, girado en su dirección de vuelo. Dejar huecos legibles
@@ -284,3 +283,13 @@ seleccione el sprite según la etapa del diálogo.
 3. Para generar variantes con ComfyUI en Windows, el comando previsto sigue
    siendo `py arte/generar_sprites.py`. El flujo leerá la lista de recursos
    y dejará variantes para que el equipo elija los PNG finales.
+
+## Audio
+
+[`boton.wav`](audio/boton.wav) es el clic de los botones al pulsarlos.
+[`refugio.wav`](audio/refugio.wav) es la música de fondo en bucle.
+Ambos son WAV mono de 22 050 Hz sintetizados con un motivo original.
+
+Para regenerarlos desde la raíz del proyecto, ejecutar
+`python3 arte/audio/generar_audio.py`. Solo usa la biblioteca estándar de
+Python. El volumen del clic y de la música se ajusta en la vista de raylib.

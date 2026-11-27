@@ -19,33 +19,29 @@ reinicia el reloj de las oleadas. `avanzar(segundos, jugador, terreno)` devuelve
 las apariciones que vencen en ese paso, con su tipo y posición. La [misión](../README.md) las
 entrega al rol 4; el planificador puede probarse sin construir enemigos.
 
-Para la prueba de cinco minutos, empezar con grupos pequeños de animales
-durante el primer minuto. Después pueden aparecer supervivientes de contacto
-y, en las oleadas densas del tramo final, supervivientes a distancia cerca
-de los suministros.
+La primera oleada programa 50 enemigos a los 2 s. Durante el primer minuto
+llegan animales de contacto cada 10 s. Más adelante se suman supervivientes
+de contacto y tiradores, y el intervalo baja a 8 s y luego a 6 s.
 
-El plan de oleadas fija cuándo sale cada enemigo y por qué lado prefiere
-entrar, y la posición se elige al vencer, con el veterinario donde está en ese
-momento y con el terreno actual (sin los suministros ya recogidos). Los
-enemigos nacen justo fuera de la cámara (lienzo de 640 × 360 centrado en el
-veterinario, que no sale del campo), a pocas decenas de píxeles de su borde y
-en zonas libres de obstáculos. Cada miembro de un grupo entra por un lado
-distinto mientras alcancen los cuatro (arriba, derecha, abajo e izquierda). Si
-un lado no tiene sitio, por ejemplo porque la cámara toca el borde del campo,
-se prueba otro. Si ninguno sirve, esa aparición se omite. Los tiradores buscan
-antes un lugar cerca de un suministro pendiente, siempre junto a la cámara. El
-jugador puede recoger el objetivo desde el inicio. En la primera prueba,
-buscar que un recorrido
-directo se pueda completar en dos o tres minutos y ajustar el tamaño y la
-frecuencia de los grupos según cómo se juega.
+Cada oleada reparte sus apariciones entre los cuatro lados de la cámara.
+Las posiciones se eligen según el terreno y la ubicación actual del
+veterinario. Si un lado queda fuera del campo, se prueba otro. Los tiradores
+prefieren ubicarse cerca de suministros pendientes cuando pueden hacerlo
+fuera de cámara. El combate mantiene hasta 200 enemigos activos.
+Cada suministro pendiente activa un anillo de hasta seis vigías cuando el
+veterinario se aproxima a 500 px. Los puestos quedan a 72–96 px del objeto.
+Si un puesto cae dentro de cámara o sobre una colisión, el planificador
+busca otra posición en el mismo sector. La guardia mantiene su puesto y
+se activa una sola vez por suministro e intento.
 
 ## Campo abierto
 
 La demo empieza en un claro dentro de un campo amplio. Al preparar cada
 intento, distribuir árboles, rocas o troncos dentro de `Terreno.limites`.
 Dejar despejado el inicio y suficiente espacio entre obstáculos para esquivar
-enemigos en varias direcciones. Colocar los suministros en zonas libres y
-comprobar que sean alcanzables desde el claro.
+enemigos en varias direcciones. En el campo de 3072 × 2048 px los suministros
+se colocan en zonas alcanzables, entre 960 y aproximadamente 1640 px del punto de inicio.
+El planificador busca repartirlos con al menos 360 px entre unidades.
 
 Cada [`ObstaculoMapa`](obstaculo_mapa.h) tiene un `tipo` (`arbol`, `roca` o
 `tronco`), un `anclaje` y un rectángulo de `colision`, todos en coordenadas del

@@ -23,6 +23,10 @@ constexpr char titulo_inicio[] = "arte/inicio/titulo.png";
 constexpr char boton_jugar[] = "arte/inicio/boton_jugar.png";
 constexpr char cursor_normal[] = "arte/inicio/cursor_normal.png";
 constexpr char fondo_clinica[] = "arte/clinica/fondo.png";
+constexpr char archivo_clic[] = "arte/audio/boton.wav";
+constexpr char archivo_musica[] = "arte/audio/refugio.wav";
+constexpr float volumen_clic = 0.50F;
+constexpr float volumen_musica = 0.32F;
 constexpr char pasto_mapa[] = "arte/mapa/pasto.png";
 constexpr char tierra_mapa[] = "arte/mapa/tierra.png";
 constexpr char transicion_mapa[] = "arte/mapa/transicion_pasto_tierra.png";
@@ -45,8 +49,9 @@ constexpr std::array recursos_suministros{
 
 struct HojaSprites {
     const char* ruta;
-    int lado;
+    int ancho;
     int fotogramas;
+    int alto = ancho;
 };
 
 struct HojasOrientadas {
@@ -83,8 +88,8 @@ constexpr HojasOrientadas lanzar_vigia{
     {"arte/enemigos/vigia/lanzar_izquierda.png", 32, 4},
 };
 constexpr HojasOrientadas atacar_latigo{
-    {"arte/armas/latigo/ataque_derecha.png", 48, 4},
-    {"arte/armas/latigo/ataque_izquierda.png", 48, 4},
+    {"arte/armas/latigo/barrido_derecha.png", 112, 4, 64},
+    {"arte/armas/latigo/barrido_izquierda.png", 112, 4, 64},
 };
 constexpr HojaSprites efecto_danio{"arte/efectos/danio_veterinario.png", 16, 3};
 constexpr HojaSprites efecto_impacto{"arte/efectos/impacto_latigo.png", 16, 3};
@@ -103,6 +108,12 @@ constexpr std::array iconos_combate{rayo_vigia, icono_latigo, icono_vida, icono_
 constexpr float segundos_fotograma_caminar = 0.12F;
 constexpr float segundos_fotograma_gesto = 0.065F;
 constexpr float segundos_fotograma_efecto = 0.09F;
+constexpr float segundos_fotograma_latigo = 0.095F;
+constexpr float alcance_hoja_latigo = 96.0F;
+constexpr Vector2 ancla_latigo{12.0F, 40.0F};
+constexpr float altura_mano = 8.0F;
+constexpr Color estela_vigia{164, 201, 82, 154};
+constexpr Color nucleo_rayo{230, 247, 178, 235};
 
 constexpr std::array texturas_fijas{
     fondo_inicio,   titulo_inicio, boton_jugar,     cursor_normal, fondo_clinica,
@@ -194,6 +205,8 @@ constexpr Rectangle panel_reloj{495, 12, 133, 64};
 constexpr Rectangle marco_vida{506, 60, 110, 9};
 constexpr float margen_barra_vida = 1;
 constexpr float umbral_vida_baja = 0.25f;
+constexpr float ancho_vida_vigia = 20.0F;
+constexpr float altura_vida_vigia = 34.0F;
 constexpr int filas_hud = 8;
 constexpr float salto_fila_hud = 17;
 
@@ -225,13 +238,15 @@ class VistaRaylib final : public Vista {
 
     Rectangle area_de_ventana() const;
     Vector2 raton_en_lienzo() const;
+    void iniciar_audio();
+    void reproducir_clic() const;
     void cargar_textura(const std::string& ruta);
     Texture2D textura(const std::string& ruta) const;
     bool imagen(const std::string& ruta, Rectangle destino, Color tinte = WHITE) const;
     bool dibujar_fotograma(const HojaSprites& hoja, int indice, Vector2 centro,
-                           bool reflejar = false) const;
+                           bool reflejar = false, Vector2 escala = {1.0F, 1.0F}) const;
     bool dibujar_hoja_orientada(const HojasOrientadas& hojas, OrientacionHorizontal orientacion,
-                                int indice, Vector2 centro) const;
+                                int indice, Vector2 centro, Vector2 escala = {1.0F, 1.0F}) const;
     void dibujar_efecto(const HojaSprites& hoja, float segundos, Vector2 centro) const;
     void preparar_retratos(const EstadoPantalla& estado);
     void texto(const std::string& contenido, Vector2 posicion, float tamano, Color color) const;
@@ -247,8 +262,10 @@ class VistaRaylib final : public Vista {
     void dibujar_suministro(const CantidadSuministro& suministro, Vector2 posicion) const;
     void dibujar_obstaculo(TipoObstaculo tipo, Vector2 anclaje) const;
     void dibujar_enemigo(const EstadoEnemigo& enemigo, Vector2 posicion, float segundos) const;
+    void dibujar_vida_vigia(const EstadoEnemigo& enemigo, Vector2 posicion) const;
     void dibujar_veterinario(const EstadoCombate& combate, Vector2 posicion) const;
-    void dibujar_proyectil(const EstadoProyectil& proyectil, Vector2 posicion) const;
+    void dibujar_proyectil(const EstadoProyectil& proyectil, Vector2 origen,
+                           Vector2 posicion) const;
     void dibujar_hud_mision(const EstadoMision& estado);
     void dibujar_guia_mision(const EstadoMision& estado, Punto camara) const;
     void dibujar_vida(const EstadoCombate& combate) const;
@@ -257,6 +274,8 @@ class VistaRaylib final : public Vista {
     RenderTexture2D lienzo_{};
     Font fuente_{};
     Font fuente_titulos_{};
+    Sound clic_{};
+    Music musica_{};
     std::unordered_map<std::string, Texture2D> texturas_;
     std::vector<Boton> botones_;
 };
@@ -298,7 +317,7 @@ int fotograma_temporal(const HojaSprites& hoja, float segundos, float duracion) 
 }
 
 Vector2 centro_actor(Vector2 anclaje, const HojaSprites& hoja) {
-    return {anclaje.x, anclaje.y - hoja.lado / 2.0F + 2.0F};
+    return {anclaje.x, anclaje.y - hoja.alto / 2.0F + 2.0F};
 }
 
 std::string reloj(float segundos) {
@@ -402,9 +421,23 @@ VistaRaylib::VistaRaylib() {
     if (textura(cursor_normal).id != 0) {
         HideCursor();
     }
+
+    iniciar_audio();
 }
 
 VistaRaylib::~VistaRaylib() {
+    if (IsAudioDeviceReady()) {
+        if (IsSoundValid(clic_)) {
+            UnloadSound(clic_);
+        }
+
+        if (IsMusicValid(musica_)) {
+            UnloadMusicStream(musica_);
+        }
+
+        CloseAudioDevice();
+    }
+
     for (const auto& par : texturas_) {
         if (par.second.id != 0) {
             UnloadTexture(par.second);
@@ -419,6 +452,34 @@ VistaRaylib::~VistaRaylib() {
     }
     UnloadRenderTexture(lienzo_);
     CloseWindow();
+}
+
+void VistaRaylib::iniciar_audio() {
+    InitAudioDevice();
+
+    if (!IsAudioDeviceReady()) {
+        return;
+    }
+
+    clic_ = LoadSound(archivo_clic);
+
+    if (IsSoundValid(clic_)) {
+        SetSoundVolume(clic_, volumen_clic);
+    }
+
+    musica_ = LoadMusicStream(archivo_musica);
+
+    if (IsMusicValid(musica_)) {
+        musica_.looping = true;
+        SetMusicVolume(musica_, volumen_musica);
+        PlayMusicStream(musica_);
+    }
+}
+
+void VistaRaylib::reproducir_clic() const {
+    if (IsSoundValid(clic_)) {
+        PlaySound(clic_);
+    }
 }
 
 Rectangle VistaRaylib::area_de_ventana() const {
@@ -470,6 +531,7 @@ EntradaCuadro VistaRaylib::leer_entrada() {
         for (const auto& actual : botones_) {
             if (CheckCollisionPointRec(raton, actual.area)) {
                 entrada.accion = actual.accion;
+                reproducir_clic();
                 break;
             }
         }
@@ -477,6 +539,7 @@ EntradaCuadro VistaRaylib::leer_entrada() {
 
     else if (IsKeyPressed(KEY_ENTER) && hay_boton_principal) {
         entrada.accion = botones_.front().accion;
+        reproducir_clic();
     }
     return entrada;
 }
@@ -535,37 +598,41 @@ bool VistaRaylib::imagen(const std::string& ruta, Rectangle destino, Color tinte
 }
 
 bool VistaRaylib::dibujar_fotograma(const HojaSprites& hoja, int indice, Vector2 centro,
-                                    bool reflejar) const {
+                                    bool reflejar, Vector2 escala) const {
     if (indice < 0 || indice >= hoja.fotogramas) {
         return false;
     }
 
     const Texture2D recurso = textura(hoja.ruta);
 
-    if (recurso.id == 0 || recurso.width != hoja.lado * hoja.fotogramas ||
-        recurso.height != hoja.lado) {
+    if (recurso.id == 0 || recurso.width != hoja.ancho * hoja.fotogramas ||
+        recurso.height != hoja.alto) {
         return false;
     }
 
-    const float lado = static_cast<float>(hoja.lado);
-    const Rectangle origen{indice * lado, 0.0F, reflejar ? -lado : lado, lado};
-    const Rectangle destino{centro.x - lado / 2.0F, centro.y - lado / 2.0F, lado, lado};
+    const float ancho_celda = static_cast<float>(hoja.ancho);
+    const float alto_celda = static_cast<float>(hoja.alto);
+    const Rectangle origen{indice * ancho_celda, 0.0F, reflejar ? -ancho_celda : ancho_celda,
+                           alto_celda};
+    const float ancho = ancho_celda * escala.x;
+    const float alto = alto_celda * escala.y;
+    const Rectangle destino{centro.x - ancho / 2.0F, centro.y - alto / 2.0F, ancho, alto};
     DrawTexturePro(recurso, origen, destino, {0.0F, 0.0F}, 0.0F, WHITE);
     return true;
 }
 
 bool VistaRaylib::dibujar_hoja_orientada(const HojasOrientadas& hojas,
                                          OrientacionHorizontal orientacion, int indice,
-                                         Vector2 centro) const {
+                                         Vector2 centro, Vector2 escala) const {
     const bool izquierda = orientacion == OrientacionHorizontal::izquierda;
     const auto& preferida = izquierda ? hojas.izquierda : hojas.derecha;
 
-    if (dibujar_fotograma(preferida, indice, centro)) {
+    if (dibujar_fotograma(preferida, indice, centro, false, escala)) {
         return true;
     }
 
     const auto& opuesta = izquierda ? hojas.derecha : hojas.izquierda;
-    return dibujar_fotograma(opuesta, indice, centro, true);
+    return dibujar_fotograma(opuesta, indice, centro, true, escala);
 }
 
 void VistaRaylib::dibujar_efecto(const HojaSprites& hoja, float segundos, Vector2 centro) const {
@@ -635,6 +702,10 @@ void VistaRaylib::boton(const std::string& rotulo, Rectangle area, Accion accion
 }
 
 void VistaRaylib::dibujar(const EstadoPantalla& estado) {
+    if (IsMusicValid(musica_)) {
+        UpdateMusicStream(musica_);
+    }
+
     preparar_retratos(estado);
     botones_.clear();
     BeginTextureMode(lienzo_);
@@ -806,9 +877,9 @@ void VistaRaylib::dibujar_mision(const EstadoMision& estado, const EstadoPantall
     const float camara_x_maxima = limites.origen.x + std::max(0.0f, limites.ancho - ancho);
     const float camara_y_maxima = limites.origen.y + std::max(0.0f, limites.alto - alto);
     const float camara_x =
-        std::clamp(combate.jugador.x - ancho / 2, limites.origen.x, camara_x_maxima);
+        std::clamp(combate.jugador.x - ancho / 2.0F, limites.origen.x, camara_x_maxima);
     const float camara_y =
-        std::clamp(combate.jugador.y - alto / 2, limites.origen.y, camara_y_maxima);
+        std::clamp(combate.jugador.y - alto / 2.0F, limites.origen.y, camara_y_maxima);
     const auto visible = [camara_x, camara_y](Punto punto) -> Vector2 {
         return {std::floor(punto.x - camara_x), std::floor(punto.y - camara_y)};
     };
@@ -824,19 +895,25 @@ void VistaRaylib::dibujar_mision(const EstadoMision& estado, const EstadoPantall
     }
 
     for (const auto& enemigo : combate.enemigos) {
-        dibujar_enemigo(enemigo, visible(enemigo.posicion), combate.segundos_combate);
+        const auto posicion = visible(enemigo.posicion);
+        dibujar_enemigo(enemigo, posicion, combate.segundos_combate);
+
+        if (enemigo.tipo == TipoEnemigo::superviviente_a_distancia &&
+            enemigo.vida < enemigo.vida_maxima) {
+            dibujar_vida_vigia(enemigo, posicion);
+        }
     }
 
     for (const auto& proyectil : combate.proyectiles) {
-        dibujar_proyectil(proyectil, visible(proyectil.posicion));
+        dibujar_proyectil(proyectil, visible(proyectil.origen), visible(proyectil.posicion));
     }
 
     const auto jugador = visible(combate.jugador);
     dibujar_veterinario(combate, jugador);
 
-    if (combate.ultimo_golpe) {
+    if (combate.ultimo_golpe && combate.ultimo_golpe->impacto) {
         const float segundos = combate.segundos_combate - combate.ultimo_golpe->gesto.instante;
-        auto impacto = visible(combate.ultimo_golpe->impacto);
+        auto impacto = visible(*combate.ultimo_golpe->impacto);
         impacto.y -= 8.0F;
         dibujar_efecto(efecto_impacto, segundos, impacto);
     }
@@ -902,6 +979,16 @@ void VistaRaylib::dibujar_enemigo(const EstadoEnemigo& enemigo, Vector2 posicion
     DrawRectangleV({posicion.x - 6, posicion.y - 13}, {12, 16}, color);
 }
 
+void VistaRaylib::dibujar_vida_vigia(const EstadoEnemigo& enemigo, Vector2 posicion) const {
+    const float proporcion = static_cast<float>(enemigo.vida) / enemigo.vida_maxima;
+    const Rectangle fondo{posicion.x - ancho_vida_vigia / 2.0F, posicion.y - altura_vida_vigia,
+                          ancho_vida_vigia, 3.0F};
+    const Rectangle relleno{fondo.x + 1.0F, fondo.y + 1.0F,
+                            std::round((fondo.width - 2.0F) * proporcion), 1.0F};
+    DrawRectangleRec(fondo, carbon);
+    DrawRectangleRec(relleno, ladrillo);
+}
+
 void VistaRaylib::dibujar_veterinario(const EstadoCombate& combate, Vector2 posicion) const {
     const auto movimiento = combate.movimiento_jugador;
     const int indice =
@@ -915,12 +1002,17 @@ void VistaRaylib::dibujar_veterinario(const EstadoCombate& combate, Vector2 posi
     }
 
     if (combate.ultimo_golpe) {
-        const auto gesto = combate.ultimo_golpe->gesto;
+        const auto& golpe = *combate.ultimo_golpe;
+        const auto& gesto = golpe.gesto;
         const int ataque =
             fotograma_temporal(atacar_latigo.derecha, combate.segundos_combate - gesto.instante,
-                               segundos_fotograma_gesto);
-        dibujar_hoja_orientada(atacar_latigo, gesto.orientacion, ataque,
-                               {posicion.x, posicion.y - 8.0F});
+                               segundos_fotograma_latigo);
+        const auto& hoja = atacar_latigo.derecha;
+        const float escala = golpe.alcance / alcance_hoja_latigo;
+        const float sentido = gesto.orientacion == OrientacionHorizontal::izquierda ? -1.0F : 1.0F;
+        const Vector2 centro{posicion.x + sentido * escala * (hoja.ancho / 2.0F - ancla_latigo.x),
+                             posicion.y - altura_mano + hoja.alto / 2.0F - ancla_latigo.y};
+        dibujar_hoja_orientada(atacar_latigo, gesto.orientacion, ataque, centro, {escala, 1.0F});
     }
 
     if (combate.instante_danio) {
@@ -929,7 +1021,10 @@ void VistaRaylib::dibujar_veterinario(const EstadoCombate& combate, Vector2 posi
     }
 }
 
-void VistaRaylib::dibujar_proyectil(const EstadoProyectil& proyectil, Vector2 posicion) const {
+void VistaRaylib::dibujar_proyectil(const EstadoProyectil& proyectil, Vector2 origen_estela,
+                                    Vector2 posicion) const {
+    DrawLineEx(origen_estela, posicion, 3.0F, estela_vigia);
+    DrawLineEx(origen_estela, posicion, 1.0F, nucleo_rayo);
     const auto recurso = textura(rayo_vigia);
 
     if (recurso.id == 0) {

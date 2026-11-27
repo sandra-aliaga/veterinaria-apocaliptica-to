@@ -10,7 +10,7 @@ class Arma {
     virtual void actualizar(float segundos) = 0;
     virtual float alcance() const = 0;
 
-    /// Combate llama a este metodo con un objetivo al alcance. Cero indica recarga.
+    /// Combate consulta en cada paso. Devuelve cero mientras el arma recarga.
     virtual int intentar_atacar() = 0;
 };
 

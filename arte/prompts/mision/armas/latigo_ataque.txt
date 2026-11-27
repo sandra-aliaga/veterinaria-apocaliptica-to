@@ -1,19 +1,19 @@
 ESTILO OBLIGATORIO — PIXEL ART RETRO ANIMADO
 
-Crea la animación del látigo de Pet Survivors como una capa que se dibuja
-sobre el veterinario. Usa latigo.png como referencia de forma y color y
-el sprite del veterinario para igualar el ángulo de tres cuartos y el
-tamaño aparente. Dibuja solo el mango y la cuerda hacia la derecha.
+Crea el barrido de un látigo para Pet Survivors. Dibuja solo el mango,
+la cuerda y una estela breve, vistos desde arriba en tres cuartos.
+La silueta debe leerse sobre pasto oliva. Usa un contorno carbón
+#161F26, cuero #986840, ocre #B98B57 y un brillo puntual crema #F3E9D2.
+Usa píxeles nítidos y contraste. Evita desenfoque y destellos difusos.
 
-Haz cuatro fotogramas en una fila. Primero se recoge la cuerda cerca
-del mango. En el segundo se abre el arco. En el tercero la punta está
-extendida hacia la derecha. En el cuarto vuelve a recogerse. Mantén el
-mango anclado al centro geométrico de cada celda. La cuerda se ve con
-unos pocos píxeles de ancho, con contorno carbón #161F26 y toques ocre
-#8B7854. Un acento crema #F3E9D2 de pocos píxeles basta en el tercer
-fotograma. Evita arcos que oculten a los enemigos cercanos.
+Dibuja cuatro fotogramas en una sola fila. Primero se prepara el golpe
+cerca del mango. Luego la cuerda abre un arco hacia la derecha. En el
+tercero se estira al máximo y el extremo llega a 96 px del mango.
+Por último la cuerda vuelve a recogerse. Conserva el mismo anclaje
+del mango y la misma perspectiva en los cuatro fotogramas.
 
-Entrega una hoja PNG transparente de 192 × 48 px, con cuatro celdas
-contiguas de 48 × 48 px, llamada ataque_derecha.png. Deja fuera al
-personaje, el suelo, los divisores y el texto. Para ataque_izquierda.png
-refleja cada celda horizontalmente conservando el orden de la fila.
+Exporta un PNG con transparencia real en una hoja de 448 × 64 px,
+con cuatro celdas de 112 × 64 px. El punto de apoyo del mango está
+en (12, 40) dentro de cada celda hacia la derecha. Guárdala como
+barrido_derecha.png. Refleja cada celda sin cambiar su orden para
+obtener barrido_izquierda.png.
