@@ -86,6 +86,7 @@
       {
           "hablante": "dueno",
           "texto": "Aquí tienes lo tuyo. Si cruzas la calle ahora, no hay nadie en la panadería.",
+          "sprite_dueno": "arte/duenos/dueno_toby_aliviado.png",
           "retrato_mascota": "arte/mascotas/toby_recuperado.png"
       }
     ]

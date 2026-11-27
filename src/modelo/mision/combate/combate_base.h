@@ -40,6 +40,8 @@ class CombateBase final : public Combate {
     struct EnemigoActivo {
         std::unique_ptr<Enemigo> enemigo;
         float segundos_para_danio;
+        bool variante_visual;
+        std::optional<GestoCombate> disparo;
     };
 
     struct Proyectil {
@@ -68,6 +70,8 @@ class CombateBase final : public Combate {
     VeterinarioJugable veterinario_;
     std::vector<EnemigoActivo> enemigos_;
     std::vector<Proyectil> proyectiles_;
+    bool alternar_animal_ = false;
+    bool alternar_superviviente_ = false;
     EstadoCombate estado_;
 };
 

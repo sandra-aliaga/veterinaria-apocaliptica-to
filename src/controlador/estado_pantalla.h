@@ -67,6 +67,8 @@ struct EstadoPantalla {
     std::string mensaje_guardado;
     bool confirmar_reinicio;
     bool salida_solicitada;
+    Punto posicion_recogida{};
+    float segundos_desde_recogida = 0.0F;
 };
 
 } // namespace veterinaria

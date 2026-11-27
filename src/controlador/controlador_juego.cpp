@@ -59,6 +59,9 @@ EstadoPantalla ControladorJuego::estado_pantalla() const {
     if (pantalla_ == Pantalla::mision) {
         estado.mision = &mision_.estado();
         estado.aviso_recogida = aviso_recogida_ ? &*aviso_recogida_ : nullptr;
+        estado.posicion_recogida = posicion_recogida_;
+        estado.segundos_desde_recogida =
+            configuracion_juego::duracion_aviso_recogida - segundos_aviso_recogida_;
         return estado;
     }
 
@@ -152,6 +155,14 @@ void ControladorJuego::actualizar(const EntradaCuadro& entrada, float segundos) 
 
     if (pausa_ || salida_solicitada_) {
         return;
+    }
+
+    if (pantalla_ == Pantalla::mision && aviso_recogida_) {
+        segundos_aviso_recogida_ -= segundos;
+
+        if (segundos_aviso_recogida_ <= 0.0F) {
+            aviso_recogida_.reset();
+        }
     }
 
     if (fase_ == FasePantalla::regresando || opacidad_ > 0.0f) {
@@ -307,14 +318,6 @@ void ControladorJuego::preparar_mision() {
 }
 
 void ControladorJuego::actualizar_mision(Punto direccion, float segundos) {
-    if (aviso_recogida_) {
-        segundos_aviso_recogida_ -= segundos;
-
-        if (segundos_aviso_recogida_ <= 0.0F) {
-            aviso_recogida_.reset();
-        }
-    }
-
     mision_.actualizar(direccion, segundos);
 
     if (!resultado_pendiente_) {
@@ -343,6 +346,7 @@ void ControladorJuego::actualizar_mision(Punto direccion, float segundos) {
 void ControladorJuego::suministro_recogido(const CantidadSuministro& suministro) {
     aviso_recogida_ = suministro;
     segundos_aviso_recogida_ = configuracion_juego::duracion_aviso_recogida;
+    posicion_recogida_ = mision_.estado().combate.jugador;
 }
 
 void ControladorJuego::intento_finalizado(DesenlaceMision) {
