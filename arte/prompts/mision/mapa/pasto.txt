@@ -1,0 +1,14 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO PARA TERRENO
+
+Dibuja una baldosa de pasto apagado para el campo abierto de Pet Survivors.
+Vista desde arriba, con píxeles cuadrados visibles y colores planos.
+Usa verde oliva #586346 como base y verde oscuro #2B352C en grupos
+pequeños de dos o tres píxeles. La textura debe quedar discreta para que
+los personajes y suministros se distingan sobre ella.
+
+Los cuatro bordes deben coincidir con sus opuestos para repetir la pieza
+en ambas direcciones sin cortes. Distribuye el detalle de modo uniforme.
+Evita manchas dominantes, bordes dibujados, brillos, sombras proyectadas
+y suavizado de píxeles.
+
+Entrega solo una baldosa cuadrada opaca. Exporta como pasto.png a 16 × 16 px.

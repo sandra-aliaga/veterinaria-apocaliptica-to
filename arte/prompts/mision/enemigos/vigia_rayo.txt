@@ -1,0 +1,13 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO
+
+Dibuja un rayo de energía ficticia para el vigía de Pet Survivors. Es
+un proyectil corto y alargado, con uno o dos quiebres y la punta orientada
+a la derecha. Usa contorno carbón #161F26, cuerpo verde lima #B9CC57 y
+un punto crema #F3E9D2 cerca de la punta. Centra la figura para que el
+juego pueda girar el sprite en la dirección del vuelo.
+
+Cada disparo se dibuja por separado. El rayo debe seguir siendo fácil
+de reconocer cuando varios formen un abanico sobre pasto o tierra.
+Usa píxeles cuadrados, colores planos y bordes nítidos. Evita halos,
+estelas, haces continuos y fondo. Entrega un PNG transparente de
+16 × 8 px llamado rayo.png.

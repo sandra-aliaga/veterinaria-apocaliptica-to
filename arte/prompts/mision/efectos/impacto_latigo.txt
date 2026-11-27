@@ -1,0 +1,11 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO ANIMADO
+
+Dibuja una pequeña marca de impacto para el látigo de Pet Survivors.
+Empieza como un destello crema #F3E9D2 de cuatro puntas cortas. En el
+segundo fotograma se separa en tres píxeles ocre #8B7854. En el tercero
+quedan dos píxeles separados. Mantén el centro del efecto alineado al
+centro de cada celda. Debe verse bien junto al enemigo sin tapar su silueta.
+
+Usa colores planos y bordes nítidos. Sin sangre, humo, letras, fondo ni
+divisores. Entrega una hoja PNG transparente de 48 × 16 px con tres
+celdas de 16 × 16 px en una fila, llamada impacto_latigo.png.

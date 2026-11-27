@@ -10,9 +10,49 @@ suministros en una misión con oleadas y un arma automática. Al recoger la
 última cantidad necesaria, la pantalla se oscurece y el veterinario vuelve a
 la clínica para completar el tratamiento.
 
-Esta base contiene contratos C++ en cabeceras `.h` y documentación. El equipo
-implementará los `.cpp`, los archivos JSON, los recursos y la compilación del
-juego. Raylib se usará desde la vista.
+El juego conecta la portada, el consultorio y la misión. Lee del [catálogo
+JSON](datos/README.md) los casos de Mora y Toby y sus reacciones. Cada
+intento genera un campo con obstáculos y suministros, y programa oleadas
+de enemigos. El consultorio procesa el resultado y aplica el cobro o el
+reintento.
+
+## Abrir en Qt Creator
+
+1. En Qt Creator, abre [veterinaria.pro](veterinaria.pro) y selecciona un kit
+   de escritorio Qt 5 o Qt 6 con un compilador que soporte C++17.
+2. Cada rol añade sus `.cpp` en `src/`. El proyecto toma las cabeceras de
+   `src/` y también admite `include/` para la estructura de entrega.
+3. En la configuración de ejecución, usa la raíz del repositorio como
+   directorio de trabajo para cargar los JSON de `datos/` y los PNG de `arte/`.
+   Qmake compila `veterinaria` en `bin/` dentro del directorio de compilación.
+
+En Linux se puede configurar y compilar también desde la raíz:
+
+```bash
+mkdir -p build/qt
+(cd build/qt && qmake ../../veterinaria.pro && make)
+./build/qt/bin/veterinaria
+```
+
+Usa `qmake6` en ese comando si tu kit es de Qt 6. La vista requiere raylib.
+En Linux la biblioteca debe ser visible con `pkg-config --exists raylib`. En Windows
+define `RAYLIB_DIR` con la ruta de la distribución de raylib para tu kit.
+Debe contener `include/raylib.h` y `lib/libraylib.a` para MinGW o
+`lib/raylib.lib` para MSVC.
+
+Pulsa **Jugar** para abrir la clínica. Usa el ratón para avanzar el diálogo,
+examinar y decidir. En la misión, muévete con **WASD**, toca los suministros
+para recogerlos y usa **Esc** para pausar o reanudar.
+
+En pausa, **Guardar progreso** escribe un punto de guardado local. Al volver
+a abrir el juego, **Jugar** lo carga y **Nueva partida** empieza de cero.
+Se guardan el caso, la fase, la línea de diálogo y el saldo. Una partida
+guardada durante el combate vuelve al inicio de ese intento al cargar.
+Si se guarda durante el fundido de regreso, se retoma en la clínica con
+el resultado registrado.
+**Reiniciar partida** vuelve al primer caso tras pedir confirmación. Una
+partida nueva o reiniciada reemplaza el guardado anterior al pulsar
+**Guardar progreso**. **Salir** cierra el juego.
 
 ## Arquitectura MVC
 
@@ -38,7 +78,7 @@ juego. Raylib se usará desde la vista.
 |---|---|
 | Catálogo → consultorio, a través de integración | `CargaCasos` contiene las fichas válidas; integración las entrega con `Consultorio::recibir()`. |
 | Consultorio → misión, a través del controlador | `PropuestaMision` contiene el ID del caso, los suministros con cantidades y el límite de tiempo. |
-| Mapa → combate, a través de misión | `Terreno` inicia el combate. Cada `Aparicion` lleva el tipo y la posición de un enemigo. |
+| Mapa → combate, a través de misión | `Terreno` inicia el combate. Incluye la colisión de cada obstáculo. Cada `Aparicion` lleva el tipo y la posición de un enemigo. |
 | Combate → misión | `EstadoCombate` expone la vida y la posición del veterinario, además del estado de enemigos y proyectiles. |
 | Misión → consultorio, a través del controlador | `ResultadoMision` lleva las cantidades recogidas, el desenlace y el motivo si falló. |
 | Controlador ↔ vista | La vista entrega `EntradaCuadro` y dibuja según `EstadoPantalla`. Los PNG y sus rutas llegan desde arte. |
@@ -56,6 +96,82 @@ destructores declarados en las cabeceras de sus módulos. Si una cabecera
 compartida necesita un cambio, revisarlo con quienes la consumen antes de
 integrarlo.
 
+## Ramas, CI y entregas
+
+| Cambio | Flujo |
+|---|---|
+| Funcionalidad o corrección | Crear la rama desde `develop` y abrir un PR hacia `develop`. |
+| Versión estable | Abrir un PR desde `develop` hacia `main`. |
+| Entrega de staging | Al entrar un cambio a `develop` y pasar el CI, se genera el paquete del entorno `staging`. |
+| Entrega de producción | Al entrar un cambio a `main` y pasar el CI, se genera el paquete del entorno `production`. |
+
+El [workflow](.github/workflows/ci-cd.yml) ejecuta el CI en Linux y Windows.
+El check **Verificar integración** requiere que pasen ambos sistemas y que
+los PR hacia `main` vengan de `develop` de este mismo repositorio. En
+GitHub, configura una regla para `develop` y `main` que exija PR y el
+check **Verificar integración** para evitar pushes directos.
+
+Para ejecutar las comprobaciones actuales desde la raíz, usa Python 3 y un
+compilador GCC o Clang:
+
+```bash
+python pruebas/verificar_base.py
+```
+
+La prueba compila cada cabecera por separado en C++17 con advertencias como
+errores, valida los identificadores y cantidades del JSON de ejemplo y de las
+fichas reales, y comprueba las rutas de los enlaces locales en los README. El
+CI verifica también el formato C++ con el mismo comando que usa el hook.
+
+Los paquetes aparecen en **Actions → ejecución → Artifacts**, identificados
+por `staging` o `production` y por el commit. El paquete actual es un ZIP de
+las fuentes versionadas. Cuando `veterinaria.pro` pueda generar el ejecutable
+del juego, el rol 5 añadirá al CI su compilación y empaquetado con los recursos.
+
+### Formato antes del commit
+
+Con Python y `clang-format` instalados, activa el [hook](.githooks/pre-commit)
+una vez por clon.
+
+```bash
+git config core.hooksPath .githooks
+```
+
+El hook comprueba la versión preparada con `git add`. El formato combina
+`clang-format` con una línea vacía entre bloques de control consecutivos
+del mismo nivel, incluidas las ramas `else` y `catch`.
+Para comprobar o aplicar el formato desde la raíz del repositorio, usa estos comandos.
+
+```bash
+python pruebas/formato_cpp.py
+python pruebas/formato_cpp.py --corregir
+```
+
+Para aplicar el formato a un único archivo, añade su ruta al segundo comando.
+Después de corregir, vuelve a preparar los archivos que quieras incluir en el commit.
+
+En Linux, GitHub Actions aplica el formateador durante la validación. Si
+encuentra cambios, deja el parche en **Actions → ejecución → Artifacts →
+formato-cpp** y marca el check como fallido. Desde la rama del PR, puedes
+aplicar el parche descargado con `git apply formato-cpp.patch` o ejecutar
+el comando de corrección sobre tu copia.
+
+## Cierre técnico según la guía del Lab 10
+
+- **Estructura y compilación.** Abrir el proyecto único `veterinaria.pro`
+  en Qt Creator. La entrega final separará las cabeceras en `include/` y los
+  `.cpp` en `src/`. Actualmente las cabeceras están en `src/` y el equipo
+  todavía debe implementar y probar el programa completo.
+- **Pruebas del juego.** Cuando se agregue el ejecutable, comprobar la cola
+  vacía y el orden de fichas, un caso rechazado, el regreso al recoger el
+  último suministro, el reintento por fallo y el cobro único. Probar también
+  que Esc congele la misión y el reloj.
+- **Informe y exposición.** Preparar el PDF con introducción, análisis del
+  problema, conceptos aplicados, patrones justificados y conclusiones.
+  Preparar cinco o seis diapositivas y una demo en vivo. Poner el enlace de
+  GitHub en la portada del informe y en la primera diapositiva. Los UML
+  existentes sirven de apoyo para explicar el diseño.
+
 ## Pantalla de la clínica
 
 La clínica se presenta como una escena de novela visual. El dueño y la mascota
@@ -71,9 +187,16 @@ suministro termina el intento en el momento. Si se agota el reloj con
 suministros pendientes, el veterinario vuelve a la clínica y puede reintentar.
 Las oleadas empiezan dispersas y se hacen más densas con el tiempo.
 
-Para el pixel art, la [guía de arte](arte/README.md) propone azul petróleo y
-rojo ladrillo como base, con crema para el contraste y verde menta para los
-suministros.
+La [guía de arte retro](arte/README.md) define el lienzo de 640 × 360 px y
+los tamaños de los sprites. La clínica usa azul petróleo y rojo ladrillo.
+La misión transcurre en un campo abierto con verdes, tierras y obstáculos
+dispersos. Usar Pixelify Sans para títulos y Handjet para diálogos y HUD.
+
+[`PlanificadorCampoAbierto`](src/modelo/mision/mapa/planificador_campo_abierto.h)
+hereda de `PlanificadorMapa` y declara cómo preparar el campo y las oleadas.
+Un [`ObstaculoMapa`](src/modelo/mision/mapa/obstaculo_mapa.h)
+lleva su tipo, el anclaje del sprite y el rectángulo de colisión. Combate y
+vista reciben el mismo terreno.
 
 ## Patrones y principios
 
@@ -123,6 +246,10 @@ classDiagram
         +actualizar(entrada, segundos)
         +estado_pantalla()
     }
+    class ControladorJuego {
+        +actualizar(entrada, segundos)
+        +estado_pantalla()
+    }
     class EstadoPantalla {
         +pantalla
         +fase
@@ -132,6 +259,7 @@ classDiagram
         +ficha
         +dialogo
         +mision
+        +aviso_recogida
         +edad_humana_mascota
         +motivo_fallo
         +saldo
@@ -166,6 +294,27 @@ classDiagram
     }
     class PlanificadorMapa {
         <<interface>>
+        +preparar(propuesta)
+        +avanzar(segundos)
+    }
+    class PlanificadorCampoAbierto {
+        -limites_
+        -semilla_fija_
+        -generador_
+        -oleadas_
+        +preparar(propuesta)
+        +avanzar(segundos)
+    }
+    class Terreno {
+        +limites
+        +inicio
+        +obstaculos
+        +suministros
+    }
+    class ObstaculoMapa {
+        +tipo
+        +anclaje
+        +colision
     }
     class Combate {
         <<interface>>
@@ -174,9 +323,14 @@ classDiagram
     Controlador ..> EstadoPantalla : prepara
     AccionesControlador <|-- Controlador
     Comando ..> AccionesControlador : ejecuta una accion
-    Controlador ..> Consultorio : gestiona el caso
-    Controlador ..> Mision : coordina el intento
+    Controlador <|-- ControladorJuego
+    ReceptorEventosMision <|.. ControladorJuego
+    ControladorJuego ..> Consultorio : gestiona el caso
+    ControladorJuego ..> Mision : coordina el intento
     Mision ..> PlanificadorMapa : prepara el terreno
+    PlanificadorMapa <|-- PlanificadorCampoAbierto
+    PlanificadorMapa ..> Terreno : devuelve
+    Terreno "1" *-- "0..*" ObstaculoMapa : contiene
     Mision ..> Combate : actualiza
     Mision ..> ReceptorEventosMision : notifica
 ```
@@ -229,6 +383,8 @@ classDiagram
     class LineaDialogo {
         +hablante
         +texto
+        +sprite_dueno
+        +retrato_mascota
     }
     class CantidadSuministro {
         +id

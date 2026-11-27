@@ -1,0 +1,13 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO DE CUERPO COMPLETO
+
+Dibuja una roca gris baja y ancha para el campo de Pet Survivors.
+Vista en tres cuartos desde una cámara ligeramente elevada. Deben verse
+la cara superior y un lateral de la roca. Usa gris piedra #83847A,
+gris apagado #526571 y sombra verde oscura #2B352C. Divide el volumen
+en dos o tres caras grandes. Usa píxeles cuadrados y bordes escalonados.
+
+Centra la base de apoyo en el borde inferior del sprite. Mantén la silueta
+compacta y claramente separable de un tronco. Evita musgo fino, grietas
+decorativas, suelo, sombras proyectadas y suavizado de píxeles.
+
+Entrega solo una roca en PNG transparente de 32 × 24 px como roca.png.

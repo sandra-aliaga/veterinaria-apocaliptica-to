@@ -1,0 +1,10 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO ANIMADO
+
+Dibuja una señal breve de recolección para Pet Survivors. Usa dos motas
+verde menta #87C7A1 y una mota crema #F3E9D2 cerca del centro. A lo largo
+de tres fotogramas, las motas suben unos pocos píxeles y se separan hasta
+quedar una sola. Mantén el centro de la celda como punto de referencia.
+
+Sin texto, icono de suministro, humo, sombras ni halos. Entrega un PNG
+transparente de 48 × 16 px con tres celdas contiguas de 16 × 16 px en
+una fila, llamado recoger_suministro.png.

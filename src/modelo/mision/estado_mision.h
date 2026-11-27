@@ -2,21 +2,14 @@
 
 #include "../catalogo/cantidad_suministro.h"
 #include "estado_movimiento.h"
+#include "geometria_mapa.h"
+#include "mapa/obstaculo_mapa.h"
+#include "mapa/suelo_mapa.h"
 
+#include <optional>
 #include <vector>
 
 namespace veterinaria {
-
-struct Punto {
-    float x;
-    float y;
-};
-
-struct Rectangulo {
-    Punto origen;
-    float ancho;
-    float alto;
-};
 
 struct SuministroEnMapa {
     CantidadSuministro contenido;
@@ -26,8 +19,9 @@ struct SuministroEnMapa {
 struct Terreno {
     Rectangulo limites;
     Punto inicio;
-    std::vector<Rectangulo> obstaculos;
+    std::vector<ObstaculoMapa> obstaculos;
     std::vector<SuministroEnMapa> suministros;
+    SueloMapa suelo;
 };
 
 enum class TipoEnemigo { animal_de_contacto, superviviente_de_contacto, superviviente_a_distancia };
@@ -35,6 +29,12 @@ enum class TipoEnemigo { animal_de_contacto, superviviente_de_contacto, superviv
 struct Aparicion {
     TipoEnemigo tipo;
     Punto posicion;
+    bool guardia = false;
+};
+
+struct GestoCombate {
+    OrientacionHorizontal orientacion;
+    float instante;
 };
 
 struct EstadoEnemigo {
@@ -44,6 +44,21 @@ struct EstadoEnemigo {
     float velocidad;
     int danio;
     EstadoMovimiento movimiento;
+    bool variante_visual = false;
+    std::optional<GestoCombate> disparo{};
+    int vida_maxima = vida;
+};
+
+struct EstadoProyectil {
+    Punto posicion;
+    Punto velocidad;
+    Punto origen;
+};
+
+struct GolpeArma {
+    std::optional<Punto> impacto;
+    GestoCombate gesto;
+    float alcance;
 };
 
 struct EstadoCombate {
@@ -51,7 +66,11 @@ struct EstadoCombate {
     int vida;
     EstadoMovimiento movimiento_jugador;
     std::vector<EstadoEnemigo> enemigos;
-    std::vector<Punto> proyectiles;
+    std::vector<EstadoProyectil> proyectiles;
+    int vida_maxima = 100;
+    float segundos_combate = 0.0F;
+    std::optional<float> instante_danio{};
+    std::optional<GolpeArma> ultimo_golpe{};
 };
 
 struct EstadoMision {

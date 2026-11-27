@@ -1,0 +1,11 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO PARA OBJETOS
+
+Dibuja un rollo de venda para recoger en el campo de Pet Survivors.
+Vista en tres cuartos ligeramente elevada. Muestra la forma aplastada
+del rollo, un centro carbón #161F26 y un extremo corto de tela crema
+#F3E9D2. Añade una pequeña banda verde menta #87C7A1 para identificarlo
+como suministro. La silueta tiene que distinguirse sobre pasto y tierra.
+
+Centra el objeto. Usa pocos bloques de color, bordes de píxel definidos
+y espacio alrededor. Evita texto, más rollos, sombras y suavizado.
+Entrega un PNG transparente de 16 × 16 px llamado vendas.png.

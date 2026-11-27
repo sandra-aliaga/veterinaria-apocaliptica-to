@@ -1,0 +1,11 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO
+
+Dibuja el icono de un látigo sencillo y gastado para Pet Survivors.
+La cuerda está enrollada en una sola espiral ancha y el mango corto
+asoma de un lado. Usa marrón tierra #695340 para la cuerda, ocre apagado
+#8B7854 para los bordes iluminados y carbón #161F26 para el contorno.
+La silueta debe leerse a tamaño de juego sobre pasto verde oliva.
+
+Usa píxeles cuadrados y bloques de color. Evita brillos, emblemas,
+partículas, letras, marcos, suelo y sombras proyectadas.
+Entrega un solo PNG transparente de 16 × 16 px llamado latigo.png.

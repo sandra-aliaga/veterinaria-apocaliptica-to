@@ -1,0 +1,19 @@
+ESTILO OBLIGATORIO — PIXEL ART RETRO ANIMADO
+
+Crea el barrido de un látigo para Pet Survivors. Dibuja solo el mango,
+la cuerda y una estela breve, vistos desde arriba en tres cuartos.
+La silueta debe leerse sobre pasto oliva. Usa un contorno carbón
+#161F26, cuero #986840, ocre #B98B57 y un brillo puntual crema #F3E9D2.
+Usa píxeles nítidos y contraste. Evita desenfoque y destellos difusos.
+
+Dibuja cuatro fotogramas en una sola fila. Primero se prepara el golpe
+cerca del mango. Luego la cuerda abre un arco hacia la derecha. En el
+tercero se estira al máximo y el extremo llega a 96 px del mango.
+Por último la cuerda vuelve a recogerse. Conserva el mismo anclaje
+del mango y la misma perspectiva en los cuatro fotogramas.
+
+Exporta un PNG con transparencia real en una hoja de 448 × 64 px,
+con cuatro celdas de 112 × 64 px. El punto de apoyo del mango está
+en (12, 40) dentro de cada celda hacia la derecha. Guárdala como
+barrido_derecha.png. Refleja cada celda sin cambiar su orden para
+obtener barrido_izquierda.png.

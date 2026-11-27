@@ -51,3 +51,54 @@ los retratos y las cantidades. Agregar un tercer archivo con un suministro
 mal definido y verificar que se informe ese archivo y que las otras dos
 fichas sigan disponibles. Al cambiar la cantidad de un suministro en el JSON,
 comprobar que el catálogo entregue el nuevo valor.
+
+## Implementación
+
+| Clase | Archivo | Qué resuelve |
+|---|---|---|
+| `CatalogoCasosJson` | [`catalogo_casos_json.h`](catalogo_casos_json.h) | Implementa `CatalogoCasos`. Lee cada `.json` en orden de nombre, valida la ficha y reporta los errores por archivo. |
+| `FabricaMascotasBase` | [`mascota/fabrica_mascotas_base.h`](mascota/fabrica_mascotas_base.h) | Crea un `Gato` o un `Perro` según la especie y devuelve nulo para las demás. |
+| `ValorJson` y `leer_json` | [`json/valor_json.h`](json/valor_json.h) | Lector JSON propio, sin dependencias. Admite UTF-8, la marca BOM y escapes `\u`, e informa la línea y la columna de cada error de sintaxis. |
+
+Integración desde el controlador:
+
+```cpp
+const FabricaMascotasBase fabrica;
+const CatalogoCasosJson catalogo(fabrica);
+const CargaCasos carga = catalogo.cargar("datos");
+// carga.casos va a Consultorio::recibir(); carga.errores se muestra al equipo.
+```
+
+El catálogo recibe la fábrica de mascotas para validar la especie. Admitir
+una especie nueva solo requiere ampliar la fábrica.
+
+### Edad humana
+
+| Edad de la mascota | Gato | Perro |
+|---|---|---|
+| Primer año | 15 años, proporcional por mes | 15 años, proporcional por mes |
+| Segundo año | suma 9 (24 al cumplir 2) | suma 9 (24 al cumplir 2) |
+| Cada año siguiente | suma 4 | suma 5 |
+
+Mora (24 meses) equivale a 24 años y Toby (48 meses) a 34.
+
+### Errores de carga
+
+Cada `ErrorCargaCaso` indica el archivo y el campo con la ruta completa, por
+ejemplo `suministros[0].cantidad: debe ser un entero mayor o igual a 1`. Se
+informan el JSON mal formado (con línea y columna), los campos ausentes o de
+otro tipo, los textos vacíos, la especie no admitida, el hablante desconocido,
+los suministros repetidos o sin cantidad positiva, las rutas con `\` y los
+identificadores de caso repetidos entre archivos.
+
+## Pruebas en consola
+
+Desde la raíz del repositorio:
+
+```bash
+mkdir -p build
+g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror -Isrc -o build/pruebas_catalogo \
+    pruebas/pruebas_catalogo.cpp src/modelo/catalogo/*.cpp \
+    src/modelo/catalogo/json/*.cpp src/modelo/catalogo/mascota/*.cpp
+./build/pruebas_catalogo
+```

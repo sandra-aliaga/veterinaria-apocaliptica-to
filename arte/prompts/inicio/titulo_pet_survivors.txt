@@ -1,0 +1,17 @@
+ESTILO OBLIGATORIO — TIPOGRAFÍA DIBUJADA EN PIXEL ART RETRO
+Dibuja cada letra sobre una cuadrícula uniforme de píxeles cuadrados.
+Usa bordes escalonados y colores planos. Evita el antialiasing, el
+desenfoque, los degradados y el bisel 3D.
+
+Genera únicamente el título «PET SURVIVORS», escrito exactamente así,
+en mayúsculas y en una sola línea. Usa letras de bloque robustas,
+ligeramente condensadas, como el rótulo pintado de un refugio improvisado.
+Deja separación clara entre las dos palabras. Añade unas pocas muescas
+de uno o dos píxeles en los bordes de las letras. Mantén continuos los
+trazos y legible el título a tamaño de juego.
+
+Usa crema apagado #DED2B9 para las letras y carbón azulado #161F26 para
+un contorno fino. Si adjunto el fondo de inicio, úsalo para comprobar el
+contraste con la zona oscura. Centra el título en el lienzo y deja un
+margen para recortarlo. Entrega un PNG con transparencia real, solo
+con las letras y su contorno, que se pueda reducir a 256 px de ancho.

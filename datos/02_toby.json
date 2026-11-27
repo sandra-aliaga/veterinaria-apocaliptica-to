@@ -1,0 +1,98 @@
+{
+  "id": "caso_toby",
+  "mascota": {
+    "id": "toby",
+    "nombre": "Toby",
+    "especie": "perro",
+    "edad_meses": 48,
+    "retrato": "arte/mascotas/toby.png"
+  },
+  "dueno": {
+    "id": "dueno_toby",
+    "nombre": "Dueño de Toby",
+    "sprite": "arte/duenos/dueno_toby.png"
+  },
+  "dialogos": {
+    "llegada": [
+      {
+          "hablante": "dueno",
+          "texto": "Buenas. ¿Puede hacer que Toby ladre otra vez? Le toca turno a las seis."
+      },
+      {
+          "hablante": "veterinario",
+          "texto": "¿Turno de qué? Tiene la lengua seca. ¿Hace cuánto que no bebe?"
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Desde anoche. Hace de sirena del refugio desde que se quemó el altavoz.",
+          "sprite_dueno": "arte/duenos/dueno_toby_frente.png"
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Ayer lo hice ladrar en la panadería. Viera cómo se vació la fila.",
+          "sprite_dueno": "arte/duenos/dueno_toby_mueca.png"
+      },
+      {
+          "hablante": "veterinario",
+          "texto": "Ponlo bajo la lámpara. Y déjame adivinar, ¿te llevaste el último pan?",
+          "sprite_dueno": "arte/duenos/dueno_toby_frente.png"
+      }
+    ],
+    "aceptacion": [
+      {
+          "hablante": "veterinario",
+          "texto": "Voy por una bolsa de suero. Hoy no le toca avisar de nada."
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Está bien. Si se acerca alguien del refugio, dile que la sirena está en mantenimiento.",
+          "sprite_dueno": "arte/duenos/dueno_toby_frente.png"
+      }
+    ],
+    "rechazo": [
+      {
+          "hablante": "veterinario",
+          "texto": "Hoy no puedo salir por el suero. Vas a tener que cubrirle el turno."
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Ya lo intenté ayer. Me tiraron una pantufla desde el segundo piso.",
+          "sprite_dueno": "arte/duenos/dueno_toby_frente.png"
+      }
+    ],
+    "fallo": [
+      {
+          "hablante": "veterinario",
+          "texto": "Volví sin la bolsa. Voy a intentar por otra entrada."
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Hace un rato ladró en sueños. Hasta dormido me hace buscar un refugio.",
+          "sprite_dueno": "arte/duenos/dueno_toby_frente.png"
+      }
+    ],
+    "tratamiento": [
+      {
+          "hablante": "veterinario",
+          "texto": "Ya tiene fuerza para protestar. Prueba a ponerle la correa.",
+          "retrato_mascota": "arte/mascotas/toby_recuperado.png"
+      },
+      {
+          "hablante": "dueno",
+          "texto": "¿Oíste? Fue un solo ladrido y ya están cerrando las ventanas.",
+          "sprite_dueno": "arte/duenos/dueno_toby_frente.png",
+          "retrato_mascota": "arte/mascotas/toby_recuperado.png"
+      },
+      {
+          "hablante": "dueno",
+          "texto": "Aquí tienes lo tuyo. Si cruzas la calle ahora, no hay nadie en la panadería.",
+          "sprite_dueno": "arte/duenos/dueno_toby_aliviado.png",
+          "retrato_mascota": "arte/mascotas/toby_recuperado.png"
+      }
+    ]
+  },
+  "suministros": [
+    { "id": "suero", "cantidad": 1 }
+  ],
+  "recompensa": 25
+}

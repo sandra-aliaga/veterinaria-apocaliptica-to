@@ -21,7 +21,11 @@ archivos por nombre para tener un orden de llegada reproducible. Por ejemplo,
   },
   "dialogos": {
     "llegada": [
-      { "hablante": "dueno", "texto": "Hola, traje a Mora porque se lastimó una pata." },
+      {
+        "hablante": "dueno",
+        "texto": "Hola, traje a Mora porque se lastimó una pata.",
+        "sprite_dueno": "arte/duenos/elena_mirada_baja.png"
+      },
       { "hablante": "veterinario", "texto": "Voy a revisar qué necesitamos." },
       { "hablante": "dueno", "texto": "Se queda aquí conmigo." }
     ],
@@ -48,6 +52,11 @@ archivos por nombre para tener un orden de llegada reproducible. Por ejemplo,
 - **Diálogos.** Cada etapa acepta una lista en el orden en que se muestra.
   Una lista vacía se salta. Cada línea indica el hablante y su texto. Las
   etapas son llegada, aceptación, rechazo, fallo y tratamiento.
+- **Reacciones.** Una línea puede traer `sprite_dueno`, `retrato_mascota` o
+  ambos. Cambian la pose durante esa línea, aunque hable el veterinario. Si
+  omites una ruta o el PNG no se puede cargar, se usa la imagen base de ese
+  personaje. Repite la ruta en las líneas donde deba mantenerse la reacción.
+  La ficha de examen siempre muestra el retrato base.
 - **Suministros.** Cada ficha necesita al menos un tipo. Se escribe una entrada
   por identificador, con una cantidad entera positiva. Para necesitar solo
   vendas se deja una entrada. Para necesitar más, se cambia su cantidad o
